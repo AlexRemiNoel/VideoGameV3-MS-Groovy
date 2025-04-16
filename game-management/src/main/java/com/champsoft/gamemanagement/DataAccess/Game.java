@@ -1,8 +1,6 @@
 package com.champsoft.gamemanagement.DataAccess;
 
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,10 +28,8 @@ public class Game {
     private String developer;
     @Enumerated(EnumType.STRING)
     private Genre genre;
-    @JsonManagedReference
-    @OneToMany(mappedBy = "game", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<Review> reviews;
     private String user;
+
 //    @ManyToOne
 //    @JoinColumns({
 //            @JoinColumn(name = "game_user_id", referencedColumnName = "user_id") // Correct JoinColumn

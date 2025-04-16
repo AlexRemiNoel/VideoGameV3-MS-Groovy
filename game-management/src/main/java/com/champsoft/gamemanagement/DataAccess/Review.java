@@ -1,6 +1,6 @@
 package com.champsoft.gamemanagement.DataAccess;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,8 +21,5 @@ public class Review {
     private String comment;
     private String rating;
     private LocalDateTime timestamp;
-    @JsonBackReference
-    @ManyToOne
-    @JoinColumn(name="game_id", nullable = true)
-    private Game game;
+    private String game;
 }
