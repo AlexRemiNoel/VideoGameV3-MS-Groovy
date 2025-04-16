@@ -1,0 +1,129 @@
+version: '3.6'
+
+services:
+  user-management:
+    build: user-management
+    hostname: user-managementhost
+    ports:
+      - "8081:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      mysql1:
+        condition: service_healthy
+
+  mysql1:
+    image: 'mysql:latest'
+    environment:
+      - 'MYSQL_DATABASE=users-db'
+      - 'MYSQL_USER=user'
+      - 'MYSQL_PASSWORD=pwd'
+      - 'MYSQL_ROOT_PASSWORD=verysecretpwd'
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-uuser", "-ppwd", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  download-management:
+    #    build: employees-service
+    build: download-management
+    hostname: download-managementhost
+    ports:
+      - "8082:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      mysql2:
+        condition: service_healthy
+
+  mysql2:
+    image: 'mysql:latest'
+    environment:
+      - 'MYSQL_DATABASE=download-db'
+      - 'MYSQL_USER=user'
+      - 'MYSQL_PASSWORD=pwd'
+      - 'MYSQL_ROOT_PASSWORD=verysecretpwd'
+    ports:
+      - "3308:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-uuser", "-ppwd", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+
+  game-management:
+    build: game-management
+    hostname: game-managementhost
+    ports:
+      - "8083:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      mysql3:
+        condition: service_healthy
+
+
+  mysql3:
+    image: 'mysql:latest'
+    environment:
+      - 'MYSQL_DATABASE=games-db'
+      - 'MYSQL_USER=user'
+      - 'MYSQL_PASSWORD=pwd'
+      - 'MYSQL_ROOT_PASSWORD=verysecretpwd'
+    ports:
+      - "3309:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-uuser", "-ppwd", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  purchase-management:
+    build: purchase-management
+    hostname: purchase-managementhost
+    ports:
+      - "8084:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      mysql4:
+        condition: service_healthy
+
+
+  mysql4:
+    image: 'mysql:latest'
+    environment:
+      - 'MYSQL_DATABASE=purchase-db'
+      - 'MYSQL_USER=user'
+      - 'MYSQL_PASSWORD=pwd'
+      - 'MYSQL_ROOT_PASSWORD=verysecretpwd'
+    ports:
+      - "3310:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-uuser", "-ppwd", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+
+  phpmyadmin:
+    image: phpmyadmin:5.2.0
+    container_name: PhpMyAdmin
+    restart: always
+    ports:
+      - 5013:80
+    environment:
+      - PMA_ARBITRARY=1
+    depends_on:
+      - mysql1
+      - mysql2
+      - mysql3
+      - mysql4
+    networks:
+      - default
+
+
