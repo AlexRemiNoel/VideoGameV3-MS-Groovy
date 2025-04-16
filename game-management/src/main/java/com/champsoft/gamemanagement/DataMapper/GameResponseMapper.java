@@ -1,7 +1,5 @@
 package com.champsoft.gamemanagement.DataMapper;
 
-import ch.qos.logback.core.model.ComponentModel;
-
 import com.champsoft.gamemanagement.DataAccess.Game;
 import com.champsoft.gamemanagement.DataAccess.GameId;
 import com.champsoft.gamemanagement.DataAccess.Genre;
