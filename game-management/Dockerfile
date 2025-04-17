@@ -3,15 +3,17 @@ WORKDIR /build
 
 COPY gradlew .
 COPY gradle gradle
-COPY build.gradle.kts .
-COPY settings.gradle.kts .
+COPY build.gradle .
+COPY settings.gradle .
 COPY src src
 
-# Build without daemon and parallelization to avoid permission issues
-RUN ./gradlew bootJar --no-daemon --no-parallel
 
-FROM openjdk:21-jdk-slim
+# Build without daemon and parallelization to avoid permission issues
+RUN ./gradlew bootJar --no-daemon --no-parallel -d
+
+FROM openjdk:17-jdk-slim
 COPY --from=builder /build/build/libs/*.jar app.jar
 
 EXPOSE 8080
+ENV SPRING_PROFILES_ACTIVE=docker
 ENTRYPOINT ["java", "-jar", "/app.jar"]

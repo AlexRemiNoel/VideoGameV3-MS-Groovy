@@ -47,13 +47,13 @@ public class GameService {
         if (gameRequestModel.getPrice()<0){
             return null;
         }
-        return gameResponseMapper.gameToGameResponseModel(gameRepository.save(gameRequestMapper.gameRequestModelToGame(gameRequestModel)));
+        return gameResponseMapper.gameToGameResponseModel(gameRepository.save(gameRequestMapper.requestModelToEntity(gameRequestModel)));
     }
 
 
 
     public GameResponseModel updateGame(GameRequestModel gameRequestModel){
-        return gameResponseMapper.gameToGameResponseModel(gameRepository.save(gameRequestMapper.gameRequestModelToGame(gameRequestModel)));
+        return gameResponseMapper.gameToGameResponseModel(gameRepository.save(gameRequestMapper.requestModelToEntity(gameRequestModel)));
     }
 
     public GameResponseModel deleteGame(String uuid){

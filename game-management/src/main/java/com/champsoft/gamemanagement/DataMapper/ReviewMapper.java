@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Mapper(componentModel = "spring", imports = {LocalDateTime.class, Review.class, UUID.class, ReviewId.class})
 public interface ReviewMapper {
-    @Mapping(target = "reviewId", expression = "java(new ReviewId(UUID.randomUUID().toString()))")
-    @Mapping(target = "timestamp", expression = "java(LocalDateTime.now())")
+    @Mapping(target = "reviewId", ignore = true)
+    @Mapping(target = "timestamp", ignore = true)
     Review reviewRequestModelToReview(ReviewRequestModel reviewRequestModel);
 }

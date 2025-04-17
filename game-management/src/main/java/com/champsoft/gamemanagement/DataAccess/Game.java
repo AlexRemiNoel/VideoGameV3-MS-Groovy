@@ -2,10 +2,7 @@ package com.champsoft.gamemanagement.DataAccess;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,6 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Setter
+@Getter
 @Table(name = "games")
 @ToString(exclude = "user") // Exclude the user field
 public class Game {
@@ -26,9 +25,11 @@ public class Game {
     private String description;
     private String publisher;
     private String developer;
+    private List<Review> reviews;
     @Enumerated(EnumType.STRING)
     private Genre genre;
     private String user;
+
 
 //    @ManyToOne
 //    @JoinColumns({
