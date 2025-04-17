@@ -1,7 +1,6 @@
-package com.champsoft.downloadmanagement.Presentation;
+package com.example.videogamev3.DownloadManagement.Presentation;
 
-
-import com.champsoft.downloadmanagement.BusinessLogic.DownloadService;
+import com.example.videogamev3.DownloadManagement.BusinessLogic.DownloadService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,77 +19,54 @@ public class DownloadController {
     private final DownloadService downloadService;
 
     @PostMapping
-    public ResponseEntity<?> createDownload(@RequestBody CreateDownloadRequest request) {
-        try {
-            DownloadDto newDownload = downloadService.createDownload(request.url());
-            return ResponseEntity.status(HttpStatus.CREATED).body(newDownload);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+    public ResponseEntity<DownloadResponseModel> createDownload(@RequestBody DownloadRequestModel downloadRequestModel) {
+
+        DownloadResponseModel newDownload = downloadService.createDownload(downloadRequestModel);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newDownload);
+
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DownloadDto> getDownload(@PathVariable UUID id) {
-        DownloadDto dto = downloadService.getDownloadStatus(id);
+    public ResponseEntity<DownloadResponseModel> getDownload(@PathVariable String id) {
+        DownloadResponseModel dto = downloadService.getDownload(id);
         return ResponseEntity.ok(dto);
     }
 
     @GetMapping
-    public ResponseEntity<List<DownloadDto>> getAllDownloads() {
-        List<DownloadDto> downloads = downloadService.getAllDownloads();
+    public ResponseEntity<List<DownloadResponseModel>> getAllDownloads() {
+        List<DownloadResponseModel> downloads = downloadService.getAllDownloads();
         return ResponseEntity.ok(downloads);
     }
 
-    @PostMapping("/{id}/start") // Use POST for actions/commands
-    public ResponseEntity<DownloadDto> startDownload(@PathVariable UUID id) {
-        DownloadDto updatedDto = downloadService.startDownload(id);
+    @PostMapping("/{id}/start")
+    public ResponseEntity<DownloadResponseModel> startDownload(@PathVariable String id) {
+        DownloadResponseModel updatedDto = downloadService.startDownload(id);
         return ResponseEntity.ok(updatedDto);
     }
 
     @PostMapping("/{id}/pause")
-    public ResponseEntity<DownloadDto> pauseDownload(@PathVariable UUID id) {
-        DownloadDto updatedDto = downloadService.pauseDownload(id);
+    public ResponseEntity<DownloadResponseModel> pauseDownload(@PathVariable String id) {
+        DownloadResponseModel updatedDto = downloadService.pauseDownload(id);
         return ResponseEntity.ok(updatedDto);
     }
 
     @PostMapping("/{id}/resume")
-    public ResponseEntity<DownloadDto> resumeDownload(@PathVariable UUID id) {
-        DownloadDto updatedDto = downloadService.resumeDownload(id);
+    public ResponseEntity<DownloadResponseModel> resumeDownload(@PathVariable String id) {
+        DownloadResponseModel updatedDto = downloadService.resumeDownload(id);
         return ResponseEntity.ok(updatedDto);
     }
 
     @PostMapping("/{id}/cancel") // Or use DELETE
-    public ResponseEntity<DownloadDto> cancelDownload(@PathVariable UUID id) {
-        DownloadDto updatedDto = downloadService.cancelDownload(id);
+    public ResponseEntity<DownloadResponseModel> cancelDownload(@PathVariable String id) {
+        DownloadResponseModel updatedDto = downloadService.cancelDownload(id);
         return ResponseEntity.ok(updatedDto); // Return final state
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDownload(@PathVariable UUID id) {
-        downloadService.deleteDownload(id); // Service handles not found exception
+    public ResponseEntity<Void> deleteDownload(@PathVariable String id) {
+        downloadService.deleteDownload(id);
         return ResponseEntity.noContent().build();
     }
 
 
-    // Request body DTO for creation
-    record CreateDownloadRequest(String url) {}
-
-    // --- Exception Handlers (can be moved to a @ControllerAdvice) ---
-    @ExceptionHandler(EntityNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND) // Set HTTP status code
-    public Map<String, String> handleNotFound(EntityNotFoundException ex) {
-        return Map.of("error", ex.getMessage());
-    }
-
-    @ExceptionHandler(IllegalStateException.class)
-    @ResponseStatus(HttpStatus.CONFLICT) // 409 Conflict for invalid state transitions
-    public Map<String, String> handleIllegalState(IllegalStateException ex) {
-        return Map.of("error", ex.getMessage());
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleIllegalArgument(IllegalArgumentException ex) {
-        return Map.of("error", ex.getMessage());
-    }
 }

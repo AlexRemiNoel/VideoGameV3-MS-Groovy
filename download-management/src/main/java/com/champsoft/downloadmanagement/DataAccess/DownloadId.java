@@ -1,28 +1,19 @@
-package com.champsoft.downloadmanagement.DataAccess;
+package com.example.videogamev3.DownloadManagement.DataAccess;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor; // Required by JPA for Embeddable
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-import java.util.UUID;
+import java.util.List;
 
 @Embeddable
-@Getter
-@NoArgsConstructor // JPA requirement
-@AllArgsConstructor // Convenience
-@EqualsAndHashCode // Essential for Value Objects
-public class DownloadId implements Serializable { // Serializable needed for EmbeddedId
-    private UUID uuid;
-
-    public static DownloadId generate() {
-        return new DownloadId(UUID.randomUUID());
-    }
-
-    @Override
-    public String toString() {
-        return uuid.toString();
-    }
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class DownloadId {
+    @Column(name = "download_id")
+    private String uuid;
 }

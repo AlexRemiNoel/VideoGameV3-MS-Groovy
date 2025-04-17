@@ -1,4 +1,4 @@
-package com.champsoft.downloadmanagement.DataAccess;
+package com.example.videogamev3.DownloadManagement.DataAccess;
 
 public enum DownloadStatus {
     PENDING,
@@ -6,5 +6,5 @@ public enum DownloadStatus {
     PAUSED,
     COMPLETED,
     CANCELLED,
-    FAILED // Added for robustness
+    FAILED
 }
