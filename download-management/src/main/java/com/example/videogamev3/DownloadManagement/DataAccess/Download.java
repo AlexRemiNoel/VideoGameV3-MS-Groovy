@@ -1,10 +1,9 @@
 package com.example.videogamev3.DownloadManagement.DataAccess;
 
-import com.example.videogamev3.DownloadManagement.DataAccess.DownloadId;
 import jakarta.persistence.*;
-import lombok.Data; // Includes @Getter, @Setter, @ToString, @EqualsAndHashCode, @RequiredArgsConstructor
-import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "downloads")
