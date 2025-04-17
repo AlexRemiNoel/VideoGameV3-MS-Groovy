@@ -36,8 +36,6 @@ public class GlobalControllerExceptionHandler {
         return createHttpErrorInfo(UNPROCESSABLE_ENTITY, request, ex);
     }
 
-
-
     private HttpErrorInfo createHttpErrorInfo(HttpStatus httpStatus, WebRequest request, Exception ex) {
         final String path = request.getDescription(false);
         // final String path = request.getPath().pathWithinApplication().value();

@@ -7,11 +7,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT, properties = {"spring.datasource.url=jdbc:h2:mem:user-db"})
@@ -28,6 +29,7 @@ public class UserControllerIntegrationTest {
     private final String NOT_FOUND_USER_ID = "c3540a89-cb47-4c96-888e-ff96708db4d0";
     private final String VALID_USER_ID = "c3540a89-cb47-4c96-888e-ff96708db4d8";
     private final String VALID_USER_USERNAME = "John Doe";
+    private final String VALID_USER_PASSWORD = "test123";
     private final Double VALID_BALANCE = 50.0;
     private final String VALID_USER_EMAIL = "john.doe@example.com";
 
@@ -35,22 +37,32 @@ public class UserControllerIntegrationTest {
     void setup() {
         User user = new User();
         user.setUserId(new UserId(VALID_USER_ID));
-        user.setUsername("Alick");
-        user.setEmail("aucceli0@dot.gov");
-        user.setPassword("test123");
-        user.setBalance(50);
+        user.setUsername(VALID_USER_USERNAME);
+        user.setEmail(VALID_USER_EMAIL);
+        user.setPassword(VALID_USER_PASSWORD);
+        user.setBalance(VALID_BALANCE);
         userRepository.save(user);
     }
 
-    private UserResponseModel buildUserResponseModel(String username) {
-        UserResponseModel userResponseModel = new UserResponseModel();
-        userResponseModel.setUserId("valid-user-id"); // Set the user ID
-        userResponseModel.setUsername(username); // Set username
-        userResponseModel.setBalance(50);
-        userResponseModel.setEmail("john.doe@example.com"); // Set user email
+    private UserRequestModel buildUserRequestModel(String username) {
+        UserRequestModel userRequestModel = new UserRequestModel();
+        userRequestModel.setUsername(username); // Set username
+        userRequestModel.setEmail(VALID_USER_EMAIL); // Set user email
+        userRequestModel.setPassword(VALID_USER_PASSWORD);
         // Set any other required fields here
-        return userResponseModel;
+        return userRequestModel;
     }
+
+    private UserRequestModel buildInvalidUserRequestModel(String nonExistentUserId) {
+
+        UserRequestModel someUser = new UserRequestModel(
+                VALID_USER_ID,
+                VALID_USER_USERNAME,
+                VALID_USER_PASSWORD
+        );
+        return someUser;
+    }
+
     @Test
     public void whenDeleteUser_thenDeleteUserSuccessfully() {
         // Act
@@ -63,4 +75,95 @@ public class UserControllerIntegrationTest {
         assertFalse(userRepository.existsByUserId(new UserId((VALID_USER_ID))));
     }
 
+    @Test
+    public void whenRemoveNonExistentUser_thenThrowNotFoundException() {
+        // Arrange
+        String nonExistentUserId = "nonExistentId";
+        // Act & Assert
+        WebTestClient.delete().uri(BASE_URI_USERS + "/" + nonExistentUserId)
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody()
+                .jsonPath("$.httpStatus").isEqualTo("NOT_FOUND")
+                .jsonPath("$.message").isEqualTo("Unknown userId: " + nonExistentUserId);
+    }
+
+    @Test
+    public void whenGetUserById_thenReturnUser() {
+        // Act & Assert
+        WebTestClient.get().uri(BASE_URI_USERS + "/" + VALID_USER_ID)
+            .accept(MediaType.APPLICATION_JSON)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(UserResponseModel.class)
+            .value((User) -> {
+                assertNotNull(User);
+                assertEquals(VALID_USER_ID, User.getUserId());
+                assertEquals(VALID_USER_USERNAME, User.getUsername());
+                assertEquals(VALID_USER_EMAIL, User.getEmail());
+                assertEquals(VALID_BALANCE, User.getBalance());
+        });
+    }
+
+    @Test
+    public void whenValidUser_thenCreateUser(){
+        //arrange
+        long sizeDB = userRepository.count();
+        UserRequestModel UserToCreate = buildUserRequestModel(VALID_USER_USERNAME);
+        WebTestClient.post()
+                .uri(BASE_URI_USERS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(UserToCreate)
+                .exchange()
+                .expectStatus().isCreated()
+                //.expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBody(UserResponseModel.class)
+                .value((userResponseModel) -> {
+                    assertNotNull(UserToCreate);
+                    assertEquals(UserToCreate.getUsername(),
+                        userResponseModel.getUsername());
+                    assertEquals(UserToCreate.getEmail(),
+                        userResponseModel.getEmail());
+                });
+        long sizeDBAfter = userRepository.count();
+        assertEquals(sizeDB + 1, sizeDBAfter);
+    }
+
+    @Test
+    public void whenUpdateNonExistentUser_thenThrowNotFoundException() {
+        // Arrange
+        String nonExistentUserId = "nonExistentId";
+        UserRequestModel updatedUser =
+                buildInvalidUserRequestModel(nonExistentUserId);
+        // Act & Assert
+        WebTestClient.put()
+                .uri(BASE_URI_USERS + "/" + nonExistentUserId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(updatedUser)
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody()
+                .jsonPath("$.httpStatus").isEqualTo("NOT_FOUND")
+                .jsonPath("$.message").isEqualTo("Unknown userId: " + nonExistentUserId);
+    }
+
+    @Test
+    public void whenUpdateUser_thenReturnUpdatedUser() {
+        // Arrange
+        UserRequestModel UserToUpdate =
+                buildUserRequestModel(VALID_USER_USERNAME);
+        // Act & Assert
+        WebTestClient.put()
+                .uri(BASE_URI_USERS + "/" + VALID_USER_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(UserToUpdate)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(UserResponseModel.class)
+                .value((updatedUser) -> {
+                    assertNotNull(updatedUser);
+                    assertEquals(UserToUpdate.getUsername(), updatedUser.getUsername());
+                    assertEquals(UserToUpdate.getEmail(), updatedUser.getEmail());
+                });
+    }
 }

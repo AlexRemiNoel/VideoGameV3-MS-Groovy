@@ -6,6 +6,7 @@ import com.champsoft.usermanagement.DataMapper.AdminRequestMapper;
 import com.champsoft.usermanagement.DataMapper.AdminResponseMapper;
 import com.champsoft.usermanagement.Presentation.AdminRequestModel;
 import com.champsoft.usermanagement.Presentation.AdminResponseModel;
+import com.champsoft.usermanagement.utils.exceptions.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,6 +41,11 @@ public class AdminService {
 
     public AdminResponseModel updateAdmin(AdminRequestModel adminRequestModel, String uuid) {
         Admin admin = adminRepository.findAdminByAdminId_uuid(uuid);
+
+        if (admin == null) {
+            throw new NotFoundException("Unknown adminId: " + uuid); // This throws a custom exception if admin doesn't exist
+        }
+
         admin.setUsername(adminRequestModel.getUsername());
         admin.setPassword(adminRequestModel.getPassword());
         adminRepository.save(admin);
@@ -48,6 +54,11 @@ public class AdminService {
 
     public void deleteAdmin(String uuid) {
         Admin admin = adminRepository.findAdminByAdminId_uuid(uuid);
+
+        if (admin == null) {
+            throw new NotFoundException("Unknown adminId: " + uuid); // This throws a custom exception if admin doesn't exist
+        }
+
         adminRepository.delete(admin);
     }
 }
