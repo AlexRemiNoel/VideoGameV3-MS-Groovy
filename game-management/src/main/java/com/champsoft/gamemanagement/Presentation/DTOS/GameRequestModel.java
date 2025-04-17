@@ -14,4 +14,5 @@ public class GameRequestModel {
     private String publisher;
     private String developer;
     private String genre;
+    private String UserId;
 }

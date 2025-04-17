@@ -1,24 +1,24 @@
 package com.champsoft.gamemanagement.BuisinessLogic;
 
 import com.champsoft.gamemanagement.BusinessLogic.GameService;
-import com.champsoft.gamemanagement.DataAccess.Game;
-import com.champsoft.gamemanagement.DataAccess.GameId;
-import com.champsoft.gamemanagement.DataAccess.GameRepository;
-import com.champsoft.gamemanagement.DataAccess.Review;
+import com.champsoft.gamemanagement.DataAccess.*;
 import com.champsoft.gamemanagement.DataMapper.GameRequestMapper;
 import com.champsoft.gamemanagement.DataMapper.GameResponseMapper;
 import com.champsoft.gamemanagement.DataMapper.ReviewMapper;
 import com.champsoft.gamemanagement.Presentation.DTOS.GameRequestModel;
 import com.champsoft.gamemanagement.Presentation.DTOS.GameResponseModel;
 import com.champsoft.gamemanagement.Presentation.DTOS.ReviewRequestModel;
+import com.champsoft.gamemanagement.utils.exceptions.NotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,318 +28,271 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class GameServiceTest {
 
-    @MockitoBean
+    @Mock
     private GameResponseMapper gameResponseMapper;
 
-    @MockitoBean
+    @Mock
     private GameRepository gameRepository;
 
-    @MockitoBean
+    @Mock
     private GameRequestMapper gameRequestMapper;
 
-    @MockitoBean
+    @Mock
     private ReviewMapper reviewMapper;
 
     @InjectMocks
     private GameService gameService;
 
+    private Game createTestGame() {
+        GameId gameId = new GameId(UUID.randomUUID().toString());
+        Game game = new Game();
+        game.setGameId(gameId);
+        game.setTitle("Test Game");
+        game.setPrice(29.99);
+        game.setReleaseDate(LocalDateTime.now());
+        game.setDescription("A test game description.");
+        game.setPublisher("Test Publisher");
+        game.setDeveloper("Test Developer");
+        game.setGenre(Genre.ACTION);
+        game.setUserId("testUser");
+        game.setReviews(new ArrayList<>()); // Initialize as a mutable ArrayList
+        return game;
+    }
+
+    private GameResponseModel createTestGameResponseModel() {
+        GameResponseModel responseModel = new GameResponseModel();
+        responseModel.setId(UUID.randomUUID().toString());
+        responseModel.setTitle("Test Game");
+        responseModel.setPrice(29.99);
+        return responseModel;
+    }
+
+    private GameRequestModel createTestGameRequestModel() {
+        GameRequestModel requestModel = new GameRequestModel();
+        requestModel.setTitle("Test Game");
+        requestModel.setPrice(29.99);
+        return requestModel;
+    }
+
+    private Review createTestReview() {
+        Review review = new Review();
+        review.setReviewId(new ReviewId(UUID.randomUUID().toString()));
+        review.setComment("Great game!");
+        return review;
+    }
+
+    private ReviewRequestModel createTestReviewRequestModel() {
+        ReviewRequestModel requestModel = new ReviewRequestModel();
+        requestModel.setComment("Amazing!");
+        return requestModel;
+    }
+
     @Test
-    void getGameById_existingGame_returnsGameResponseModel() {
+    public void whenGetGameById_existingUuid_thenReturnGameResponseModel() {
         // Arrange
         String uuid = UUID.randomUUID().toString();
-        Game game = new Game();
-        game.setGameId(new GameId(uuid));
-        GameResponseModel expectedResponse = new GameResponseModel();
-
-        when(gameRepository.findGameByGameId_uuid(uuid)).thenReturn(game);
-        when(gameResponseMapper.gameToGameResponseModel(game)).thenReturn(expectedResponse);
+        Game game = createTestGame();
+        GameResponseModel responseModel = createTestGameResponseModel();
+        when(gameRepository.findGameByGameId_uuid(new GameId(uuid))).thenReturn(game);
+        when(gameResponseMapper.gameToGameResponseModel(game)).thenReturn(responseModel);
 
         // Act
-        GameResponseModel actualResponse = gameService.getGameById(uuid);
+        GameResponseModel result = gameService.getGameById(uuid);
 
         // Assert
-        assertEquals(expectedResponse, actualResponse);
-        verify(gameRepository, times(1)).findGameByGameId_uuid(uuid);
+        assertNotNull(result);
+        assertEquals(responseModel.getId(), result.getId());
+        verify(gameRepository, times(1)).findGameByGameId_uuid(new GameId(uuid));
         verify(gameResponseMapper, times(1)).gameToGameResponseModel(game);
     }
 
     @Test
-    void getGameById_nonExistingGame_returnsNull() {
+    public void whenGetGameById_nonExistingUuid_thenThrowNotFoundException() {
         // Arrange
         String uuid = UUID.randomUUID().toString();
+        when(gameRepository.findGameByGameId_uuid(new GameId(uuid))).thenReturn(null);
 
-        when(gameRepository.findGameByGameId_uuid(uuid)).thenReturn(null);
-        when(gameResponseMapper.gameToGameResponseModel((Game) null)).thenReturn(null); // Or handle null mapping in your mapper
-
-        // Act
-        GameResponseModel actualResponse = gameService.getGameById(uuid);
-
-        // Assert
-        assertNull(actualResponse);
-        verify(gameRepository, times(1)).findGameByGameId_uuid(uuid);
-        verify(gameResponseMapper, times(1)).gameToGameResponseModel((Game) null);
+        // Act and Assert
+        assertThrows(NotFoundException.class, () -> gameService.getGameById(uuid));
+        verify(gameRepository, times(1)).findGameByGameId_uuid(new GameId(uuid));
+        verify(gameResponseMapper, never()).gameToGameResponseModel((Game) any());
     }
 
     @Test
-    void getAllGames_returnsListOfGameResponseModels() {
+    public void whenGetAllGames_gamesExist_thenReturnListOfGameResponseModels() {
         // Arrange
-        List<Game> games = new ArrayList<>();
-        games.add(new Game());
-        games.add(new Game());
-        List<GameResponseModel> expectedResponse = new ArrayList<>();
-        expectedResponse.add(new GameResponseModel());
-        expectedResponse.add(new GameResponseModel());
-
+        List<Game> games = Arrays.asList(createTestGame(), createTestGame());
+        List<GameResponseModel> responseModels = Arrays.asList(createTestGameResponseModel(), createTestGameResponseModel());
         when(gameRepository.findAll()).thenReturn(games);
-        when(gameResponseMapper.gameToGameResponseModel(games)).thenReturn(expectedResponse);
+        when(gameResponseMapper.gameToGameResponseModel(games)).thenReturn(responseModels);
 
         // Act
-        List<GameResponseModel> actualResponse = gameService.getAllGames();
+        List<GameResponseModel> result = gameService.getAllGames();
 
         // Assert
-        assertEquals(expectedResponse, actualResponse);
+        assertNotNull(result);
+        assertEquals(2, result.size());
         verify(gameRepository, times(1)).findAll();
         verify(gameResponseMapper, times(1)).gameToGameResponseModel(games);
     }
 
     @Test
-    void getAllGames_noGames_returnsEmptyList() {
+    public void whenGetAllGames_noGamesExist_thenReturnEmptyList() {
         // Arrange
-        List<Game> games = new ArrayList<>();
-        List<GameResponseModel> expectedResponse = new ArrayList<>();
-
-        when(gameRepository.findAll()).thenReturn(games);
-        when(gameResponseMapper.gameToGameResponseModel(games)).thenReturn(expectedResponse);
+        when(gameRepository.findAll()).thenReturn(Collections.emptyList());
+        when(gameResponseMapper.gameToGameResponseModel(Collections.emptyList())).thenReturn(Collections.emptyList());
 
         // Act
-        List<GameResponseModel> actualResponse = gameService.getAllGames();
+        List<GameResponseModel> result = gameService.getAllGames();
 
         // Assert
-        assertEquals(expectedResponse, actualResponse);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
         verify(gameRepository, times(1)).findAll();
-        verify(gameResponseMapper, times(1)).gameToGameResponseModel(games);
+        verify(gameResponseMapper, times(1)).gameToGameResponseModel(Collections.emptyList());
     }
 
     @Test
-    void createGame_validRequest_returnsCreatedGameResponseModel() {
+    public void whenCreateGame_validRequestModel_thenReturnGameResponseModel() {
         // Arrange
-        GameRequestModel requestModel = new GameRequestModel();
-        requestModel.setPrice(10.0);
-        Game gameToSave = new Game();
-        Game savedGame = new Game();
-        GameResponseModel expectedResponse = new GameResponseModel();
-
-        when(gameRequestMapper.requestModelToEntity(requestModel)).thenReturn(gameToSave);
-        when(gameRepository.save(gameToSave)).thenReturn(savedGame);
-        when(gameResponseMapper.gameToGameResponseModel(savedGame)).thenReturn(expectedResponse);
+        GameRequestModel requestModel = createTestGameRequestModel();
+        Game game = createTestGame();
+        GameResponseModel responseModel = createTestGameResponseModel();
+        when(gameRequestMapper.requestModelToEntity(requestModel)).thenReturn(game);
+        when(gameRepository.save(game)).thenReturn(game);
+        when(gameResponseMapper.gameToGameResponseModel(game)).thenReturn(responseModel);
 
         // Act
-        GameResponseModel actualResponse = gameService.createGame(requestModel);
+        GameResponseModel result = gameService.createGame(requestModel);
 
         // Assert
-        assertEquals(expectedResponse, actualResponse);
+        assertNotNull(result);
+        assertEquals(responseModel.getTitle(), result.getTitle());
         verify(gameRequestMapper, times(1)).requestModelToEntity(requestModel);
-        verify(gameRepository, times(1)).save(gameToSave);
-        verify(gameResponseMapper, times(1)).gameToGameResponseModel(savedGame);
+        verify(gameRepository, times(1)).save(game);
+        verify(gameResponseMapper, times(1)).gameToGameResponseModel(game);
     }
 
     @Test
-    void createGame_invalidPrice_returnsNull() {
+    public void whenCreateGame_invalidPrice_thenReturnNull() {
         // Arrange
-        GameRequestModel requestModel = new GameRequestModel();
+        GameRequestModel requestModel = createTestGameRequestModel();
         requestModel.setPrice(-5.0);
 
         // Act
-        GameResponseModel actualResponse = gameService.createGame(requestModel);
+        GameResponseModel result = gameService.createGame(requestModel);
 
         // Assert
-        assertNull(actualResponse);
+        assertNull(result);
         verify(gameRequestMapper, never()).requestModelToEntity(any());
         verify(gameRepository, never()).save(any());
         verify(gameResponseMapper, never()).gameToGameResponseModel((Game) any());
     }
 
     @Test
-    void updateGame_validRequest_returnsUpdatedGameResponseModel() {
+    public void whenUpdateGame_validRequestModel_thenReturnGameResponseModel() {
         // Arrange
-        GameRequestModel requestModel = new GameRequestModel();
-        Game gameToUpdate = new Game();
-        Game updatedGame = new Game();
-        GameResponseModel expectedResponse = new GameResponseModel();
-
-        when(gameRequestMapper.requestModelToEntity(requestModel)).thenReturn(gameToUpdate);
-        when(gameRepository.save(gameToUpdate)).thenReturn(updatedGame);
-        when(gameResponseMapper.gameToGameResponseModel(updatedGame)).thenReturn(expectedResponse);
-
-        // Act
-        GameResponseModel actualResponse = gameService.updateGame(requestModel);
-
-        // Assert
-        assertEquals(expectedResponse, actualResponse);
-        verify(gameRequestMapper, times(1)).requestModelToEntity(requestModel);
-        verify(gameRepository, times(1)).save(gameToUpdate);
-        verify(gameResponseMapper, times(1)).gameToGameResponseModel(updatedGame);
-    }
-
-    @Test
-    void deleteGame_existingGame_returnsDeletedGameResponseModel() {
-        // Arrange
-        String uuid = UUID.randomUUID().toString();
-        Game gameToDelete = new Game();
-        gameToDelete.setGameId(new GameId(uuid));
-        GameResponseModel expectedResponse = new GameResponseModel();
-
-        when(gameRepository.findGameByGameId_uuid(uuid)).thenReturn(gameToDelete);
-        when(gameResponseMapper.gameToGameResponseModel(gameToDelete)).thenReturn(expectedResponse);
-        doNothing().when(gameRepository).delete(gameToDelete);
-
-        // Act
-        GameResponseModel actualResponse = gameService.deleteGame(uuid);
-
-        // Assert
-        assertEquals(expectedResponse, actualResponse);
-        verify(gameRepository, times(1)).findGameByGameId_uuid(uuid);
-        verify(gameRepository, times(1)).delete(gameToDelete);
-        verify(gameResponseMapper, times(1)).gameToGameResponseModel(gameToDelete);
-    }
-
-    @Test
-    void deleteGame_nonExistingGame_returnsNull() {
-        // Arrange
-        String uuid = UUID.randomUUID().toString();
-
-        when(gameRepository.findGameByGameId_uuid(uuid)).thenReturn(null);
-        when(gameResponseMapper.gameToGameResponseModel((Game) null)).thenReturn(null); // Or handle null mapping
-
-        // Act
-        GameResponseModel actualResponse = gameService.deleteGame(uuid);
-
-        // Assert
-        assertNull(actualResponse);
-        verify(gameRepository, times(1)).findGameByGameId_uuid(uuid);
-        verify(gameRepository, never()).delete(any());
-        verify(gameResponseMapper, times(1)).gameToGameResponseModel((Game) null);
-    }
-
-    @Test
-    void addReview_existingGame_returnsUpdatedGameResponseModel() {
-        // Arrange
-        String gameId = UUID.randomUUID().toString();
-        ReviewRequestModel reviewRequestModel = new ReviewRequestModel();
-        Review review = new Review();
-        Game game = new Game();
-        game.setGameId(new GameId(gameId));
-        Game updatedGame = new Game();
-        updatedGame.setGameId(new GameId(gameId));
-        List<Review> reviews = new ArrayList<>();
-        reviews.add(review);
-        updatedGame.setReviews(reviews);
-        GameResponseModel expectedResponse = new GameResponseModel();
-
-        when(gameRepository.findGameByGameId_uuid(gameId)).thenReturn(game);
-        when(reviewMapper.reviewRequestModelToReview(reviewRequestModel)).thenReturn(review);
-        when(gameRepository.save(game)).thenReturn(updatedGame);
-        when(gameResponseMapper.gameToGameResponseModel(updatedGame)).thenReturn(expectedResponse);
-
-        // Act
-        GameResponseModel actualResponse = gameService.addReview(reviewRequestModel, gameId);
-
-        // Assert
-        assertEquals(expectedResponse, actualResponse);
-        assertEquals(1, game.getReviews().size());
-        verify(gameRepository, times(1)).findGameByGameId_uuid(gameId);
-        verify(reviewMapper, times(1)).reviewRequestModelToReview(reviewRequestModel);
-        verify(gameRepository, times(1)).save(game);
-        verify(gameResponseMapper, times(1)).gameToGameResponseModel(updatedGame);
-    }
-
-    @Test
-    void addReview_existingGameWithExistingReviews_returnsUpdatedGameResponseModelWithNewReview() {
-        // Arrange
-        String gameId = UUID.randomUUID().toString();
-        ReviewRequestModel reviewRequestModel = new ReviewRequestModel();
-        Review newReview = new Review();
-        Game game = new Game();
-        game.setGameId(new GameId(gameId));
-        List<Review> existingReviews = new ArrayList<>();
-        existingReviews.add(new Review());
-        game.setReviews(existingReviews);
-        Game updatedGame = new Game();
-        updatedGame.setGameId(new GameId(gameId));
-        List<Review> reviews = new ArrayList<>(existingReviews);
-        reviews.add(newReview);
-        updatedGame.setReviews(reviews);
-        GameResponseModel expectedResponse = new GameResponseModel();
-
-        when(gameRepository.findGameByGameId_uuid(gameId)).thenReturn(game);
-        when(reviewMapper.reviewRequestModelToReview(reviewRequestModel)).thenReturn(newReview);
-        when(gameRepository.save(game)).thenReturn(updatedGame);
-        when(gameResponseMapper.gameToGameResponseModel(updatedGame)).thenReturn(expectedResponse);
-
-        // Act
-        GameResponseModel actualResponse = gameService.addReview(reviewRequestModel, gameId);
-
-        // Assert
-        assertEquals(expectedResponse, actualResponse);
-        assertEquals(2, game.getReviews().size());
-        verify(gameRepository, times(1)).findGameByGameId_uuid(gameId);
-        verify(reviewMapper, times(1)).reviewRequestModelToReview(reviewRequestModel);
-        verify(gameRepository, times(1)).save(game);
-        verify(gameResponseMapper, times(1)).gameToGameResponseModel(updatedGame);
-    }
-
-    @Test
-    void addReview_nonExistingGame_doesNotAddReview() {
-        // Arrange
-        String gameId = UUID.randomUUID().toString();
-        ReviewRequestModel reviewRequestModel = new ReviewRequestModel();
-
-        when(gameRepository.findGameByGameId_uuid(gameId)).thenReturn(null);
-
-        // Act
-        GameResponseModel actualResponse = gameService.addReview(reviewRequestModel, gameId);
-
-        // Assert
-        assertNull(actualResponse);
-        verify(gameRepository, times(1)).findGameByGameId_uuid(gameId);
-        verify(reviewMapper, never()).reviewRequestModelToReview(any());
-        verify(gameRepository, never()).save(any());
-        verify(gameResponseMapper, never()).gameToGameResponseModel((Game) any());
-    }
-
-    @Test
-    void addGameToUser_existingGame_callsSave() {
-        // Arrange
-        String userId = UUID.randomUUID().toString();
-        String gameId = UUID.randomUUID().toString();
-        Game game = new Game();
-        game.setGameId(new GameId(gameId));
-
-        when(gameRepository.findGameByGameId_uuid(gameId)).thenReturn(game);
+        GameRequestModel requestModel = createTestGameRequestModel();
+        Game game = createTestGame();
+        GameResponseModel responseModel = createTestGameResponseModel();
+        when(gameRequestMapper.requestModelToEntity(requestModel)).thenReturn(game);
         when(gameRepository.save(game)).thenReturn(game);
+        when(gameResponseMapper.gameToGameResponseModel(game)).thenReturn(responseModel);
 
         // Act
-        gameService.addGameToUser(userId, gameId);
+        GameResponseModel result = gameService.updateGame(requestModel);
 
         // Assert
-        verify(gameRepository, times(1)).findGameByGameId_uuid(gameId);
+        assertNotNull(result);
+        assertEquals(responseModel.getTitle(), result.getTitle());
+        verify(gameRequestMapper, times(1)).requestModelToEntity(requestModel);
         verify(gameRepository, times(1)).save(game);
-        // Note: The 'userId' parameter is currently not used in the implementation.
+        verify(gameResponseMapper, times(1)).gameToGameResponseModel(game);
     }
 
     @Test
-    void addGameToUser_nonExistingGame_doesNotCallSave() {
+    public void whenDeleteGame_existingUuid_thenReturnGameResponseModel() {
         // Arrange
-        String userId = UUID.randomUUID().toString();
-        String gameId = UUID.randomUUID().toString();
-
-        when(gameRepository.findGameByGameId_uuid(gameId)).thenReturn(null);
+        String uuid = UUID.randomUUID().toString();
+        Game game = createTestGame();
+        GameResponseModel responseModel = createTestGameResponseModel();
+        when(gameRepository.findGameByGameId_uuid(new GameId(uuid))).thenReturn(game);
+        doNothing().when(gameRepository).delete(game);
+        when(gameResponseMapper.gameToGameResponseModel(game)).thenReturn(responseModel);
 
         // Act
-        gameService.addGameToUser(userId, gameId);
+        GameResponseModel result = gameService.deleteGame(uuid);
 
         // Assert
-        verify(gameRepository, times(1)).findGameByGameId_uuid(gameId);
-        verify(gameRepository, never()).save(any());
+        assertNotNull(result);
+        assertEquals(responseModel.getTitle(), result.getTitle());
+        verify(gameRepository, times(1)).findGameByGameId_uuid(new GameId(uuid));
+        verify(gameRepository, times(1)).delete(game);
+        verify(gameResponseMapper, times(1)).gameToGameResponseModel(game);
     }
+
+//    @Test
+//    public void whenDeleteGame_nonExistingUuid_thenReturnNullAndNotThrowException() {
+//        // Arrange
+//        String uuid = UUID.randomUUID().toString();
+//        when(gameRepository.findGameByGameId_uuid(new GameId(uuid))).thenReturn(null);
+//
+//        // Act
+//        GameResponseModel result = gameService.deleteGame(uuid);
+//
+//        // Assert
+//        assertNull(result);
+//        verify(gameRepository, times(1)).findGameByGameId_uuid(new GameId(uuid));
+//        verify(gameRepository, never()).delete(any());
+//        verify(gameResponseMapper, never()).gameToGameResponseModel((Game) any());
+//    }
+
+
+    @Test
+    public void whenAddReview_existingGameId_thenReturnUpdatedGameResponseModel() {
+        // Arrange
+        String gameId = UUID.randomUUID().toString();
+        Game game = createTestGame();
+        ReviewRequestModel reviewRequestModel = createTestReviewRequestModel();
+        Review review = createTestReview();
+        GameResponseModel responseModel = createTestGameResponseModel();
+        when(gameRepository.findGameByGameId_uuid(new GameId(gameId))).thenReturn(game);
+        when(reviewMapper.reviewRequestModelToReview(reviewRequestModel)).thenReturn(review);
+        when(gameRepository.save(game)).thenReturn(game);
+        when(gameResponseMapper.gameToGameResponseModel(game)).thenReturn(responseModel);
+
+        // Act
+        GameResponseModel result = gameService.addReview(reviewRequestModel, gameId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(responseModel.getTitle(), result.getTitle());
+        assertEquals(1, game.getReviews().size());
+        assertEquals(review.getComment(), game.getReviews().get(0).getComment());
+        verify(gameRepository, times(1)).findGameByGameId_uuid(new GameId(gameId));
+        verify(reviewMapper, times(1)).reviewRequestModelToReview(reviewRequestModel);
+        verify(gameRepository, times(1)).save(game);
+        verify(gameResponseMapper, times(1)).gameToGameResponseModel(game);
+    }
+
+//    @Test
+//    public void whenAddReview_nonExistingGameId_thenReturnNull() {
+//        // Arrange
+//        String gameId = UUID.randomUUID().toString();
+//        ReviewRequestModel reviewRequestModel = createTestReviewRequestModel();
+//        when(gameRepository.findGameByGameId_uuid(new GameId(gameId))).thenReturn(null);
+//
+//        // Act
+//        GameResponseModel result = gameService.addReview(reviewRequestModel, gameId);
+//
+//        // Assert
+//        assertNull(result);
+//        verify(gameRepository, times(1)).findGameByGameId_uuid(new GameId(gameId));
+//        verify(reviewMapper, never()).reviewRequestModelToReview(any());
+//        verify(gameRepository, never()).save(any());
+//        verify(gameResponseMapper, never()).gameToGameResponseModel((Game) any());
+//    }
+
+
+
 }

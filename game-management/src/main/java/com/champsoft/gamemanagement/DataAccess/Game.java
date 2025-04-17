@@ -4,7 +4,6 @@ package com.champsoft.gamemanagement.DataAccess;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,13 +24,15 @@ public class Game {
     private String description;
     private String publisher;
     private String developer;
+    @OneToMany
     private List<Review> reviews;
     @Enumerated(EnumType.STRING)
     private Genre genre;
-    private String user;
+    private String userId;
 
 
-//    @ManyToOne
+
+    //    @ManyToOne
 //    @JoinColumns({
 //            @JoinColumn(name = "game_user_id", referencedColumnName = "user_id") // Correct JoinColumn
 //    })
