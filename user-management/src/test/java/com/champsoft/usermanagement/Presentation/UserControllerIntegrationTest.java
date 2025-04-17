@@ -12,6 +12,9 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -26,7 +29,7 @@ public class UserControllerIntegrationTest {
 
     private final String BASE_URI_USERS = "api/v1/user";
 
-    private final String NOT_FOUND_USER_ID = "c3540a89-cb47-4c96-888e-ff96708db4d0";
+//    private final String NOT_FOUND_USER_ID = "c3540a89-cb47-4c96-888e-ff96708db4d0";
     private final String VALID_USER_ID = "c3540a89-cb47-4c96-888e-ff96708db4d8";
     private final String INVALID_USER_ID = "nonExistentId";
     private final String VALID_USER_USERNAME = "John Doe";
@@ -34,6 +37,8 @@ public class UserControllerIntegrationTest {
     private final Double VALID_BALANCE = 50.0;
     private final Double INVALID_BALANCE = -50.0;
     private final String VALID_USER_EMAIL = "john.doe@example.com";
+    private final List<String> orderList = new ArrayList<>();
+    private final List<String> gameList = new ArrayList<>();
 
     @BeforeEach
     void setup() {
@@ -43,6 +48,8 @@ public class UserControllerIntegrationTest {
         user.setEmail(VALID_USER_EMAIL);
         user.setPassword(VALID_USER_PASSWORD);
         user.setBalance(VALID_BALANCE);
+        user.setOrders(orderList);
+        user.setGames(gameList);
         userRepository.save(user);
     }
 

@@ -26,12 +26,10 @@ public class AdminControllerIntegrationTest {
 
     private final String BASE_URI_ADMINS = "api/v1/admin";
 
-    private final String NOT_FOUND_ADMIN_ID = "c3540a89-cb47-4c96-888e-ff96708db4d0";
     private final String VALID_ADMIN_ID = "c3540a89-cb47-4c96-888e-ff96708db4d8";
     private final String INVALID_ADMIN_ID = "nonExistentId";
     private final String VALID_ADMIN_USERNAME = "John Doe";
     private final String VALID_ADMIN_PASSWORD = "test123";
-    private final String VALID_ADMIN_EMAIL = "john.doe@example.com";
 
     @BeforeEach
     void setup() {
