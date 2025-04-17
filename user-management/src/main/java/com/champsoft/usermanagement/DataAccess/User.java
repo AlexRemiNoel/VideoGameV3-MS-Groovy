@@ -1,8 +1,6 @@
 package com.champsoft.usermanagement.DataAccess;
 
-import com.example.videogamev3.GameManagement.DataAccess.Game;
-import com.example.videogamev3.GameManagement.DataAccess.Review;
-import com.example.videogamev3.PurchaseManagement.DataAccess.Order;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,10 +23,14 @@ public class User {
     private String email;
     private String password;
     private double balance;
-    @JsonManagedReference
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Order> orders;
-    @JsonManagedReference
-    @OneToMany(mappedBy="user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<Game> games;
+
+    @ElementCollection(fetch = FetchType.EAGER) // EAGER or LAZY depending on use case
+    @CollectionTable(name = "user_order_ids", joinColumns = @JoinColumn(name = "user_id")) // Specify join table and FK column
+    @Column(name = "order_id", nullable = false) // Column name for the game IDs in the join table
+    private List<String> orders;
+
+    @ElementCollection(fetch = FetchType.EAGER) // EAGER or LAZY depending on use case
+    @CollectionTable(name = "user_game_ids", joinColumns = @JoinColumn(name = "user_id")) // Specify join table and FK column
+    @Column(name = "game_id", nullable = false) // Column name for the game IDs in the join table
+    private List<String> games;
 }

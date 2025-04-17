@@ -16,6 +16,6 @@ public class UserResponseModel {
     private String username;
     private String email;
     private double balance;
-    private List<Order> orders;
-    private List<Game> games;
+    private List<String> orders;
+    private List<String> games;
 }
