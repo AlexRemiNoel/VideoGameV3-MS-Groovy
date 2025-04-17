@@ -7,42 +7,24 @@ import com.champsoft.gamemanagement.Presentation.DTOS.GameResponseModel;
 import com.champsoft.gamemanagement.Presentation.DTOS.ReviewRequestModel;
 import com.champsoft.gamemanagement.utils.exceptions.NotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.data.crossstore.ChangeSetPersister;
-import org.springframework.http.HttpEntity;
+//import org.springframework.boot.test.mock.mockito.MockitoBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
-
-import static net.bytebuddy.matcher.ElementMatchers.is;
+import static org.hamcrest.Matchers.is; // Correct import for is()
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.mockito.Mockito.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-import static org.springframework.mock.http.server.reactive.MockServerHttpRequest.post;
-import static org.springframework.mock.http.server.reactive.MockServerHttpRequest.put;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-@SpringBootTest(classes = GameController.class)
 @WebMvcTest(GameController.class)
 public class GameControllerTest {
 
@@ -192,9 +174,9 @@ public class GameControllerTest {
         // Act & Assert
         mockMvc.perform(get("/api/v1/game/" + VALID_CUSTOMER_ID))
                 .andExpect(status().isOk())
-                .andExpect((ResultMatcher) content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect((ResultMatcher) jsonPath("$.gameId", is(VALID_CUSTOMER_ID)))
-                .andExpect((ResultMatcher) jsonPath("$.title", is("Test Game")));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is(VALID_CUSTOMER_ID)))
+                .andExpect(jsonPath("$.title", is("Test Game")));
 
         verify(gameService, times(1)).getGameById(VALID_CUSTOMER_ID);
     }
