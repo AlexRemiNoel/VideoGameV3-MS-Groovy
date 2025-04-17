@@ -25,12 +25,14 @@ public class UserControllerIntegrationTest {
     private UserRepository userRepository;
 
     private final String BASE_URI_USERS = "api/v1/user";
-    private final String INVALID_USER_ID = "c3540a89-cb47-4c96-888e-ff96708db4d";
+
     private final String NOT_FOUND_USER_ID = "c3540a89-cb47-4c96-888e-ff96708db4d0";
     private final String VALID_USER_ID = "c3540a89-cb47-4c96-888e-ff96708db4d8";
+    private final String INVALID_USER_ID = "nonExistentId";
     private final String VALID_USER_USERNAME = "John Doe";
     private final String VALID_USER_PASSWORD = "test123";
     private final Double VALID_BALANCE = 50.0;
+    private final Double INVALID_BALANCE = -50.0;
     private final String VALID_USER_EMAIL = "john.doe@example.com";
 
     @BeforeEach
@@ -49,6 +51,7 @@ public class UserControllerIntegrationTest {
         userRequestModel.setUsername(username); // Set username
         userRequestModel.setEmail(VALID_USER_EMAIL); // Set user email
         userRequestModel.setPassword(VALID_USER_PASSWORD);
+        userRequestModel.setBalance(VALID_BALANCE);
         // Set any other required fields here
         return userRequestModel;
     }
@@ -58,7 +61,8 @@ public class UserControllerIntegrationTest {
         UserRequestModel someUser = new UserRequestModel(
                 VALID_USER_ID,
                 VALID_USER_USERNAME,
-                VALID_USER_PASSWORD
+                VALID_USER_PASSWORD,
+                VALID_BALANCE
         );
         return someUser;
     }
@@ -120,10 +124,9 @@ public class UserControllerIntegrationTest {
                 .expectBody(UserResponseModel.class)
                 .value((userResponseModel) -> {
                     assertNotNull(UserToCreate);
-                    assertEquals(UserToCreate.getUsername(),
-                        userResponseModel.getUsername());
-                    assertEquals(UserToCreate.getEmail(),
-                        userResponseModel.getEmail());
+                    assertEquals(UserToCreate.getUsername(),userResponseModel.getUsername());
+                    assertEquals(UserToCreate.getEmail(),userResponseModel.getEmail());
+                    assertEquals(UserToCreate.getBalance(), userResponseModel.getBalance());
                 });
         long sizeDBAfter = userRepository.count();
         assertEquals(sizeDB + 1, sizeDBAfter);
@@ -132,26 +135,23 @@ public class UserControllerIntegrationTest {
     @Test
     public void whenUpdateNonExistentUser_thenThrowNotFoundException() {
         // Arrange
-        String nonExistentUserId = "nonExistentId";
-        UserRequestModel updatedUser =
-                buildInvalidUserRequestModel(nonExistentUserId);
+        UserRequestModel updatedUser = buildInvalidUserRequestModel(INVALID_USER_ID);
         // Act & Assert
         WebTestClient.put()
-                .uri(BASE_URI_USERS + "/" + nonExistentUserId)
+                .uri(BASE_URI_USERS + "/" + INVALID_USER_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(updatedUser)
                 .exchange()
                 .expectStatus().isNotFound()
                 .expectBody()
                 .jsonPath("$.httpStatus").isEqualTo("NOT_FOUND")
-                .jsonPath("$.message").isEqualTo("Unknown userId: " + nonExistentUserId);
+                .jsonPath("$.message").isEqualTo("Unknown userId: " + INVALID_USER_ID);
     }
 
     @Test
     public void whenUpdateUser_thenReturnUpdatedUser() {
         // Arrange
-        UserRequestModel UserToUpdate =
-                buildUserRequestModel(VALID_USER_USERNAME);
+        UserRequestModel UserToUpdate = buildUserRequestModel(VALID_USER_USERNAME);
         // Act & Assert
         WebTestClient.put()
                 .uri(BASE_URI_USERS + "/" + VALID_USER_ID)
@@ -164,6 +164,52 @@ public class UserControllerIntegrationTest {
                     assertNotNull(updatedUser);
                     assertEquals(UserToUpdate.getUsername(), updatedUser.getUsername());
                     assertEquals(UserToUpdate.getEmail(), updatedUser.getEmail());
+                    assertEquals(UserToUpdate.getBalance(), updatedUser.getBalance());
+                });
+    }
+
+    @Test
+    public void whenUpdateUserBalance_thenThrowNotFoundException() {
+        // Arrange
+        String nonExistentUserId = "nonExistentId";
+        // Act & Assert
+        WebTestClient.put()
+                .uri(BASE_URI_USERS + "/uuid/" + nonExistentUserId + "/balance/" + VALID_BALANCE)
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody()
+                .jsonPath("$.httpStatus").isEqualTo("NOT_FOUND")
+                .jsonPath("$.message").isEqualTo("Unknown userId: " + nonExistentUserId);
+    }
+
+    @Test
+    public void whenUpdateUserBalance_thenThrowInvalidInputException() {
+        // Arrange
+        // Act & Assert
+        WebTestClient.put()
+                .uri(BASE_URI_USERS + "/uuid/" + VALID_USER_ID + "/balance/" + INVALID_BALANCE)
+                .exchange()
+//                .expectStatus().isUnauthorized()
+                .expectBody()
+                .jsonPath("$.httpStatus").isEqualTo("UNPROCESSABLE_ENTITY")
+                .jsonPath("$.message").isEqualTo("Invalid negative balance: " + INVALID_BALANCE);
+    }
+
+    @Test
+    public void whenUpdateUserBalance_thenReturnUpdatedUserBalance() {
+        // Arrange
+        UserRequestModel UserToUpdate = buildUserRequestModel(VALID_USER_USERNAME);
+        // Act & Assert
+        WebTestClient.put()
+                .uri(BASE_URI_USERS + "/uuid/" + VALID_USER_ID + "/balance/" + VALID_BALANCE)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(UserResponseModel.class)
+                .value((updatedUser) -> {
+                    assertNotNull(updatedUser);
+                    assertEquals(UserToUpdate.getUsername(), updatedUser.getUsername());
+                    assertEquals(UserToUpdate.getEmail(), updatedUser.getEmail());
+                    assertEquals(UserToUpdate.getBalance(), updatedUser.getBalance());
                 });
     }
 }

@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 public interface AdminRepository extends JpaRepository<Admin,String> {
 
     Admin findAdminByAdminId_uuid(String uuid);
+
+    boolean existsByAdminId(AdminId adminId);
 }
