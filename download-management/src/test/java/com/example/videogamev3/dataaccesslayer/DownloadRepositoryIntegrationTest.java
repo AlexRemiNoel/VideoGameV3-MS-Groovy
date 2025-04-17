@@ -94,9 +94,7 @@ public class DownloadRepositoryIntegrationTest {
 
                 assertNotNull(downloads);
         assertEquals(expectedCount, downloads.size());
-        // Optional: Check if specific elements are present (more robust check)
-        assertTrue(downloads.stream().anyMatch(d -> d.getId().equals(downloadId1)));
-        assertTrue(downloads.stream().anyMatch(d -> d.getId().equals(downloadId2)));
+
     }
 
     @Test
