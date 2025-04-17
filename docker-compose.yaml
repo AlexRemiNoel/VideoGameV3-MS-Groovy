@@ -28,7 +28,6 @@ services:
       retries: 10
 
   download-management:
-    #    build: employees-service
     build: download-management
     hostname: download-managementhost
     ports:
