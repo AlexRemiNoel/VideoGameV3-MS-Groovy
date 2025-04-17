@@ -2,7 +2,6 @@ package com.example.videogamev3.DownloadManagement.DataMapper;
 
 
 import com.example.videogamev3.DownloadManagement.DataAccess.Download;
-import com.example.videogamev3.DownloadManagement.DataAccess.DownloadStatus;
 import com.example.videogamev3.DownloadManagement.Presentation.DownloadRequestModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

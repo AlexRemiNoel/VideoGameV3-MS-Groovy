@@ -1,7 +1,6 @@
 package com.example.videogamev3.DownloadManagement.Presentation;
 
 import com.example.videogamev3.DownloadManagement.BusinessLogic.DownloadService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -9,8 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/api/v1/downloads", produces = MediaType.APPLICATION_JSON_VALUE)@RequiredArgsConstructor
