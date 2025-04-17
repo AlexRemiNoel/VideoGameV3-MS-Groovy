@@ -3,8 +3,8 @@ WORKDIR /build
 
 COPY gradlew .
 COPY gradle gradle
-COPY build.gradle.kts .
-COPY settings.gradle.kts .
+COPY build.gradle .
+COPY settings.gradle .
 COPY src src
 
 # Build without daemon and parallelization to avoid permission issues
