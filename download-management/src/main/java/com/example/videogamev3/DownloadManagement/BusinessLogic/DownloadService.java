@@ -11,12 +11,11 @@ import com.example.videogamev3.DownloadManagement.Presentation.DownloadResponseM
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -99,7 +98,14 @@ public class DownloadService {
     }
 
     public List<DownloadResponseModel> getAllDownloads() {
-        return downloadResponseMapper.downloadEntityToDownloadResponseModel(downloadRepository.findAll());
+        try{
+            List<DownloadResponseModel> list = downloadResponseMapper.downloadEntityToDownloadResponseModel(downloadRepository.findAll());
+            return list;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new ArrayList<DownloadResponseModel>();
+        }
+
     }
 
     @Transactional

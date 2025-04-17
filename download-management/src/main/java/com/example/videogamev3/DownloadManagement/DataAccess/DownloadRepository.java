@@ -6,4 +6,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DownloadRepository extends JpaRepository<Download, String> {
     Download findDownloadById_Uuid(String id);
+
+    boolean existsDownloadById_Uuid(String existingId);
+
+    void deleteDownloadById_Uuid(String idToDelete);
 }

@@ -56,7 +56,6 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable String uuid) {
         userService.deleteUser(uuid);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
     }
 
     @PutMapping("uuid/{user_id}/balance/{balance}")

@@ -7,6 +7,8 @@ import com.champsoft.usermanagement.DataMapper.UserRequestMapper;
 import com.champsoft.usermanagement.DataMapper.UserResponseMapper;
 import com.champsoft.usermanagement.Presentation.UserRequestModel;
 import com.champsoft.usermanagement.Presentation.UserResponseModel;
+import com.champsoft.usermanagement.utils.exceptions.InvalidInputException;
+import com.champsoft.usermanagement.utils.exceptions.NotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +50,8 @@ public class UserService {
     }
 
     public UserResponseModel updateUser(UserRequestModel userRequestModel, String uuid) {
-        User user = userRepository.findUserByUserId_uuid(uuid);
+        User user = findUserByUuidOrThrow(uuid);
+
         user.setUsername(userRequestModel.getUsername());
         user.setEmail(userRequestModel.getEmail());
         user.setPassword(userRequestModel.getPassword());
@@ -57,7 +60,8 @@ public class UserService {
     }
 
     public void deleteUser(String uuid) {
-        User user = userRepository.findUserByUserId_uuid(uuid);
+        User user = findUserByUuidOrThrow(uuid);
+
         userRepository.delete(user);
     }
 
@@ -65,8 +69,9 @@ public class UserService {
         User user = findUserByUuidOrThrow(uuid); // Reuse the finding logic
 
         // Validate newBalance if necessary (e.g., non-negative)
+
         if (newBalance < 0) {
-            throw new IllegalArgumentException("Balance cannot be negative.");
+            throw new InvalidInputException("Invalid negative balance: " + newBalance);
         }
 
         user.setBalance(newBalance); // Assuming User entity has setBalance method
@@ -77,7 +82,7 @@ public class UserService {
     private User findUserByUuidOrThrow(String uuid) {
         User user = userRepository.findUserByUserId_uuid(uuid);
         if (user == null) {
-            throw new EntityNotFoundException("User not found with UUID: " + uuid);
+            throw new NotFoundException("Unknown userId: " + uuid);
         }
         return user;
     }
