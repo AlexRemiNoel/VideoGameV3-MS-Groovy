@@ -2,7 +2,7 @@ package com.champsoft.gamemanagement.utils;
 
 
 
-import com.champsoft.gamemanagement.utils.exceptions.DuplicateVinException;
+import com.champsoft.gamemanagement.utils.exceptions.DuplicateGameIDException;
 import com.champsoft.gamemanagement.utils.exceptions.InvalidInputException;
 import com.champsoft.gamemanagement.utils.exceptions.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ public class GlobalControllerExceptionHandler {
     }
 
     @ResponseStatus(UNPROCESSABLE_ENTITY)
-    @ExceptionHandler(DuplicateVinException.class)
+    @ExceptionHandler(DuplicateGameIDException.class)
     public HttpErrorInfo handleDuplicateVinException(WebRequest request, Exception ex) {
         return createHttpErrorInfo(UNPROCESSABLE_ENTITY, request, ex);
     }
