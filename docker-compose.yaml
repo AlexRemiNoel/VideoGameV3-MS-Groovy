@@ -81,33 +81,6 @@ services:
       timeout: 5s
       retries: 10
 
-  purchase-management:
-    build: purchase-management
-    hostname: purchase-managementhost
-    ports:
-      - "8084:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-    depends_on:
-      mysql4:
-        condition: service_healthy
-
-
-  mysql4:
-    image: 'mysql:latest'
-    environment:
-      - 'MYSQL_DATABASE=purchase-db'
-      - 'MYSQL_USER=user'
-      - 'MYSQL_PASSWORD=pwd'
-      - 'MYSQL_ROOT_PASSWORD=verysecretpwd'
-    ports:
-      - "3310:3306"
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-uuser", "-ppwd", "-h", "localhost" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
 
   phpmyadmin:
     image: phpmyadmin:5.2.0
@@ -121,7 +94,6 @@ services:
       - mysql1
       - mysql2
       - mysql3
-      - mysql4
     networks:
       - default
 

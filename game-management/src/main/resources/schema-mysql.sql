@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS games (
     publisher VARCHAR(255),
     developer VARCHAR(255),
     genre VARCHAR(255),
-    game_user_id VARCHAR(255),
+    game_user_id VARCHAR(255)
     );
 
 -- Create Reviews Table
@@ -25,6 +25,6 @@ CREATE TABLE IF NOT EXISTS reviews (
     comment VARCHAR(2000), -- Adjusted size
     rating VARCHAR(255),
     timestamp TIMESTAMP,
-    game_id VARCHAR(255),
+    game_id VARCHAR(255)
 --     FOREIGN KEY (game_id) REFERENCES games(game_id)
     );

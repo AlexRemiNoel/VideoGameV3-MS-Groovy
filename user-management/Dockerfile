@@ -7,8 +7,11 @@ COPY build.gradle .
 COPY settings.gradle .
 COPY src src
 
+
+RUN chmod +x ./gradlew
+
 # Build without daemon and parallelization to avoid permission issues
-RUN ./gradlew bootJar --no-daemon --no-parallel
+RUN ./gradlew bootJar --no-daemon --no-parallel --debug
 
 FROM openjdk:21-jdk-slim
 COPY --from=builder /build/build/libs/*.jar app.jar
