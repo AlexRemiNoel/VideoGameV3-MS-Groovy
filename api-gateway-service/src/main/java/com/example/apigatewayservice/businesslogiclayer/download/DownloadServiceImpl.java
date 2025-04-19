@@ -1,8 +1,8 @@
-package com.example.apigatewayservice.businesslogiclayer;
+package com.example.apigatewayservice.businesslogiclayer.download;
 
-import com.example.apigatewayservice.DomainClientLayer.DownloadServiceClient;
-import com.example.apigatewayservice.presentationlayer.DownloadRequestModel;
-import com.example.apigatewayservice.presentationlayer.DownloadResponseModel;
+import com.example.apigatewayservice.DomainClientLayer.download.DownloadServiceClient;
+import com.example.apigatewayservice.presentationlayer.download.DownloadRequestModel;
+import com.example.apigatewayservice.presentationlayer.download.DownloadResponseModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ import java.util.List;
 @Slf4j
 public class DownloadServiceImpl implements DownloadService {
 
-    private final DownloadServiceClient downloadServiceClient; // Inject Gateway's Client
+    private final DownloadServiceClient downloadServiceClient;
 
     @Override
     public DownloadResponseModel createDownload(DownloadRequestModel downloadRequestModel) {

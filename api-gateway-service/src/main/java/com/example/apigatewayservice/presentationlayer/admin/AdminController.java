@@ -1,6 +1,6 @@
-package com.example.apigatewayservice.presentationlayer;
+package com.example.apigatewayservice.presentationlayer.admin;
 
-import com.example.apigatewayservice.businesslogiclayer.AdminService;
+import com.example.apigatewayservice.businesslogiclayer.admin.AdminService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,19 +15,19 @@ import java.util.List;
 @Slf4j
 public class AdminController {
 
-    private final AdminService adminService; // Inject the gateway service
+    private final AdminService adminService;
 
     @GetMapping(produces = "application/json")
     public ResponseEntity<List<AdminResponseModel>> getAdmins() {
         log.info("Gateway: Received GET request for all admins");
         List<AdminResponseModel> admins = adminService.getAllAdmins();
-        return ResponseEntity.ok(admins); // Status OK
+        return ResponseEntity.ok(admins);
     }
 
     @GetMapping(value = "{uuid}", produces = "application/json")
     public ResponseEntity<AdminResponseModel> getAdminById(@PathVariable String uuid) {
         log.info("Gateway: Received GET request for admin UUID: {}", uuid);
-        // Let exceptions (NotFoundException) propagate to GlobalExceptionHandler
+
         AdminResponseModel admin = adminService.getAdminById(uuid);
         return ResponseEntity.ok(admin);
     }
@@ -36,24 +36,24 @@ public class AdminController {
     public ResponseEntity<AdminResponseModel> addAdmin(@RequestBody AdminRequestModel adminRequestModel) {
         log.info("Gateway: Received POST request to add admin");
         AdminResponseModel addedAdmin = adminService.addAdmin(adminRequestModel);
-        // Let exceptions (InvalidInputException) propagate
-        return new ResponseEntity<>(addedAdmin, HttpStatus.CREATED); // Status CREATED
+
+        return new ResponseEntity<>(addedAdmin, HttpStatus.CREATED);
     }
 
     @PutMapping(value = "{uuid}", consumes = "application/json")
     public ResponseEntity<Void> updateAdmin(@RequestBody AdminRequestModel adminRequestModel, @PathVariable String uuid) {
         log.info("Gateway: Received PUT request to update admin UUID: {}", uuid);
-        // Service layer method returns void because client returns void/null
+
         adminService.updateAdmin(adminRequestModel, uuid);
-        // Let exceptions propagate
-        return ResponseEntity.noContent().build(); // Status NO_CONTENT or OK() if preferred
+
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("{uuid}")
     public ResponseEntity<Void> deleteAdmin(@PathVariable String uuid) {
         log.info("Gateway: Received DELETE request for admin UUID: {}", uuid);
         adminService.deleteAdmin(uuid);
-        // Let exceptions propagate
-        return ResponseEntity.noContent().build(); // Status NO_CONTENT
+
+        return ResponseEntity.noContent().build();
     }
 }

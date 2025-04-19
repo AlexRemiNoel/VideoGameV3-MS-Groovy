@@ -1,7 +1,7 @@
-package com.example.apigatewayservice.businesslogiclayer;
+package com.example.apigatewayservice.businesslogiclayer.download;
 
-import com.example.apigatewayservice.presentationlayer.DownloadRequestModel;
-import com.example.apigatewayservice.presentationlayer.DownloadResponseModel;
+import com.example.apigatewayservice.presentationlayer.download.DownloadRequestModel;
+import com.example.apigatewayservice.presentationlayer.download.DownloadResponseModel;
 
 import java.util.List;
 

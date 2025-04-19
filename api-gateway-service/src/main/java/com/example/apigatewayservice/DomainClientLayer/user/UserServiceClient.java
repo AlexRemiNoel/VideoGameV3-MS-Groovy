@@ -1,11 +1,11 @@
-package com.example.apigatewayservice.DomainClientLayer;
+package com.example.apigatewayservice.DomainClientLayer.user;
 
 import com.example.apigatewayservice.exception.HttpErrorInfo;
 import org.springframework.cloud.gateway.support.NotFoundException;
 import org.springframework.http.HttpMethod;
 import com.example.apigatewayservice.exception.InvalidInputException;
-import com.example.apigatewayservice.presentationlayer.UserRequestModel;
-import com.example.apigatewayservice.presentationlayer.UserResponseModel;
+import com.example.apigatewayservice.presentationlayer.user.UserRequestModel;
+import com.example.apigatewayservice.presentationlayer.user.UserResponseModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -82,13 +82,12 @@ public class UserServiceClient {
     }
 
     public UserResponseModel updateUser(UserRequestModel userRequestModel, String uuid) {
-        // Similar issue as Admin update with RestTemplate.put
         try {
             String url = userServiceUrl + "/" + uuid;
             log.debug("Updating user via URL: {}", url);
             restTemplate.put(url, userRequestModel);
             log.debug("Update request sent for user: {}", uuid);
-            return null; // Or fetch again: return getUserById(uuid);
+            return null;
         } catch (HttpClientErrorException ex) {
             log.warn("updateUser failed for UUID: {} with status: {}", uuid, ex.getStatusCode());
             throw handleHttpClientException(ex);
@@ -109,15 +108,15 @@ public class UserServiceClient {
 
     public UserResponseModel updateUserBalance(String userId, double balance) {
         try {
-            // Correcting the URL structure based on the controller path
+
             String url = userServiceUrl + "/uuid/" + userId + "/balance/" + balance;
             log.debug("Updating user balance via URL: {}", url);
-            // PUT request with no body, expecting UserResponseModel back
-            // Use exchange for PUT requests expecting a body
+
+
             UserResponseModel response = restTemplate.exchange(
                             url,
                             HttpMethod.PUT,
-                            null, // No request body for this specific endpoint
+                            null,
                             UserResponseModel.class)
                     .getBody();
             log.debug("Updated balance for user: {}", response != null ? response.getUserId() : "null");
@@ -129,7 +128,7 @@ public class UserServiceClient {
     }
 
 
-    // --- Error Handling (Identical to AdminServiceClient, could be refactored) ---
+
 
     private RuntimeException handleHttpClientException(HttpClientErrorException ex) {
         HttpStatus status = (HttpStatus) ex.getStatusCode();

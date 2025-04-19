@@ -1,15 +1,13 @@
-package com.example.apigatewayservice.presentationlayer;
+package com.example.apigatewayservice.presentationlayer.admin;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class UserRequestModel {
+@AllArgsConstructor
+public class AdminRequestModel {
     private String username;
-    private String email;
     private String password;
-    private double balance;
 }

@@ -1,7 +1,7 @@
-package com.example.apigatewayservice.DomainClientLayer;
+package com.example.apigatewayservice.DomainClientLayer.download;
 
-import com.example.apigatewayservice.presentationlayer.DownloadRequestModel;
-import com.example.apigatewayservice.presentationlayer.DownloadResponseModel;
+import com.example.apigatewayservice.presentationlayer.download.DownloadRequestModel;
+import com.example.apigatewayservice.presentationlayer.download.DownloadResponseModel;
 import com.example.apigatewayservice.exception.HttpErrorInfo;
 import com.example.apigatewayservice.exception.InvalidInputException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,7 +41,7 @@ public class DownloadServiceClient {
         log.info("Download Service Base URL: {}", DOWNLOAD_SERVICE_BASE_URL);
     }
 
-    // === Client Methods ===
+
 
     public DownloadResponseModel createDownload(DownloadRequestModel requestModel) {
         String url = DOWNLOAD_SERVICE_BASE_URL;
@@ -87,12 +87,12 @@ public class DownloadServiceClient {
         }
     }
 
-    // Helper for state change POST requests
+
     private DownloadResponseModel postForStateChange(String id, String action) {
         String url = DOWNLOAD_SERVICE_BASE_URL + "/" + id + "/" + action;
         log.debug("3. Client sending POST request for action '{}' to: {}", action, url);
         try {
-            // These POSTs don't send a body, but expect a response
+
             DownloadResponseModel response = restTemplate.postForObject(url, null, DownloadResponseModel.class);
             log.debug("5. Client received response from POST action '{}'", action);
             return response;
@@ -131,10 +131,10 @@ public class DownloadServiceClient {
     }
 
 
-    // === Error Handling (Copy from InventoryServiceClient or centralize) ===
+
 
     private RuntimeException handleHttpClientException(HttpClientErrorException ex) {
-        // Use static imports for HttpStatus
+
         if (ex.getStatusCode() == NOT_FOUND) {
             log.warn("Converting {} to NotFoundException", ex.getStatusCode());
             return new NotFoundException(getErrorMessage(ex));
@@ -143,24 +143,24 @@ public class DownloadServiceClient {
             log.warn("Converting {} to InvalidInputException", ex.getStatusCode());
             return new InvalidInputException(getErrorMessage(ex));
         }
-        // Add handling for other relevant status codes if needed (e.g., BAD_REQUEST)
-        // if (ex.getStatusCode() == HttpStatus.BAD_REQUEST) { ... }
+
+
 
         log.warn("Got an unexpected HTTP error: {}, will rethrow it", ex.getStatusCode());
         log.warn("Error body: {}", ex.getResponseBodyAsString());
-        return ex; // Rethrow original exception if not handled specifically
+        return ex;
     }
 
     private String getErrorMessage(HttpClientErrorException ex) {
         try {
-            // Assumes downstream service returns error body matching HttpErrorInfo
+
             return mapper.readValue(ex.getResponseBodyAsString(), HttpErrorInfo.class).getMessage();
         } catch (IOException ioex) {
             log.error("Error parsing error message from HttpClientErrorException: {}", ioex.getMessage());
-            return ex.getResponseBodyAsString(); // Fallback
+            return ex.getResponseBodyAsString();
         } catch (Exception e) {
             log.error("Unexpected error parsing error message: {}", e.getMessage());
-            return ex.getResponseBodyAsString(); // Fallback
+            return ex.getResponseBodyAsString();
         }
     }
 }
