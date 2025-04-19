@@ -1,0 +1,48 @@
+
+# ========== Default Profile ==========
+server:
+  port: 8080 # The Gateway itself runs on port 8080
+  error:
+    include-message: always
+logging:
+  level:
+    root: INFO
+    # Adjust package name if yours is different
+    com.cardealership: DEBUG # Or your specific base package for verbose logging
+spring:
+  config:
+    activate:
+      on-profile: default # For running locally WITHOUT Docker
+app:
+  # When running locally, assuming other services are directly accessible
+  # These ports MUST match the HOST ports you expose them on if running them locally (e.g. via IDE)
+  # OR the ports you map them to in docker-compose if ONLY running gateway locally
+  user-service:
+    host: localhost # Use localhost for default profile
+    port: 8081 # Exposed port for customers service
+  download-service:
+    host: localhost # Use localhost for default profile
+    port: 8082 # Exposed port for employees service
+  game-service:
+    host: localhost # Use localhost for default profile
+    port: 8083 # Exposed port for inventories service
+---
+# ========== Docker Profile ==========
+spring:
+  config:
+    activate:
+      on-profile: docker # For running INSIDE Docker Compose
+# server.port is inherited from default profile (8080) unless overridden here
+app:
+  # Use Docker service names as hostnames when running inside docker network
+  # The port is the INTERNAL port the service listens on inside its container (usually 8080)
+  user-service:
+    host: user-management # Docker service name from docker-compose.yml
+    port: 8080 # Internal port of the customers-service container
+  download-service:
+    host: download-management # Docker service name from docker-compose.yml
+    port: 8080 # Internal port of the employees-service container
+  game-service:
+    host: game-management # Docker service name from docker-compose.yml
+    port: 8080 # Internal port of the inventories-service container
+
