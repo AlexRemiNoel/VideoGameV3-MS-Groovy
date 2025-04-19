@@ -1,4 +1,4 @@
-package com.example.apigatewayservice;
+package com.example.apigatewayservice.presentationlayer;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

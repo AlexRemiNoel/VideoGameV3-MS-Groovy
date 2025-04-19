@@ -1,4 +1,4 @@
-package com.example.apigatewayservice; // Adjust package name!
+package com.example.apigatewayservice.exception; // Adjust package name!
 
 public class NotFoundException extends RuntimeException {
     public NotFoundException(String message) {

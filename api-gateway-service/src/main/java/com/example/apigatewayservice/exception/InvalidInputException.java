@@ -1,4 +1,4 @@
-package com.example.apigatewayservice; // Adjust package name!
+package com.example.apigatewayservice.exception; // Adjust package name!
 
 // No Spring annotations needed here if handled globally by @RestControllerAdvice
 public class InvalidInputException extends RuntimeException {

@@ -1,4 +1,7 @@
-package com.example.apigatewayservice;
+package com.example.apigatewayservice.businesslogiclayer;
+
+import com.example.apigatewayservice.presentationlayer.DownloadRequestModel;
+import com.example.apigatewayservice.presentationlayer.DownloadResponseModel;
 
 import java.util.List;
 

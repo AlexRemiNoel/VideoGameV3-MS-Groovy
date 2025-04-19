@@ -1,6 +1,8 @@
-package com.example.apigatewayservice;
+package com.example.apigatewayservice.businesslogiclayer;
 
 import com.example.apigatewayservice.DomainClientLayer.DownloadServiceClient;
+import com.example.apigatewayservice.presentationlayer.DownloadRequestModel;
+import com.example.apigatewayservice.presentationlayer.DownloadResponseModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

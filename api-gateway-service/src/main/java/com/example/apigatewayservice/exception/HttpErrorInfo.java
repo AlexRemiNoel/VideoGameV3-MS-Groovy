@@ -1,4 +1,4 @@
-package com.example.apigatewayservice;
+package com.example.apigatewayservice.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

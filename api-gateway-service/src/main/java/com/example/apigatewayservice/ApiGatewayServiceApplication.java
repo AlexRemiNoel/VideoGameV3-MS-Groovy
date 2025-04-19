@@ -14,9 +14,6 @@ public class ApiGatewayServiceApplication {
 		return new RestTemplate();
 	}
 	public static void main(String[] args) {
-		SpringApplication.run(ApiGatewayServiceApplication.class, args);
-
-
 		ConfigurableApplicationContext context = SpringApplication.run(ApiGatewayServiceApplication.class, args);
 		System.out.println("Active Profile(s):" + String.join(",", context.getEnvironment().getActiveProfiles()));
 	}
