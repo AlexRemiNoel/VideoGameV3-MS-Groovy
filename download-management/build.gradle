@@ -30,21 +30,25 @@ dependencies {
     implementation 'org.mapstruct:mapstruct:1.6.3'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
 }
 
 
-tasks.named('test') {
+tasks.test {
     useJUnitPlatform()
+
+    testLogging {
+        events("passed", "skipped", "failed")
+        showExceptions = true
+        showStackTraces = true
+        showStandardStreams = true
+    }
 }
 
 test {
     finalizedBy jacocoTestReport // report is always generated after tests run
 }
-jacocoTestReport {
-    dependsOn test // tests are required to run before generating the report
-}
-
-
 
 jacocoTestReport {
     reports {

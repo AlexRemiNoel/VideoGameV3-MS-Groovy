@@ -1,17 +1,17 @@
-package com.example.apigatewayservice.businesslogiclayer;
-import com.example.apigatewayservice.DomainClientLayer.AdminServiceClient;
-import com.example.apigatewayservice.presentationlayer.AdminRequestModel;
-import com.example.apigatewayservice.presentationlayer.AdminResponseModel;
+package com.example.apigatewayservice.businesslogiclayer.admin;
+import com.example.apigatewayservice.DomainClientLayer.admin.AdminServiceClient;
+import com.example.apigatewayservice.presentationlayer.admin.AdminRequestModel;
+import com.example.apigatewayservice.presentationlayer.admin.AdminResponseModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor // Creates constructor for final fields
+@RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
 
-    private final AdminServiceClient adminServiceClient; // Inject the client
+    private final AdminServiceClient adminServiceClient;
 
     @Override
     public List<AdminResponseModel> getAllAdmins() {

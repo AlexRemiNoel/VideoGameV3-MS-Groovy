@@ -1,6 +1,6 @@
-package com.example.apigatewayservice.presentationlayer;
+package com.example.apigatewayservice.presentationlayer.download;
 
-import com.example.apigatewayservice.businesslogiclayer.DownloadService;
+import com.example.apigatewayservice.businesslogiclayer.download.DownloadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,13 +12,13 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "/api/v1/downloads", produces = MediaType.APPLICATION_JSON_VALUE) // Matches backend base path
+@RequestMapping(value = "/api/v1/downloads", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class DownloadController {
 
-    private final DownloadService downloadService; // Inject Gateway's DownloadService
+    private final DownloadService downloadService;
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE) // Specify consumes for POST
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DownloadResponseModel> createDownload(@RequestBody DownloadRequestModel downloadRequestModel) {
         log.debug("1. Received in API-Gateway Download Controller createDownload");
         DownloadResponseModel newDownload = downloadService.createDownload(downloadRequestModel);

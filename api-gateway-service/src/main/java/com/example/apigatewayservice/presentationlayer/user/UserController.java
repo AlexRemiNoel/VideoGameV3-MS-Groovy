@@ -1,6 +1,6 @@
-package com.example.apigatewayservice.presentationlayer;
+package com.example.apigatewayservice.presentationlayer.user;
 
-import com.example.apigatewayservice.businesslogiclayer.UserService;
+import com.example.apigatewayservice.businesslogiclayer.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/user") // Added /gateway prefix
+@RequestMapping("api/v1/user")
 @RequiredArgsConstructor
 @Slf4j
 public class UserController {
@@ -52,7 +52,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    // Note: Path variable names MUST match exactly in @PathVariable("...")
+
     @PutMapping(value = "uuid/{user_id}/balance/{balance}", produces = "application/json")
     public ResponseEntity<UserResponseModel> updateUserBalance(@PathVariable("user_id") String userId, @PathVariable("balance") double balance) {
         log.info("Gateway: Received PUT request to update balance for user ID: {} to {}", userId, balance);

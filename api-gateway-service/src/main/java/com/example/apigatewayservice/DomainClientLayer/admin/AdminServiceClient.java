@@ -1,16 +1,15 @@
-package com.example.apigatewayservice.DomainClientLayer;
+package com.example.apigatewayservice.DomainClientLayer.admin;
 
-import com.example.apigatewayservice.presentationlayer.AdminRequestModel;
+import com.example.apigatewayservice.presentationlayer.admin.AdminRequestModel;
 import org.springframework.cloud.gateway.support.NotFoundException;
 import org.springframework.http.HttpMethod;
 import com.example.apigatewayservice.exception.HttpErrorInfo;
 import com.example.apigatewayservice.exception.InvalidInputException;
-import com.example.apigatewayservice.presentationlayer.AdminResponseModel;
+import com.example.apigatewayservice.presentationlayer.admin.AdminResponseModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -84,23 +83,23 @@ public class AdminServiceClient {
     }
 
     public AdminResponseModel updateAdmin(AdminRequestModel adminRequestModel, String uuid) {
-        // RestTemplate.put returns void, so we might need to do a GET after PUT
-        // or rely on the backend service validating and returning errors.
-        // Option 1: Simple PUT (no response body check)
+
+
+
         try {
             String url = adminServiceUrl + "/" + uuid;
             log.debug("Updating admin via URL: {}", url);
             restTemplate.put(url, adminRequestModel);
             log.debug("Update request sent for admin: {}", uuid);
-            // We can't easily return the updated model from put.
-            // Usually you'd return void or fetch it again if needed immediately.
-            // For simplicity here, we return null or handle differently in service/controller.
-            return null; // Or potentially fetch again: return getAdminById(uuid);
+
+
+
+            return null;
         } catch (HttpClientErrorException ex) {
             log.warn("updateAdmin failed for UUID: {} with status: {}", uuid, ex.getStatusCode());
             throw handleHttpClientException(ex);
         }
-        // Option 2: Use exchange for more control (more complex)
+
         /*
         try {
              String url = adminServiceUrl + "/" + uuid;
@@ -134,10 +133,10 @@ public class AdminServiceClient {
     }
 
 
-    // --- Error Handling ---
+
 
     private RuntimeException handleHttpClientException(HttpClientErrorException ex) {
-        HttpStatus status = (HttpStatus) ex.getStatusCode(); // Use HttpStatus enum directly
+        HttpStatus status = (HttpStatus) ex.getStatusCode();
         switch (status) {
             case NOT_FOUND:
                 return new NotFoundException(getErrorMessage(ex));
@@ -146,27 +145,27 @@ public class AdminServiceClient {
             default:
                 log.warn("Got an unexpected HTTP error: {}, will rethrow it", status);
                 log.warn("Error body: {}", ex.getResponseBodyAsString());
-                return ex; // Rethrow unexpected errors
+                return ex;
         }
     }
 
     private String getErrorMessage(HttpClientErrorException ex) {
         try {
-            // Attempt to parse the error body using HttpErrorInfo DTO
+
             HttpErrorInfo errorInfo = objectMapper.readValue(ex.getResponseBodyAsString(), HttpErrorInfo.class);
-            // Prefer the message from the parsed DTO if available
+
             if (errorInfo != null && errorInfo.getMessage() != null && !errorInfo.getMessage().isEmpty()) {
                 return errorInfo.getMessage();
             }
-            // Fallback to the raw response body if parsing fails or message is empty
+
             return ex.getResponseBodyAsString();
         } catch (IOException ioex) {
             log.warn("Error parsing HttpClientErrorException body: {}", ioex.getMessage());
-            // Fallback to the exception's message or the raw response body as string
+
             return ex.getResponseBodyAsString();
         } catch (Exception e) {
             log.error("Unexpected error parsing error message: {}", e.getMessage());
-            return ex.getMessage(); // Generic fallback
+            return ex.getMessage();
         }
     }
 }
