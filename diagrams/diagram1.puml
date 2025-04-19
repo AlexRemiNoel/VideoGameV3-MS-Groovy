@@ -1,0 +1,159 @@
+@startuml
+
+
+skinparam backgroundColor white
+skinparam roundcorner 10
+skinparam classFontSize 14
+skinparam classFontName Arial
+skinparam classAttributeFontSize 12
+skinparam classAttributeFontName Arial
+skinparam noteBackgroundColor #ffffcc
+skinparam noteBorderColor #999999
+
+' Title
+title Gaming Platform Domain Model
+
+' Sub-domains
+package "User Management Sub-Domain" #ffcccc {
+  class User {
+    - username: string
+    - email: string
+    - password: string
+    - walletBalance: double
+    + loginAccount(): boolean
+    + registerNewAccount(): void
+    + addFunds(amount: double): void
+    + purchaseGame(game: Game): Order
+  }
+
+  class "«Value Object»\nUserId" as UserId {
+    - uuid: UUID
+  }
+
+  class Admin {
+    - username: string
+    - password: string
+    + DeleteGame(gameId): void
+    + AddGame(Game()): void
+    + manageUserAccounts(): void
+  }
+
+  class "«Value Object»\nAdminId" as AdminId {
+    - uuid: UUID
+  }
+}
+
+package "Game Management Sub-Domain" #ccccff {
+  class Game {
+    - title: string
+    - price: double
+    - releaseDate: Date
+    - description: string
+    - publisher: string
+    - developer: string
+    + getDetails(): string
+    + updateInfo(id,title,genre): void
+    + updatePrice(newPrice: double): void
+  }
+
+  class "«Value Object»\nGameId" as GameId {
+    - uuid: UUID
+  }
+
+  enum "«Value Object»\nGenre" as Genre {
+    ACTION
+    ADVENTURE
+    RPG
+    STRATEGY
+    SIMULATION
+    SPORTS
+    PUZZLE
+    SHOOTER
+    PLATFORMER
+    HORROR
+    RACING
+    FIGHTING
+  }
+
+  class Review {
+    - rating: int
+    - comment: string
+    - reviewDate: Date
+    + submitReview(): void
+  }
+
+  class "«Value Object»\nReviewId" as ReviewId {
+    - uuid: UUID
+  }
+}
+
+package "Purchase Management Sub-Domain" #ffccff {
+  class Order {
+    - orderDate: Date
+    - totalPrice: double
+    + calculateTotal(): double
+    + placeOrder(): void
+    + processRefund(order: Order): void
+  }
+
+  class "«Value Object»\nOrderId" as OrderId {
+    - uuid: UUID
+  }
+
+  class ShoppingCart {
+    - games: List<Game>
+    + addGame(game: Game): void
+    + removeGame(game: Game): void
+    + viewCart(): List<Game>
+    + checkout(): Order
+  }
+
+  class "«Value Object»\nCartId" as CartId {
+    - uuid: UUID
+  }
+}
+
+package "Download Management Sub-Domain" #ccffcc {
+  class DownloadManager {
+    - downloadStatus: string
+    + startDownload(): void
+    + pauseDownload(): void
+    + resumeDownload(): void
+    + cancelDownload(): void
+  }
+
+  class "«Value Object»\nDownloadId" as DownloadId {
+    - uuid: UUID
+  }
+}
+
+' Business rules as notes
+note bottom of Game : "where game.price > 0"
+note bottom of Order : "invariant: (after a game is purchased) its purchaseStatus is set to COMPLETED, its status in the library must be set to OWNED"
+note left of User : "where user.walletBalance >= 0"
+note bottom of Review : "where review.rating >= 1 and review.rating <= 5"
+
+' Entity and ID relationships
+User "1" -- "1" UserId : "identified by"
+Admin "1" -- "1" AdminId : "identified by"
+Game "1" -- "1" GameId : "identified by"
+Game "1" -- "1" Genre : "categorized as"
+Review "1" -- "1" ReviewId : "identified by"
+Order "1" -- "1" OrderId : "identified by"
+ShoppingCart "1" -- "1" CartId : "identified by"
+DownloadManager "1" -- "1" DownloadId : "identified by"
+
+' Relationships between entities
+Game "1" -- "*" Review : "has"
+User "1" -- "*" Order : "places"
+User "1" -- "*" Review : "writes"
+User "1" -- "*" Game : "owns"
+User "1" -- "1" ShoppingCart : "has"
+Order "*" -- "1..*" Game : "contains"
+ShoppingCart "1" -- "*" Game : "contains"
+Admin "1" -- "*" Game : "manages"
+Admin "1" -- "*" User : "manages"
+User "1" -- "1" DownloadManager : "uses"
+DownloadManager "*" -- "1..*" Game : "manages"
+
+@enduml

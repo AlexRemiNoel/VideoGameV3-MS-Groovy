@@ -1,0 +1,23 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+'!include C4_Context.puml
+LAYOUT_WITH_LEGEND()
+
+title System Context diagram for Internet Banking System
+
+Person(customer, "User", "A user browsing the application")
+System_Ext(mainframe, "Mainframe Game Shopping System", "Stores all the core information about users, accounts, transactions and purchased games.")
+System(game_shopping_system, "Internet Game Shopping System", "Allows users to purchase video games.")
+System_Ext(mail_system, "E-mail system", "The internal Microsoft Exchange e-mail system.")
+
+Rel(customer, game_shopping_system, "Uses")
+Rel_Back(customer, mail_system, "Sends e-mails to")
+
+
+Rel(game_shopping_system, mainframe, "Uses")
+Rel_Neighbor(game_shopping_system, mail_system, "Sends e-mails", "SMTP")
+
+
+
+@enduml
