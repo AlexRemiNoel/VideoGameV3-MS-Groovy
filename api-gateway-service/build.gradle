@@ -32,6 +32,7 @@ dependencies {
 	implementation 'org.mapstruct:mapstruct:1.6.3'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'io.springfox:springfox-boot-starter:3.0.0'
 }
 
 dependencyManagement {

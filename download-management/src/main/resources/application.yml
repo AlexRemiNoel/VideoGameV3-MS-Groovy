@@ -30,7 +30,7 @@ spring:
     # JDBC URL for connecting to the MySQL database.
     # Specifies the database type (mysql), host (localhost), port (3306), and database name (cardealership-db).
     # url: jdbc:mysql://localhost:3306/cardealership-db  # use this or the next statement
-    url: jdbc:mysql://mysql1/downloads-db
+    url: jdbc:mysql://mysql2/download-db
     # Database username for authentication.
     username: user
     # Database password for authentication.
