@@ -1,6 +1,6 @@
 @startuml
 
-' Define the background and styling
+
 skinparam backgroundColor white
 skinparam roundcorner 10
 skinparam classFontSize 14
