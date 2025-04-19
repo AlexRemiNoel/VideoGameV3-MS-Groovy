@@ -97,4 +97,15 @@ services:
     networks:
       - default
 
+  gateway-service:
+    build: ./api-gateway-service
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - LOGGING_LEVEL_ROOT=DEBUG
 
+    depends_on:
+      - user-management
+      - download-management
+      - game-management

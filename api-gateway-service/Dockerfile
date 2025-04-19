@@ -7,9 +7,6 @@ COPY build.gradle .
 COPY settings.gradle .
 COPY src src
 
-RUN chmod +x ./gradlew
-
-
 # Build without daemon and parallelization to avoid permission issues
 RUN ./gradlew bootJar --no-daemon --no-parallel
 
