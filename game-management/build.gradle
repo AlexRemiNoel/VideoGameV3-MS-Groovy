@@ -5,7 +5,6 @@ plugins {
 	id 'java-library'
 	id 'maven-publish'
 	id 'jacoco'
-
 }
 
 group = 'com.champsoft'
@@ -25,24 +24,34 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.boot:spring-boot-test'
+	runtimeOnly 'com.h2database:h2'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	implementation "jakarta.persistence:jakarta.persistence-api:3.1.0"
+
 	compileOnly("org.projectlombok:lombok:1.18.38")
 	annotationProcessor("org.projectlombok:lombok:1.18.38")
 	implementation 'org.mapstruct:mapstruct:1.6.3'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
-	implementation 'com.mysql:mysql-connector-j'
-	testImplementation 'com.h2database:h2'
-	testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	implementation 'io.projectreactor:reactor-core' // Or testImplementation if only needed for tests
+
+
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+
+	testLogging {
+		events "passed", "skipped", "failed"
+		showExceptions = true
+		showStackTraces = true
+		showStandardStreams = true
+	}
 }
+
 tasks.test {
+	useJUnitPlatform()
+
 	testLogging {
 		events("passed", "skipped", "failed")
 		showExceptions = true
@@ -50,12 +59,11 @@ tasks.test {
 		showStandardStreams = true
 	}
 }
+
 test {
 	finalizedBy jacocoTestReport // report is always generated after tests run
 }
-jacocoTestReport {
-	dependsOn test // tests are required to run before generating the report
-}
+
 jacocoTestReport {
 	reports {
 		xml.required = false
@@ -63,5 +71,3 @@ jacocoTestReport {
 		html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
 	}
 }
-
-
