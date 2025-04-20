@@ -22,4 +22,9 @@ public class Review {
     private String rating;
     private LocalDateTime timestamp;
     private String game;
+
+    public Review(String s, int i) {
+        reviewId = new ReviewId(s);
+        rating = String.valueOf(i);
+    }
 }

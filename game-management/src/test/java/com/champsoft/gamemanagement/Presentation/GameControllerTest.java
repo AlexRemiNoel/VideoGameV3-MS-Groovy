@@ -1,6 +1,7 @@
 package com.champsoft.gamemanagement.Presentation;
 
 import com.champsoft.gamemanagement.BusinessLogic.GameService;
+import com.champsoft.gamemanagement.DataAccess.GameId;
 import com.champsoft.gamemanagement.Presentation.DTOS.GameController;
 import com.champsoft.gamemanagement.Presentation.DTOS.GameRequestModel;
 import com.champsoft.gamemanagement.Presentation.DTOS.GameResponseModel;
@@ -16,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.*;
 
@@ -26,6 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(GameController.class)
+@RequestMapping("v1/ap1/game")
 public class GameControllerTest {
 
 
@@ -180,6 +183,139 @@ public class GameControllerTest {
 
         verify(gameService, times(1)).getGameById(VALID_CUSTOMER_ID);
     }
+
+
+        private static final String BASE_URL = "/api/v1/game"; // !!! Adjust the base path if different !!!
+
+        @Test
+        void deleteGame_shouldReturnOk_whenGameExists() throws Exception {
+            // Arrange
+            String gameUuid = UUID.randomUUID().toString();
+            GameResponseModel deletedGameModel = new GameResponseModel();
+            deletedGameModel.setId(gameUuid);
+            deletedGameModel.setTitle("Deleted Game");
+            // Populate other fields of deletedGameModel as necessary for verification
+
+            when(gameService.deleteGame(eq(gameUuid))).thenReturn(deletedGameModel);
+
+            // Act & Assert
+            mockMvc.perform(delete(BASE_URL + "/{uuid}", gameUuid))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().json(objectMapper.writeValueAsString(deletedGameModel)));
+        }
+
+        @Test
+        void deleteGame_shouldReturnNotFound_whenGameDoesNotExist() throws Exception {
+            // Arrange
+            String gameUuid = UUID.randomUUID().toString();
+
+            when(gameService.deleteGame(eq(gameUuid))).thenReturn(null);
+
+            // Act & Assert
+            mockMvc.perform(delete(BASE_URL + "/{uuid}", gameUuid))
+                    .andExpect(status().isNotFound())
+                    .andExpect(content().string("")); // Expect an empty response body for 404
+        }
+
+        @Test
+        void reviewGame_shouldReturnOk_whenGameExistsAndReviewAdded() throws Exception {
+            // Arrange
+            String gameUuid = UUID.randomUUID().toString();
+            ReviewRequestModel reviewRequest = new ReviewRequestModel();
+            reviewRequest.setComment("Great game!");
+            reviewRequest.setRating(String.valueOf(5));
+            // Populate other fields of reviewRequest as needed
+
+            GameResponseModel reviewedGameModel = new GameResponseModel();
+            reviewedGameModel.setId(gameUuid);
+            reviewedGameModel.setTitle("Game with Review");
+            // Populate other fields of reviewedGameModel including the added review
+
+            when(gameService.addReview(any(ReviewRequestModel.class), eq(gameUuid)))
+                    .thenReturn(reviewedGameModel);
+
+            // Act & Assert
+            mockMvc.perform(post(BASE_URL + "/review/{uuid}", gameUuid)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(reviewRequest)))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(content().json(objectMapper.writeValueAsString(reviewedGameModel)));
+        }
+
+        @Test
+        void reviewGame_shouldReturnNotFound_whenGameDoesNotExist() throws Exception {
+            // Arrange
+            String gameUuid = UUID.randomUUID().toString();
+            ReviewRequestModel reviewRequest = new ReviewRequestModel();
+            reviewRequest.setComment("Great game!");
+            reviewRequest.setRating(String.valueOf(5));
+            // Populate other fields of reviewRequest as needed
+
+            when(gameService.addReview(any(ReviewRequestModel.class), eq(gameUuid)))
+                    .thenReturn(null);
+
+            // Act & Assert
+            mockMvc.perform(post(BASE_URL + "/review/{uuid}", gameUuid)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(reviewRequest)))
+                    .andExpect(status().isNotFound())
+                    .andExpect(content().string("")); // Expect an empty response body for 404
+        }
+
+    @Test
+    void updateGame_shouldReturnOk_whenGameExistsAndUpdated() throws Exception {
+        // Arrange
+        String gameUuid = UUID.randomUUID().toString();
+        GameRequestModel requestModel = new GameRequestModel();
+//        requestModel.setId(gameUuid); // Assuming GameRequestModel has an ID field
+        requestModel.setTitle("Updated Title");
+        requestModel.setPrice(69.99);
+        // Populate other fields of requestModel as needed for the update
+
+        GameResponseModel updatedGameModel = new GameResponseModel();
+        updatedGameModel.setId(gameUuid);
+        updatedGameModel.setTitle("Updated Title");
+        updatedGameModel.setPrice(69.99);
+        // Populate other fields of updatedGameModel to reflect the expected updated state
+
+        when(gameService.updateGame(any(GameRequestModel.class))).thenReturn(updatedGameModel);
+
+        // Act & Assert
+        mockMvc.perform(put(BASE_URL) // PUT mapping is on the base URL in your controller
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestModel)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(objectMapper.writeValueAsString(updatedGameModel)));
+    }
+
+    @Test
+    void updateGame_shouldReturnNotFound_whenGameDoesNotExist() throws Exception {
+        // Arrange
+        String gameUuid = UUID.randomUUID().toString();
+        GameRequestModel requestModel = new GameRequestModel();
+//        requestModel.setId(new GameId(gameUuid)); // Assuming GameRequestModel has an ID field
+        requestModel.setTitle("Attempt to Update Non-existent");
+        requestModel.setPrice(100.00);
+        // Populate other fields of requestModel as needed
+
+        when(gameService.updateGame(any(GameRequestModel.class))).thenReturn(null); // Service returns null if not found
+
+        // Act & Assert
+        mockMvc.perform(put(BASE_URL) // PUT mapping is on the base URL
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestModel)))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("")); // Expect an empty response body for 404
+    }
+}
+
+
+// You might also want to add tests for validation errors if your ReviewRequestModel
+        // has validation annotations and your controller uses @Valid
+
 
 //    @Test
 //    public void whenAddGame_validInput_thenReturnCreatedAndGame() throws Exception {
@@ -336,7 +472,7 @@ public class GameControllerTest {
 //
 //        verify(gameService, times(1)).addGameToUser(eq(requestBody.get("userUuid")), eq(requestBody.get("gameUuid")));
 //    }
-}
+
 
 
 

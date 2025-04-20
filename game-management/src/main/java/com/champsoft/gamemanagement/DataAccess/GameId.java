@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @Embeddable
 @Data
@@ -16,4 +17,7 @@ import java.util.List;
 public class GameId {
     @Column(name = "game_id") // Map uuid to game_id column
     private String uuid;
+    public GameId(UUID id){
+        uuid = String.valueOf(id);
+    }
 }

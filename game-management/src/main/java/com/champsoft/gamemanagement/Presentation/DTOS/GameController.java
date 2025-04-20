@@ -82,12 +82,12 @@ public class GameController {
         }
     }
 
-    @PostMapping("/addToLibrary")
-    public ResponseEntity<Void> addToLibrary(@RequestBody Map<String, String> requestBody) {
-        String userUuid = requestBody.get("userUuid");
-        String gameUuid = requestBody.get("gameUuid");
-        gameService.addGameToUser(userUuid, gameUuid);
-        return new ResponseEntity<>(HttpStatus.OK);
-
-    }
+//    @PostMapping("/addToLibrary")
+//    public ResponseEntity<Void> addToLibrary(@RequestBody Map<String, String> requestBody) {
+//        String userUuid = requestBody.get("userUuid");
+//        String gameUuid = requestBody.get("gameUuid");
+//        gameService.addGameToUser(userUuid, gameUuid);
+//        return new ResponseEntity<>(HttpStatus.OK);
+//
+//    }
 }
