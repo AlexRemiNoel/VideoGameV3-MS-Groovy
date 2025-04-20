@@ -93,7 +93,7 @@ public class GameServiceTest {
         String uuid = UUID.randomUUID().toString();
         Game game = createTestGame();
         GameResponseModel responseModel = createTestGameResponseModel();
-        when(gameRepository.findGameByGameId_uuid(new GameId(uuid))).thenReturn(game);
+        when(gameRepository.findGameByGameId(new GameId(uuid))).thenReturn(game);
         when(gameResponseMapper.gameToGameResponseModel(game)).thenReturn(responseModel);
 
         // Act
@@ -102,7 +102,7 @@ public class GameServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(responseModel.getId(), result.getId());
-        verify(gameRepository, times(1)).findGameByGameId_uuid(new GameId(uuid));
+        verify(gameRepository, times(1)).findGameByGameId(new GameId(uuid));
         verify(gameResponseMapper, times(1)).gameToGameResponseModel(game);
     }
 
@@ -110,11 +110,11 @@ public class GameServiceTest {
     public void whenGetGameById_nonExistingUuid_thenThrowNotFoundException() {
         // Arrange
         String uuid = UUID.randomUUID().toString();
-        when(gameRepository.findGameByGameId_uuid(new GameId(uuid))).thenReturn(null);
+        when(gameRepository.findGameByGameId(new GameId(uuid))).thenReturn(null);
 
         // Act and Assert
         assertThrows(NotFoundException.class, () -> gameService.getGameById(uuid));
-        verify(gameRepository, times(1)).findGameByGameId_uuid(new GameId(uuid));
+        verify(gameRepository, times(1)).findGameByGameId(new GameId(uuid));
         verify(gameResponseMapper, never()).gameToGameResponseModel((Game) any());
     }
 
@@ -216,7 +216,7 @@ public class GameServiceTest {
         String uuid = UUID.randomUUID().toString();
         Game game = createTestGame();
         GameResponseModel responseModel = createTestGameResponseModel();
-        when(gameRepository.findGameByGameId_uuid(new GameId(uuid))).thenReturn(game);
+        when(gameRepository.findGameByGameId(new GameId(uuid))).thenReturn(game);
         doNothing().when(gameRepository).delete(game);
         when(gameResponseMapper.gameToGameResponseModel(game)).thenReturn(responseModel);
 
@@ -226,7 +226,7 @@ public class GameServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(responseModel.getTitle(), result.getTitle());
-        verify(gameRepository, times(1)).findGameByGameId_uuid(new GameId(uuid));
+        verify(gameRepository, times(1)).findGameByGameId(new GameId(uuid));
         verify(gameRepository, times(1)).delete(game);
         verify(gameResponseMapper, times(1)).gameToGameResponseModel(game);
     }
@@ -256,7 +256,7 @@ public class GameServiceTest {
         ReviewRequestModel reviewRequestModel = createTestReviewRequestModel();
         Review review = createTestReview();
         GameResponseModel responseModel = createTestGameResponseModel();
-        when(gameRepository.findGameByGameId_uuid(new GameId(gameId))).thenReturn(game);
+        when(gameRepository.findGameByGameId(new GameId(gameId))).thenReturn(game);
         when(reviewMapper.reviewRequestModelToReview(reviewRequestModel)).thenReturn(review);
         when(gameRepository.save(game)).thenReturn(game);
         when(gameResponseMapper.gameToGameResponseModel(game)).thenReturn(responseModel);
@@ -269,7 +269,7 @@ public class GameServiceTest {
         assertEquals(responseModel.getTitle(), result.getTitle());
         assertEquals(1, game.getReviews().size());
         assertEquals(review.getComment(), game.getReviews().get(0).getComment());
-        verify(gameRepository, times(1)).findGameByGameId_uuid(new GameId(gameId));
+        verify(gameRepository, times(1)).findGameByGameId(new GameId(gameId));
         verify(reviewMapper, times(1)).reviewRequestModelToReview(reviewRequestModel);
         verify(gameRepository, times(1)).save(game);
         verify(gameResponseMapper, times(1)).gameToGameResponseModel(game);

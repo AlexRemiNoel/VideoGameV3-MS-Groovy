@@ -45,11 +45,11 @@ public class GameRepositoryTest {
 
     @Test
     @DisplayName("Find Download By Existing UUID - Success")
-    void whenDownloadExists_FindByUuid_ShouldReturnDownload() {
+    void whenGameExists_FindByUuid_ShouldReturnGame() {
         gameRepository.save(game1);
         String existingUuid = game1.getGameId().toString();
 
-        Game foundGame = gameRepository.findGameByGameId_uuid(new GameId(existingUuid));
+        Game foundGame = gameRepository.findGameByGameId(new GameId(existingUuid));
 
         assertNotNull(foundGame);
         assertEquals(game1.getGameId(), foundGame.getGameId());
@@ -60,17 +60,17 @@ public class GameRepositoryTest {
 
     @Test
     @DisplayName("Find Download By Non-Existent UUID - Returns Null")
-    void whenDownloadDoesNotExist_FindByUuid_ShouldReturnNull() {
+    void whenGameDoesNotExist_FindByUuid_ShouldReturnNull() {
         String nonExistentUuid = UUID.randomUUID().toString();
 
-        Game foundGame = gameRepository.findGameByGameId_uuid(new GameId(nonExistentUuid));
+        Game foundGame = gameRepository.findGameByGameId(new GameId(nonExistentUuid));
 
         assertNull(foundGame);
     }
 
     @Test
     @DisplayName("Save New Download - Success")
-    void whenSaveNewDownload_ShouldPersistDownload() {
+    void whenSaveNewGame_ShouldPersistGame() {
 
         Game savedGame = gameRepository.save(game1);
 
@@ -78,13 +78,13 @@ public class GameRepositoryTest {
         assertNotNull(savedGame.getGameId());
         assertEquals(game1.getGameId().getUuid(), savedGame.getGameId().getUuid());
 
-        Game retrievedGame = gameRepository.findGameByGameId_uuid(game1.getGameId());
+        Game retrievedGame = gameRepository.findGameByGameId(game1.getGameId());
         assertEquals(game1.getTitle(), retrievedGame.getTitle());
     }
 
     @Test
     @DisplayName("Find All Downloads - Success")
-    void whenMultipleDownloadsExist_FindAll_ShouldReturnAllDownloads() {
+    void whenMultipleGamesExist_FindAll_ShouldReturnAllGames() {
         gameRepository.save(game1);
         gameRepository.save(game2);
         long expectedCount = 2;
@@ -97,7 +97,7 @@ public class GameRepositoryTest {
 
     @Test
     @DisplayName("Find All Downloads When None Exist - Returns Empty List")
-    void whenNoDownloadsExist_FindAll_ShouldReturnEmptyList() {
+    void whenNoGamesExist_FindAll_ShouldReturnEmptyList() {
         long expectedCount = 0;
 
         List<Game> games = gameRepository.findAll();
@@ -110,29 +110,29 @@ public class GameRepositoryTest {
 
     @Test
     @DisplayName("Delete Download By ID - Success")
-    void whenDownloadExists_DeleteById_ShouldRemoveDownload() {
+    void whenGameExists_DeleteById_ShouldRemoveDownload() {
         Game savedDownload = gameRepository.save(game1);
         GameId idToDelete = savedDownload.getGameId();
         assertTrue(gameRepository.existsById(idToDelete), "Download should exist before deletion");
 
         gameRepository.deleteById(idToDelete);
         assertFalse(gameRepository.existsById(idToDelete), "Download should not exist after deletion");
-        assertNull(gameRepository.findGameByGameId_uuid(idToDelete), "Finding by UUID should return null after deletion");
+        assertNull(gameRepository.findGameByGameId(idToDelete), "Finding by UUID should return null after deletion");
     }
 
 
     @Test
     @DisplayName("Update Existing Download - Success")
-    void whenUpdateExistingDownload_ShouldReflectChanges() {
+    void whenUpdateExistingGame_ShouldReflectChanges() {
         Game savedGame = gameRepository.save(game1);
         GameId gameId = savedGame.getGameId();
 
-        Game GameToUpdate = gameRepository.findGameByGameId_uuid(gameId);
+        Game GameToUpdate = gameRepository.findGameByGameId(gameId);
 
         GameToUpdate.setGenre(Genre.ADVENTURE);
         GameToUpdate.setTitle("Game Ready");
         gameRepository.save(GameToUpdate);
-        Game updatedGame = gameRepository.findGameByGameId_uuid(gameId);
+        Game updatedGame = gameRepository.findGameByGameId(gameId);
 
         assertEquals(gameId, updatedGame.getGameId());
         assertEquals(Genre.ADVENTURE, updatedGame.getGenre());
@@ -141,7 +141,7 @@ public class GameRepositoryTest {
 
     @Test
     @DisplayName("Check Download Existence By ID - Exists")
-    void whenDownloadExists_ExistsById_ShouldReturnTrue() {
+    void whenGameExists_ExistsById_ShouldReturnTrue() {
         gameRepository.save(game1);
         GameId existingId = game1.getGameId();
 
@@ -152,7 +152,7 @@ public class GameRepositoryTest {
 
     @Test
     @DisplayName("Check Download Existence By ID - Does Not Exist")
-    void whenDownloadDoesNotExist_ExistsById_ShouldReturnFalse() {
+    void whenGameDoesNotExist_ExistsById_ShouldReturnFalse() {
         GameId nonExistentId = new GameId(UUID.randomUUID().toString());
 
         boolean exists = gameRepository.existsById(nonExistentId);
@@ -162,7 +162,7 @@ public class GameRepositoryTest {
 
     @Test
     @DisplayName("Count Downloads - Success")
-    void whenMultipleDownloadsExist_Count_ShouldReturnCorrectNumber() {
+    void whenMultipleGamesExist_Count_ShouldReturnCorrectNumber() {
         gameRepository.save(game1);
         gameRepository.save(game2);
         long expectedCount = 2;

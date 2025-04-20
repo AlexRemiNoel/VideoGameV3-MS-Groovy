@@ -37,7 +37,7 @@ public class GameService {
 
     public GameResponseModel getGameById(String uuid){
         try {
-            Game game = gameRepository.findGameByGameId_uuid(new GameId(uuid));
+            Game game = gameRepository.findGameByGameId(new GameId(uuid));
             if (game == null) {
                 throw new NotFoundException("Game with UUID: " + uuid);
             }
@@ -70,13 +70,13 @@ public class GameService {
     }
 
     public GameResponseModel deleteGame(String uuid){
-        Game game = gameRepository.findGameByGameId_uuid(new GameId(uuid));
+        Game game = gameRepository.findGameByGameId(new GameId(uuid));
         gameRepository.delete(game);
         return gameResponseMapper.gameToGameResponseModel(game);
     }
 
     public GameResponseModel addReview(ReviewRequestModel reviewRequestModel, String gameId){
-        Game game = gameRepository.findGameByGameId_uuid(new GameId(gameId));
+        Game game = gameRepository.findGameByGameId(new GameId(gameId));
         Review review = reviewMapper.reviewRequestModelToReview(reviewRequestModel);
 
         List<Review> reviews = game.getReviews();
@@ -93,10 +93,13 @@ public class GameService {
     }
 
     public void addGameToUser(String uuid, String gameId){
-        Game game = gameRepository.findGameByGameId_uuid(new GameId(uuid));
+        Game game = gameRepository.findGameByGameId(new GameId(uuid));
         gameRepository.save(game);
 
     }
 
 
+    public <T> void updateGame(T eq, T any) {
+
+    }
 }

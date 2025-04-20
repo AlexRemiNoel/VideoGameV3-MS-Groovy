@@ -36,6 +36,7 @@ dependencies {
 	testImplementation 'com.h2database:h2'
 	testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'io.projectreactor:reactor-core' // Or testImplementation if only needed for tests
 }
 
 tasks.named('test') {
