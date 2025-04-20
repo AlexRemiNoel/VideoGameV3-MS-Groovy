@@ -1,8 +1,8 @@
-package com.example.apigatewayservice.businesslogiclayer;
+package com.example.apigatewayservice.businesslogiclayer.user;
 
-import com.example.apigatewayservice.DomainClientLayer.UserServiceClient;
-import com.example.apigatewayservice.presentationlayer.UserRequestModel;
-import com.example.apigatewayservice.presentationlayer.UserResponseModel;
+import com.example.apigatewayservice.DomainClientLayer.user.UserServiceClient;
+import com.example.apigatewayservice.presentationlayer.user.UserRequestModel;
+import com.example.apigatewayservice.presentationlayer.user.UserResponseModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
