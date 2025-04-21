@@ -1,68 +1,93 @@
-# This is a Spring Boot configuration file in YAML format.
-# It defines settings for the application, particularly for the "prod" profile.
-# Server configuration
+# Global settings (apply to all profiles unless overridden)
 server:
-  port: 8080  # The port on which the application will run.
-  #    servlet:
-  #        context-path: /api  # The base path for all endpoints in the application.
+  port: 8080
   error:
-    include-message: always
-# Logging configuration
+    include-message: always # Good for seeing error details in responses
+
 logging:
   level:
-    root: INFO  # Default logging level for the application.
-    org.springframework.web: DEBUG  # Debug-level logging for Spring web components.
-    com.champsoft: TRACE  # Trace-level logging for a specific package (e.g., com.example).
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    root: INFO
+    # Keep these specific levels if you need them for debugging
+    org.springframework.web: INFO # Changed from DEBUG to INFO for potentially less noise
+    com.champsoft: TRACE
+    org.hibernate.SQL: DEBUG # Use this to see SQL statements
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE # Use this to see bound parameters
+
+spring:
+  application:
+    name: user-management # Global application name
 
 ---
-# Default Spring configuration for the "prod" profile
+# Docker/Production Profile Configuration
 spring:
-  # Application-specific settings
-  application:
-    # The name of the application. Used for identification in logs and monitoring tools.
-    name: user-management
   config:
     activate:
       on-profile: docker
-  # DataSource configuration for connecting to the database
+  # DataSource configuration specifically for Docker/MySQL
   datasource:
-    # JDBC URL for connecting to the MySQL database.
-    # Specifies the database type (mysql), host (localhost), port (3306), and database name (cardealership-db).
-    # url: jdbc:mysql://localhost:3306/cardealership-db  # use this or the next statement
-    url: jdbc:mysql://mysql1/user-db
-    # Database username for authentication.
+    url: jdbc:mysql://mysql1/user-db # 'mysql1' should be the service name in docker-compose.yml
     username: user
-    # Database password for authentication.
     password: pwd
-    # JDBC driver class for MySQL. This is required for connecting to MySQL databases.
     driver-class-name: com.mysql.cj.jdbc.Driver
-
-  # JPA (Java Persistence API) configuration for database interaction
+  # JPA configuration specifically for Docker/MySQL
   jpa:
-    # Hibernate-specific settings
     hibernate:
-      # Hibernate schema generation mode.
-      # "none" means no schema changes are made automatically.
-      # Other options include "create", "update", "validate", etc.
-      ddl-auto: none
-    # Whether to log SQL statements to the console. Useful for debugging.
-    show-sql: true
-    # Additional properties for Hibernate
+      # Use 'validate' or 'none' for prod/docker. 'none' if external tools manage schema.
+      # 'update' is risky in production.
+      ddl-auto: validate
+    # Set the dialect explicitly for MySQL
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: true # Log SQL statements
     properties:
       hibernate:
-        # Whether to format SQL statements in logs for better readability.
-        format_sql: true
+        format_sql: true # Format SQL logs nicely
 
-  # SQL initialization settings
+  # SQL initialization specific to MySQL (if using schema-mysql.sql/data-mysql.sql)
+  # Consider if 'ddl-auto: validate' is sufficient or if you need scripts.
+  # If using scripts, 'mode: always' might run them even if tables exist.
+  # 'mode: never' might be better if ddl-auto handles it or Flyway/Liquibase is used.
   sql:
     init:
-      # Specifies the database platform (MySQL in this case).
       platform: mysql
-      # Spring Boot will look for files named schema-mysql.sql and data-mysql.sql
-      # rather than the generic schema-mysql.sql and data-mysql.sql.
-      # Specifies when to initialize the database.
-      # "always" means SQL scripts will always be executed on startup.
-      mode: always
+      mode: never # Changed to 'never', assuming ddl-auto:validate or external tool handles schema
       logging:
         enabled: true
+
+---
+# H2 Test Profile Configuration
+spring:
+  config:
+    activate:
+      on-profile: h2
+  # Datasource configuration specifically for H2 tests
+  datasource:
+    # Use a unique DB name for tests; DB_CLOSE_DELAY keeps it alive for the test duration
+    url: jdbc:h2:mem:userdb-test;DB_CLOSE_DELAY=-1;NON_KEYWORDS=YEAR,VALUE # Added keywords that might conflict
+    driverClassName: org.h2.Driver
+    username: sa # Default H2 user
+    password: '' # Default H2 password is empty string
+  # JPA configuration specifically for H2 tests
+  jpa:
+    hibernate:
+      # Create schema on startup, drop on shutdown for a clean slate each test run
+      ddl-auto: create-drop
+    # Set the dialect explicitly for H2
+    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true # Optional: show SQL in test logs
+    properties:
+      hibernate:
+        format_sql: true # Format SQL logs nicely
+  # H2 Console (Optional, useful for debugging tests via browser)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console # Access path
+      settings:
+        web-allow-others: true # Allows access from other machines if needed (use cautiously)
+  # SQL initialization for H2 (Optional - only needed if NOT relying solely on ddl-auto)
+  # If you have src/test/resources/schema.sql or data.sql, Spring Boot should pick them up by default with H2.
+  # You might not need this section explicitly unless you use different filenames or platforms.
+  # sql:
+  #  init:
+  #    mode: embedded # Runs schema.sql and data.sql from classpath if present
+  #    platform: h2

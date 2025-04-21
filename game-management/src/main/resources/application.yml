@@ -17,27 +17,28 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 ---
-# Default Spring configuration for the "prod" profile
+# Spring configuration specifically for the "docker" profile
 spring:
+  config:
+    activate:
+      on-profile: docker
   # Application-specific settings
   application:
     # The name of the application. Used for identification in logs and monitoring tools.
     name: game-management
-  config:
-    activate:
-      on-profile: docker
   # DataSource configuration for connecting to the database
   datasource:
-    # JDBC URL for connecting to the MySQL database.
-    # Specifies the database type (mysql), host (localhost), port (3306), and database name (cardealership-db).
-    # url: jdbc:mysql://localhost:3306/cardealership-db  # use this or the next statement
-    url: jdbc:mysql://mysql3/game-db
-    # Database username for authentication.
+    # --- CHANGED: Updated JDBC URL for PostgreSQL ---
+    # Points to the 'postgres-game' service defined in docker-compose.yml
+    # Uses the standard PostgreSQL port 5432 (internal container port)
+    # Connects to the 'game-db' database
+    url: jdbc:postgresql://postgres-game:5432/game-db
+    # Database username (matches POSTGRES_USER in docker-compose)
     username: user
-    # Database password for authentication.
+    # Database password (matches POSTGRES_PASSWORD in docker-compose)
     password: pwd
-    # JDBC driver class for MySQL. This is required for connecting to MySQL databases.
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    # --- CHANGED: Updated JDBC driver class for PostgreSQL ---
+    driver-class-name: org.postgresql.Driver
 
   # JPA (Java Persistence API) configuration for database interaction
   jpa:
@@ -45,7 +46,8 @@ spring:
     hibernate:
       # Hibernate schema generation mode.
       # "none" means no schema changes are made automatically.
-      # Other options include "create", "update", "validate", etc.
+      # Consider "update" during development if you want Hibernate to manage schema changes.
+      # Ensure your SQL scripts are compatible if using "none".
       ddl-auto: none
     # Whether to log SQL statements to the console. Useful for debugging.
     show-sql: true
@@ -54,14 +56,17 @@ spring:
       hibernate:
         # Whether to format SQL statements in logs for better readability.
         format_sql: true
+        # --- ADDED: Specify the PostgreSQL dialect for Hibernate ---
+        # Helps Hibernate generate optimized SQL for PostgreSQL
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   # SQL initialization settings
   sql:
     init:
-      # Specifies the database platform (MySQL in this case).
-      platform: mysql
-      # Spring Boot will look for files named schema-mysql.sql and data-mysql.sql
-      # rather than the generic schema-mysql.sql and data-mysql.sql.
+      # --- CHANGED: Specifies the database platform as PostgreSQL ---
+      # Spring Boot will now look for files named schema-postgres.sql and data-postgres.sql
+      # (or schema.sql/data.sql if platform-specific files aren't found).
+      platform: postgres
       # Specifies when to initialize the database.
       # "always" means SQL scripts will always be executed on startup.
       mode: always

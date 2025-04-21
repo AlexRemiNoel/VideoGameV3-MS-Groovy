@@ -7,7 +7,7 @@ import com.example.apigatewayservice.exception.InvalidInputException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.gateway.support.NotFoundException;
+import com.example.apigatewayservice.exception.NotFoundException;
 import org.springframework.http.HttpMethod;
 
 import org.springframework.core.ParameterizedTypeReference;

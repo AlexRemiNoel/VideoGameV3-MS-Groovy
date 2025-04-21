@@ -52,8 +52,8 @@ public class GameController {
     }
 
 
-    @PutMapping
-    public ResponseEntity<GameResponseModel> updateGame(@RequestBody GameRequestModel gameRequestModel) {
+    @PutMapping("{uuid}")
+    public ResponseEntity<GameResponseModel> updateGame(@RequestBody GameRequestModel gameRequestModel, @PathVariable String uuid) {
         GameResponseModel updatedGame = gameService.updateGame(gameRequestModel);
         if(updatedGame != null){
             return new ResponseEntity<>(updatedGame, HttpStatus.OK);

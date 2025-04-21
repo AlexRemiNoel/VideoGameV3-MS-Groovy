@@ -10,7 +10,6 @@ import com.champsoft.gamemanagement.Presentation.DTOS.GameResponseModel;
 import com.champsoft.gamemanagement.Presentation.DTOS.ReviewRequestModel;
 
 import com.champsoft.gamemanagement.utils.exceptions.NotFoundException;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,33 +19,28 @@ import java.util.UUID;
 
 @Service
 public class GameService {
+    private final ReviewRepository reviewRepository;
     private GameResponseMapper gameResponseMapper;
     private GameRepository gameRepository;
     private GameRequestMapper gameRequestMapper;
     private ReviewMapper reviewMapper;
 
 
-    public GameService(GameResponseMapper gameResponseMapper, GameRepository gameRepository, GameRequestMapper gameRequestMapper, ReviewMapper reviewMapper) {
+    public GameService(GameResponseMapper gameResponseMapper, GameRepository gameRepository, GameRequestMapper gameRequestMapper, ReviewMapper reviewMapper, ReviewRepository reviewRepository) {
         this.gameRepository =  gameRepository;
         this.gameRequestMapper = gameRequestMapper;
         this.gameResponseMapper = gameResponseMapper;
         this.reviewMapper = reviewMapper;
-
+        this.reviewRepository = reviewRepository;
     }
 
     public GameResponseModel getGameById(String uuid){
-        try {
-            Game game = gameRepository.findGameByGameId(new GameId(uuid));
-            if (game == null) {
-                throw new NotFoundException("Game with UUID: " + uuid);
-            }
-            GameResponseModel responseModel = gameResponseMapper.gameToGameResponseModel(game);
-            return responseModel;
+        Game game = gameRepository.findGameByGameId(new GameId(uuid));
+        if (game == null) {
+            throw new NotFoundException("Game with UUID: " + uuid);
         }
-        catch (NotFoundException e){
-            String message = "Game with UUID: " + uuid + " not found";
-            throw e;
-        }
+        GameResponseModel responseModel = gameResponseMapper.gameToGameResponseModel(game);
+        return responseModel;
     }
 
     public List<GameResponseModel> getAllGames(){
@@ -64,11 +58,18 @@ public class GameService {
 
 
     public GameResponseModel updateGame(GameRequestModel gameRequestModel){
+        Game game = gameRepository.findGameByGameId(new GameId(gameRequestModel.getUserId()));
+        if (game == null) {
+            throw new NotFoundException(gameRequestModel.getUserId());
+        }
         return gameResponseMapper.gameToGameResponseModel(gameRepository.save(gameRequestMapper.requestModelToEntity(gameRequestModel)));
     }
 
     public GameResponseModel deleteGame(String uuid){
         Game game = gameRepository.findGameByGameId(new GameId(uuid));
+        if (game == null) {
+            throw new NotFoundException("Game with UUID: " + uuid);
+        }
         gameRepository.delete(game);
         return gameResponseMapper.gameToGameResponseModel(game);
     }
@@ -86,9 +87,11 @@ public class GameService {
         }
 
         reviews.add(review);
+        review.setGame(game);
 
+        System.out.println(reviews);
         game.setReviews(reviews);
-
+        reviewRepository.save(review);
         gameRepository.save(game);
         return gameResponseMapper.gameToGameResponseModel(game);
     }

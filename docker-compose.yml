@@ -62,24 +62,46 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
     depends_on:
-      mysql3:
+      postgres-game:
         condition: service_healthy
 
 
-  mysql3:
-    image: 'mysql:latest'
+  postgres-game:
+    image: 'postgres:latest' # Using PostgreSQL image
+    hostname: postgres-gamehost # Optional: Added hostname for consistency
     environment:
-      - 'MYSQL_DATABASE=game-db'
-      - 'MYSQL_USER=user'
-      - 'MYSQL_PASSWORD=pwd'
-      - 'MYSQL_ROOT_PASSWORD=verysecretpwd'
+      - 'POSTGRES_DB=game-db'       # PostgreSQL equivalent for database name
+      - 'POSTGRES_USER=user'         # PostgreSQL equivalent for user
+      - 'POSTGRES_PASSWORD=pwd'      # PostgreSQL equivalent for password
+      # - 'PGDATA=/var/lib/postgresql/data/pgdata' # Optional: If you want data in a sub-directory
     ports:
-      - "3309:3306"
+      - "5433:5432" # Changed port mapping (host:container), PostgreSQL default is 5432
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-uuser", "-ppwd", "-h", "localhost" ]
+      # Use pg_isready for PostgreSQL healthcheck
+      test: [ "CMD-SHELL", "pg_isready -U user -d game-db" ]
       interval: 10s
       timeout: 5s
       retries: 10
+
+  pgadmin:
+    image: dpage/pgadmin4:latest # Use specific version tag in production if preferred
+    container_name: pgAdmin_PostgreSQL # Optional: Custom container name
+    restart: unless-stopped
+    environment:
+      # IMPORTANT: These are for logging into the pgAdmin WEB INTERFACE,
+      # NOT for connecting to the database itself.
+      # CHANGE THESE to something secure!
+      PGADMIN_DEFAULT_EMAIL: "admin@example.com"
+      PGADMIN_DEFAULT_PASSWORD: "changeme"
+      # PGADMIN_CONFIG_SERVER_MODE: "False" # Set to True if you don't want users adding servers
+    ports:
+      # Map a host port (e.g., 5050) to pgAdmin's default container port (80)
+      - "5050:80"
+    depends_on:
+      postgres-game:
+        condition: service_healthy
+    networks:
+      - default # Ensure it's on the same network as postgres-game
 
 
   phpmyadmin:
@@ -93,7 +115,6 @@ services:
     depends_on:
       - mysql1
       - mysql2
-      - mysql3
     networks:
       - default
 
