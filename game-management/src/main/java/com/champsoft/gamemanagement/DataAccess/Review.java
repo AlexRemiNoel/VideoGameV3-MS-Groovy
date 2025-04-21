@@ -1,6 +1,7 @@
 package com.champsoft.gamemanagement.DataAccess;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,10 +22,14 @@ public class Review {
     private String comment;
     private String rating;
     private LocalDateTime timestamp;
-    private String game;
+    @JsonBackReference
+    @ManyToOne
+    @JoinColumn(name="game_id", nullable = true)
+    private Game game;
 
     public Review(String s, int i) {
         reviewId = new ReviewId(s);
         rating = String.valueOf(i);
     }
+
 }
