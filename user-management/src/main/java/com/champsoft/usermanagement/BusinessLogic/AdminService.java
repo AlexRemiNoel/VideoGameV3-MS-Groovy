@@ -2,7 +2,6 @@ package com.champsoft.usermanagement.BusinessLogic;
 
 import com.champsoft.usermanagement.DataAccess.Admin;
 import com.champsoft.usermanagement.DataAccess.AdminRepository;
-import com.champsoft.usermanagement.DataAccess.User;
 import com.champsoft.usermanagement.DataMapper.AdminRequestMapper;
 import com.champsoft.usermanagement.DataMapper.AdminResponseMapper;
 import com.champsoft.usermanagement.Presentation.AdminRequestModel;
@@ -30,7 +29,7 @@ public class AdminService {
     }
 
     public AdminResponseModel getAdminById(String uuid) {
-        Admin admin = adminRepository.findAdminByAdminId_uuid(uuid);
+        Admin admin = findAdminByUuidOrThrow(uuid);
         return adminResponseMapper.adminToAdminResponseModel(admin);
     }
 

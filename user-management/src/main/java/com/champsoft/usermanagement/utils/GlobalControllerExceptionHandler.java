@@ -2,7 +2,7 @@ package com.champsoft.usermanagement.utils;
 
 
 import com.champsoft.usermanagement.utils.exceptions.DuplicateVinException;
-import com.champsoft.usermanagement.utils.exceptions.InvalidInputException;
+import com.champsoft.usermanagement.utils.exceptions.InvalidUserInputException;
 import com.champsoft.usermanagement.utils.exceptions.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,7 +25,7 @@ public class GlobalControllerExceptionHandler {
     }
 
     @ResponseStatus(UNPROCESSABLE_ENTITY)
-    @ExceptionHandler(InvalidInputException.class)
+    @ExceptionHandler(InvalidUserInputException.class)
     public HttpErrorInfo handleInvalidInputException(WebRequest request, Exception ex) {
         return createHttpErrorInfo(UNPROCESSABLE_ENTITY, request, ex);
     }

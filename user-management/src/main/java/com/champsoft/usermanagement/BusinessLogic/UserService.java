@@ -7,13 +7,11 @@ import com.champsoft.usermanagement.DataMapper.UserRequestMapper;
 import com.champsoft.usermanagement.DataMapper.UserResponseMapper;
 import com.champsoft.usermanagement.Presentation.UserRequestModel;
 import com.champsoft.usermanagement.Presentation.UserResponseModel;
-import com.champsoft.usermanagement.utils.exceptions.InvalidInputException;
+import com.champsoft.usermanagement.utils.exceptions.InvalidUserInputException;
 import com.champsoft.usermanagement.utils.exceptions.NotFoundException;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class UserService {
@@ -33,18 +31,15 @@ public class UserService {
     }
 
     public UserResponseModel getUserById(String uuid) {
-        User user = userRepository.findUserByUserId_uuid(uuid);
-        System.out.println(user.getGames());
+        User user = findUserByUuidOrThrow(uuid);
         return userResponseMapper.userToUserResponseModel(user);
-    }
-
-    public User getUserEntityById(String uuid) {
-        User user = userRepository.findUserByUserId_uuid(uuid);
-        return user;
     }
 
     public UserResponseModel addUser(UserRequestModel userRequestModel) {
         User user = userRequestMapper.userRequestModelToUser(userRequestModel);
+        if (user.getBalance() < 0) {
+            throw new InvalidUserInputException("Invalid negative balance: " + user.getBalance());
+        }
         userRepository.save(user);
         return userResponseMapper.userToUserResponseModel(user);
     }
@@ -61,7 +56,6 @@ public class UserService {
 
     public void deleteUser(String uuid) {
         User user = findUserByUuidOrThrow(uuid);
-
         userRepository.delete(user);
     }
 
@@ -71,7 +65,7 @@ public class UserService {
         // Validate newBalance if necessary (e.g., non-negative)
 
         if (newBalance < 0) {
-            throw new InvalidInputException("Invalid negative balance: " + newBalance);
+            throw new InvalidUserInputException("Invalid negative balance: " + newBalance);
         }
 
         user.setBalance(newBalance); // Assuming User entity has setBalance method

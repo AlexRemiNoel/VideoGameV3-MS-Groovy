@@ -2,12 +2,13 @@ package com.champsoft.usermanagement.Presentation;
 
 
 import com.champsoft.usermanagement.BusinessLogic.AdminService;
-import com.champsoft.usermanagement.utils.exceptions.InvalidInputException;
+import com.champsoft.usermanagement.utils.exceptions.InvalidUserInputException;
 import com.champsoft.usermanagement.utils.exceptions.NotFoundException;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -18,14 +19,14 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(classes = AdminController.class)
+@ExtendWith(MockitoExtension.class)
 public class AdminControllerUnitTest {
     private final String VALID_ADMIN_ID = "c3540a89-cb47-4c96-888e-ff96708db4d8";
     private final String NOT_FOUND_ADMIN_ID = "c3540a89-cb47-4c96-888eff96708db4d0";
     private final String INVALID_ADMIN_ID = "c3540a89-cb47-4c96-888e-ff96708db4d";
-    @MockBean
+    @Mock
     AdminService adminService;
-    @Autowired
+    @InjectMocks
     AdminController adminController;
     @Test
     public void whenNoAdminsExist_ThenReturnEmptyList() {
@@ -62,10 +63,10 @@ public class AdminControllerUnitTest {
     @Test
     public void whenAdminIdInvalidOnGet_ThenThrowInvalidInputException() {
         //arrange
-        when(adminService.getAdminById(INVALID_ADMIN_ID)).thenThrow(new InvalidInputException("Invalid admin id: " + INVALID_ADMIN_ID));
+        when(adminService.getAdminById(INVALID_ADMIN_ID)).thenThrow(new InvalidUserInputException("Invalid admin id: " + INVALID_ADMIN_ID));
         //act and assert
 
-        InvalidInputException exception = assertThrowsExactly(InvalidInputException.class, () -> {
+        InvalidUserInputException exception = assertThrowsExactly(InvalidUserInputException.class, () -> {
             adminController.getAdminById(INVALID_ADMIN_ID);
         });
         // Assert exception message

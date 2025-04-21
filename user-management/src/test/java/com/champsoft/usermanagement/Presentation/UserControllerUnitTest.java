@@ -3,19 +3,17 @@ package com.champsoft.usermanagement.Presentation;
 
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import com.champsoft.usermanagement.BusinessLogic.UserService;
-import com.champsoft.usermanagement.DataMapper.UserRequestMapper;
-import com.champsoft.usermanagement.utils.exceptions.InvalidInputException;
+import com.champsoft.usermanagement.utils.exceptions.InvalidUserInputException;
 import com.champsoft.usermanagement.utils.exceptions.NotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -24,14 +22,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(classes = UserController.class)
+@ExtendWith(MockitoExtension.class)
 public class UserControllerUnitTest {
     private final String VALID_USER_ID = "c3540a89-cb47-4c96-888e-ff96708db4d8";
     private final String NOT_FOUND_USER_ID = "c3540a89-cb47-4c96-888eff96708db4d0";
     private final String INVALID_USER_ID = "c3540a89-cb47-4c96-888e-ff96708db4d";
-    @MockBean
+    @Mock
     UserService userService;
-    @Autowired
+    @InjectMocks
     UserController userController;
     @Test
     public void whenNoUsersExist_ThenReturnEmptyList() {
@@ -68,10 +66,10 @@ public class UserControllerUnitTest {
     @Test
     public void whenUserIdInvalidOnGet_ThenThrowInvalidInputException() {
         //arrange
-        when(userService.getUserById(INVALID_USER_ID)).thenThrow(new InvalidInputException("Invalid user id: " + INVALID_USER_ID));
+        when(userService.getUserById(INVALID_USER_ID)).thenThrow(new InvalidUserInputException("Invalid user id: " + INVALID_USER_ID));
         //act and assert
 
-        InvalidInputException exception = assertThrowsExactly(InvalidInputException.class, () -> {
+        InvalidUserInputException exception = assertThrowsExactly(InvalidUserInputException.class, () -> {
             userController.getUserById(INVALID_USER_ID);
         });
         // Assert exception message
