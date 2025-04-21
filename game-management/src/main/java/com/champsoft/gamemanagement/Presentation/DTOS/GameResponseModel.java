@@ -24,5 +24,4 @@ public class GameResponseModel {
     private String developer;
     private String genre;
     private List<Review> reviews;
-    private List<Game> userGames;
 }

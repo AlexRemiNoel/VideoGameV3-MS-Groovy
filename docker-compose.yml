@@ -15,7 +15,7 @@ services:
   mysql1:
     image: 'mysql:latest'
     environment:
-      - 'MYSQL_DATABASE=users-db'
+      - 'MYSQL_DATABASE=user-db'
       - 'MYSQL_USER=user'
       - 'MYSQL_PASSWORD=pwd'
       - 'MYSQL_ROOT_PASSWORD=verysecretpwd'
@@ -69,7 +69,7 @@ services:
   mysql3:
     image: 'mysql:latest'
     environment:
-      - 'MYSQL_DATABASE=games-db'
+      - 'MYSQL_DATABASE=game-db'
       - 'MYSQL_USER=user'
       - 'MYSQL_PASSWORD=pwd'
       - 'MYSQL_ROOT_PASSWORD=verysecretpwd'

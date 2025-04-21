@@ -1,10 +1,7 @@
 package com.champsoft.gamemanagement.BusinessLogic;
 
 
-import com.champsoft.gamemanagement.DataAccess.Game;
-import com.champsoft.gamemanagement.DataAccess.GameId;
-import com.champsoft.gamemanagement.DataAccess.GameRepository;
-import com.champsoft.gamemanagement.DataAccess.Review;
+import com.champsoft.gamemanagement.DataAccess.*;
 import com.champsoft.gamemanagement.DataMapper.GameRequestMapper;
 import com.champsoft.gamemanagement.DataMapper.GameResponseMapper;
 import com.champsoft.gamemanagement.DataMapper.ReviewMapper;
@@ -16,8 +13,10 @@ import com.champsoft.gamemanagement.utils.exceptions.NotFoundException;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class GameService {
@@ -47,7 +46,6 @@ public class GameService {
         catch (NotFoundException e){
             String message = "Game with UUID: " + uuid + " not found";
             throw e;
-            // Re-throwing the caught exception is redundant, but harmless.
         }
     }
 
@@ -78,6 +76,9 @@ public class GameService {
     public GameResponseModel addReview(ReviewRequestModel reviewRequestModel, String gameId){
         Game game = gameRepository.findGameByGameId(new GameId(gameId));
         Review review = reviewMapper.reviewRequestModelToReview(reviewRequestModel);
+
+        review.setReviewId(new ReviewId(UUID.randomUUID().toString()));
+        review.setTimestamp(LocalDateTime.now());
 
         List<Review> reviews = game.getReviews();
         if (reviews == null) {

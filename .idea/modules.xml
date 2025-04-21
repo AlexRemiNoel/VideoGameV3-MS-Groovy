@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.champsoft.game-management.main.iml" filepath="$PROJECT_DIR$/.idea/modules/com.champsoft.game-management.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.champsoft.game-management.test.iml" filepath="$PROJECT_DIR$/.idea/modules/com.champsoft.game-management.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/download-management.main.iml" filepath="$PROJECT_DIR$/.idea/modules/download-management.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/game-management.main.iml" filepath="$PROJECT_DIR$/.idea/modules/game-management.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/game-management.test.iml" filepath="$PROJECT_DIR$/.idea/modules/game-management.test.iml" />

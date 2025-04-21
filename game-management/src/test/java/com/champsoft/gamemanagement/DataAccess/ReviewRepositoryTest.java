@@ -30,12 +30,10 @@ public class ReviewRepositoryTest {
         gameId1 = new ReviewId(UUID.randomUUID().toString());
         game1 = new Review();
         game1.setReviewId(gameId1);
-        game1.setGame("Gmae1");
         game1.setRating("2");
         gameId2 = new ReviewId(UUID.randomUUID().toString());
         game2 = new Review();
         game2.setReviewId(gameId2);
-        game2.setGame("Gmae2");
         game2.setRating("4");
     }
 
@@ -126,7 +124,6 @@ public class ReviewRepositoryTest {
         Review GameToUpdate = reviewRepository.findReviewByReviewId(gameId);
 
         GameToUpdate.setRating("awD");
-        GameToUpdate.setGame("Fairy");
         reviewRepository.save(GameToUpdate);
         Review updatedGame = reviewRepository.findReviewByReviewId(gameId);
 

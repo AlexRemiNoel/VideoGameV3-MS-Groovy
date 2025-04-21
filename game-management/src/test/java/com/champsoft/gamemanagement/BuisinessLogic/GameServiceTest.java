@@ -54,7 +54,7 @@ public class GameServiceTest {
         game.setPublisher("Test Publisher");
         game.setDeveloper("Test Developer");
         game.setGenre(Genre.ACTION);
-        game.setUserId("testUser");
+        game.setGame_user_id("testUser");
         game.setReviews(new ArrayList<>()); // Initialize as a mutable ArrayList
         return game;
     }
