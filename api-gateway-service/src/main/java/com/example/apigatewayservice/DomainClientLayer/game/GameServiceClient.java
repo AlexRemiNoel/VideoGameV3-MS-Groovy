@@ -32,8 +32,8 @@ import static org.springframework.http.HttpMethod.PUT;
 public class GameServiceClient {
 
     private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper; // Renamed from 'mapper' for consistency
-    private final String gameServiceUrl;    // Renamed from 'GAME_SERVICE_BASE_URL'
+    private final ObjectMapper objectMapper;
+    private final String gameServiceUrl;
 
     public GameServiceClient(RestTemplate restTemplate,
                              ObjectMapper objectMapper, // Use consistent name
@@ -79,7 +79,7 @@ public class GameServiceClient {
         }
     }
 
-    // POST (Create Game)
+
     public GameResponseModel createGame(GameRequestModel gameRequestModel) {
         try {
             String url = gameServiceUrl;
@@ -93,14 +93,14 @@ public class GameServiceClient {
         }
     }
 
-    // PUT (Update Game) - Keep exchange as we need the response body based on original controller
+
     public GameResponseModel updateGame(GameRequestModel gameRequestModel) {
-        // Assuming update doesn't need UUID in URL path based on original GameController PUT mapping
+
         try {
             String url = gameServiceUrl;
             log.debug("Updating game via URL: {}", url);
 
-            // Prepare request entity for PUT with body
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<GameRequestModel> requestEntity = new HttpEntity<>(gameRequestModel, headers);
@@ -113,7 +113,7 @@ public class GameServiceClient {
             );
 
             log.debug("Update request sent for game (inferred from body), status: {}", responseEntity.getStatusCode());
-            return responseEntity.getBody(); // Return the body from the response
+            return responseEntity.getBody();
         } catch (HttpClientErrorException ex) {
             log.warn("updateGame failed with status: {}", ex.getStatusCode());
             throw handleHttpClientException(ex);
@@ -147,22 +147,20 @@ public class GameServiceClient {
         }
     }
 
-    // --- Error Handling (Copied and adapted from UserServiceClient example) ---
+
 
     private RuntimeException handleHttpClientException(HttpClientErrorException ex) {
-        // Cast removed as getStatusCode() returns HttpStatus directly in recent Spring versions
+
         HttpStatus status = (HttpStatus) ex.getStatusCode();
         switch (status) {
             case NOT_FOUND:
-                // Ensure you use your custom NotFoundException if defined elsewhere
+
                 return new NotFoundException(getErrorMessage(ex));
             case UNPROCESSABLE_ENTITY:
-                // Ensure you use your custom InvalidInputException
                 return new InvalidInputException(getErrorMessage(ex));
             default:
                 log.warn("Got an unexpected HTTP error: {}, will rethrow it", status);
                 log.warn("Error body: {}", ex.getResponseBodyAsString());
-                // Rethrow the original exception for global handlers or add a generic wrapper
                 return ex;
         }
     }
@@ -170,17 +168,13 @@ public class GameServiceClient {
     private String getErrorMessage(HttpClientErrorException ex) {
         try {
             String responseBody = ex.getResponseBodyAsString();
-            // Basic check if it looks like JSON before attempting to parse
             if (!responseBody.isBlank() && responseBody.trim().startsWith("{") && responseBody.trim().endsWith("}")) {
-                // Ensure HttpErrorInfo class is accessible and matches the expected error structure
                 HttpErrorInfo errorInfo = objectMapper.readValue(responseBody, HttpErrorInfo.class);
-                // Check message existence and non-emptiness
                 if (errorInfo != null && errorInfo.getMessage() != null && !errorInfo.getMessage().isBlank()) {
                     log.debug("Parsed error message from response body: {}", errorInfo.getMessage());
                     return errorInfo.getMessage();
                 }
             }
-            // Fallback 1: Return the full response body if it's not empty and couldn't be parsed or lacked a message
             if (responseBody != null && !responseBody.isBlank()) {
                 log.debug("Using full response body as error message: {}", responseBody);
                 return responseBody;
@@ -188,20 +182,15 @@ public class GameServiceClient {
 
         } catch (IOException ioex) {
             log.warn("Error parsing HttpClientErrorException body: {}. Falling back.", ioex.getMessage());
-            // Fallthrough to next fallback if parsing fails
         } catch (Exception e) {
-            // Catch unexpected errors during parsing
             log.error("Unexpected error parsing error message: {}. Falling back.", e.getMessage());
-            // Fallthrough to next fallback
         }
 
-        // Fallback 2: Use the exception's message if available
         if (ex.getMessage() != null && !ex.getMessage().isBlank()){
             log.debug("Using exception's default message: {}", ex.getMessage());
             return ex.getMessage();
         }
 
-        // Fallback 3: Generic message if nothing else worked
         log.debug("Using generic error message for status code: {}", ex.getStatusCode());
         return "An error occurred with status code: " + ex.getStatusCode();
     }
