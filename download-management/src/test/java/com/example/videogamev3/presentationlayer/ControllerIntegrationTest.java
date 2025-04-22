@@ -5,18 +5,23 @@ import com.example.videogamev3.DownloadManagement.DataAccess.DownloadStatus;
 import com.example.videogamev3.DownloadManagement.Presentation.DownloadController;
 import com.example.videogamev3.DownloadManagement.Presentation.DownloadRequestModel;
 import com.example.videogamev3.DownloadManagement.Presentation.DownloadResponseModel;
+import com.example.videogamev3.DownloadManagement.utils.exceptions.DownloadNotFoundException;
+import com.example.videogamev3.DownloadManagement.utils.exceptions.DuplicateDownloadIDException;
+import com.example.videogamev3.DownloadManagement.utils.exceptions.InvalidDownloadDataException;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest; // Or @WebMvcTest for servlet stack
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient; // Or MockMvc for servlet stack
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -24,8 +29,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.web.reactive.function.BodyInserters.fromValue; // For WebTestClient
 
-// Use @WebFluxTest for reactive stack (if using WebFlux and WebTestClient)
-// Use @WebMvcTest for traditional servlet stack (if using Spring MVC and MockMvc)
 @WebFluxTest(controllers = DownloadController.class) // Load only the Controller and related web config
 class ControllerIntegrationTest {
 
@@ -234,4 +237,114 @@ class ControllerIntegrationTest {
         then(downloadService).should(times(1)).deleteDownload(nonExistentId);
     }
 
+    @Test
+    @DisplayName("POST /api/v1/downloads - Duplicate ID Exception")
+    void whenPostDownload_withDuplicateID_thenThrowsDuplicateDownloadID_thenReturnConflict() {
+        // Arrange
+        DownloadRequestModel requestModel = new DownloadRequestModel("http://colliding.com/file.zip");
+        String expectedErrorMessage = "Duplicate Download ID: some-conflicting-id";
+        given(downloadService.createDownload(any(DownloadRequestModel.class)))
+                .willThrow(new DuplicateDownloadIDException(expectedErrorMessage));
+
+        // Act & Assert
+        webTestClient.post().uri("/api/v1/downloads")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(fromValue(requestModel))
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.CONFLICT) // Expect 409 Conflict
+                .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+                .expectBody(Map.class)
+                .value(map -> org.assertj.core.api.Assertions.assertThat(map.get("message")).isEqualTo(expectedErrorMessage));
+
+        then(downloadService).should(times(1)).createDownload(any(DownloadRequestModel.class));
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/downloads - Invalid Data Exception")
+    void whenPostDownload_withInvalidData_thenThrowsInvalidData_thenReturnBadRequest() {
+        // Arrange
+        DownloadRequestModel invalidRequestModel = new DownloadRequestModel(""); // Example invalid data (empty URL)
+        String expectedErrorMessage = "Source URL cannot be empty.";
+        given(downloadService.createDownload(any(DownloadRequestModel.class)))
+                .willThrow(new InvalidDownloadDataException(expectedErrorMessage));
+
+        // Act & Assert
+        webTestClient.post().uri("/api/v1/downloads")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(fromValue(invalidRequestModel))
+                .exchange()
+                .expectStatus().isBadRequest() // Expect 400 Bad Request
+                .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+                .expectBody(Map.class)
+                .value(map -> org.assertj.core.api.Assertions.assertThat(map.get("message")).isEqualTo(expectedErrorMessage));
+
+        then(downloadService).should(times(1)).createDownload(any(DownloadRequestModel.class));
+    }
+    @Test
+    @DisplayName("PUT /api/v1/downloads/{id} - Invalid Data Exception")
+    void whenPutDownload_withInvalidData_thenThrowsInvalidData_thenReturnBadRequest() {
+        // Arrange
+        String existingId = id1;
+        DownloadRequestModel invalidRequestModel = new DownloadRequestModel(null); // Example invalid data
+        String expectedErrorMessage = "Source URL cannot be null.";
+        given(downloadService.updateDownload(eq(existingId), any(DownloadRequestModel.class)))
+                .willThrow(new InvalidDownloadDataException(expectedErrorMessage));
+
+        // Act & Assert
+        webTestClient.put().uri("/api/v1/downloads/{id}", existingId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(fromValue(invalidRequestModel))
+                .exchange()
+                .expectStatus().isBadRequest() // Expect 400 Bad Request
+                .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+                .expectBody(Map.class)
+                .value(map -> org.assertj.core.api.Assertions.assertThat(map.get("message")).isEqualTo(expectedErrorMessage));
+
+        then(downloadService).should(times(1)).updateDownload(eq(existingId), any(DownloadRequestModel.class));
+    }
+
+    // --- Test for DownloadNotFoundException on PUT ---
+    @Test
+    @DisplayName("PUT /api/v1/downloads/{id} - Custom Not Found Exception")
+    void whenPutDownload_andNotExists_thenThrowsDownloadNotFound_thenReturnNotFound() {
+        // Arrange
+        String nonExistentId = UUID.randomUUID().toString();
+        DownloadRequestModel validRequestModel = new DownloadRequestModel("http://valid.url/file.dat");
+        String expectedErrorMessage = "Download with ID '" + nonExistentId + "' not found.";
+        given(downloadService.updateDownload(eq(nonExistentId), any(DownloadRequestModel.class)))
+                .willThrow(new DownloadNotFoundException(expectedErrorMessage)); // Service throws when trying to find the download to update
+
+        // Act & Assert
+        webTestClient.put().uri("/api/v1/downloads/{id}", nonExistentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(fromValue(validRequestModel))
+                .exchange()
+                .expectStatus().isNotFound() // Expect 404 Not Found
+                .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+                .expectBody(Map.class)
+                .value(map -> org.assertj.core.api.Assertions.assertThat(map.get("message")).isEqualTo(expectedErrorMessage));
+
+        then(downloadService).should(times(1)).updateDownload(eq(nonExistentId), any(DownloadRequestModel.class));
+    }
+
+    @Test
+    @DisplayName("DELETE /api/v1/downloads/{id} - Custom Not Found Exception")
+    void whenDeleteDownload_andNotExists_thenThrowsDownloadNotFound_thenReturnNotFound() {
+        // Arrange
+        String nonExistentId = UUID.randomUUID().toString();
+        String expectedErrorMessage = "Download with ID '" + nonExistentId + "' not found.";
+        // Use willThrow for void methods
+        willThrow(new DownloadNotFoundException(expectedErrorMessage)).given(downloadService).deleteDownload(nonExistentId);
+
+        // Act & Assert
+        webTestClient.delete().uri("/api/v1/downloads/{id}", nonExistentId)
+                .exchange()
+                .expectStatus().isNotFound() // Expect 404 Not Found
+                .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+                .expectBody(Map.class)
+                .value(map -> org.assertj.core.api.Assertions.assertThat(map.get("message")).isEqualTo(expectedErrorMessage));
+
+
+        then(downloadService).should(times(1)).deleteDownload(nonExistentId);
+    }
 }

@@ -133,10 +133,6 @@ class DownloadServiceUnitTest {
 
 
 
-
-
-
-
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
             downloadService.startDownload(nonExistentId);
         });
