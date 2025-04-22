@@ -11,7 +11,6 @@ public class HttpErrorInfo {
     private final HttpStatus httpStatus;
     private final String message;
 
-    // Constructor used by the GlobalExceptionHandler
     public HttpErrorInfo(HttpStatus httpStatus, String path, String message) {
         this.timestamp = ZonedDateTime.now();
         this.httpStatus = httpStatus;
@@ -19,7 +18,6 @@ public class HttpErrorInfo {
         this.message = message;
     }
 
-    // Default constructor needed for Jackson deserialization in getErrorMessage()
     public HttpErrorInfo() {
         this.timestamp = null;
         this.path = null;

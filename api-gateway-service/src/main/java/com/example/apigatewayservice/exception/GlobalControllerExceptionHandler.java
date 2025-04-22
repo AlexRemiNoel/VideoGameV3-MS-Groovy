@@ -18,15 +18,14 @@ import java.time.ZonedDateTime;
 @Slf4j
 public class GlobalControllerExceptionHandler {
 
-    // Use ServerWebExchange instead of WebRequest
     @ExceptionHandler(NotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND) // Can use @ResponseStatus as well/instead of ResponseEntity
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<HttpErrorInfo> handleNotFoundException(ServerWebExchange exchange, NotFoundException ex) {
         log.warn("Handling NotFoundException: {}", ex.getMessage());
         return createHttpErrorInfo(HttpStatus.NOT_FOUND, exchange, ex);
     }
 
-    // Use ServerWebExchange instead of WebRequest
+
     @ExceptionHandler(InvalidInputException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public ResponseEntity<HttpErrorInfo> handleInvalidInputException(ServerWebExchange exchange, InvalidInputException ex) {
@@ -34,8 +33,7 @@ public class GlobalControllerExceptionHandler {
         return createHttpErrorInfo(HttpStatus.UNPROCESSABLE_ENTITY, exchange, ex);
     }
 
-    // Use ServerWebExchange instead of WebRequest
-    @ExceptionHandler(RuntimeException.class) // Catch broader runtime issues
+    @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<HttpErrorInfo> handleGenericRuntimeException(ServerWebExchange exchange, RuntimeException ex) {
         log.error("Handling unexpected RuntimeException: {}", ex.getMessage(), ex);
@@ -44,8 +42,8 @@ public class GlobalControllerExceptionHandler {
         return new ResponseEntity<>(errorInfo, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // Use ServerWebExchange instead of WebRequest
-    @ExceptionHandler(Exception.class) // Catch top-level Exception
+
+    @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<HttpErrorInfo> handleRootException(ServerWebExchange exchange, Exception ex) {
         log.error("Handling unforeseen Exception: {}", ex.getMessage(), ex);
@@ -54,7 +52,6 @@ public class GlobalControllerExceptionHandler {
         return new ResponseEntity<>(errorInfo, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // Helper to create the error response DTO - takes ServerWebExchange
     private ResponseEntity<HttpErrorInfo> createHttpErrorInfo(HttpStatus status, ServerWebExchange exchange, Exception ex) {
         final String path = getPath(exchange);
         final String message = ex.getMessage() != null ? ex.getMessage() : status.getReasonPhrase();
@@ -63,7 +60,6 @@ public class GlobalControllerExceptionHandler {
         return new ResponseEntity<>(errorInfo, status);
     }
 
-    // Helper to get the request path - takes ServerWebExchange
     private String getPath(ServerWebExchange exchange) {
         if (exchange != null && exchange.getRequest() != null && exchange.getRequest().getPath() != null) {
             // Use the path within the application context
@@ -72,10 +68,8 @@ public class GlobalControllerExceptionHandler {
         return "Unknown path";
     }
 
-    // Helper to get the request path
     private String getPath(WebRequest request) {
         try {
-            // request.getDescription(false) often returns "uri=/path/to/resource"
             String description = request.getDescription(false);
             if (description != null && description.startsWith("uri=")) {
                 return description.substring(4); // Remove "uri=" prefix
@@ -86,25 +80,4 @@ public class GlobalControllerExceptionHandler {
             return "Unknown path";
         }
     }
-
-    // Ensure HttpErrorInfo class is accessible here and has the necessary constructor/getters
-    // Make sure its constructor matches the one used in createHttpErrorInfo
-    /* Example matching HttpErrorInfo (ensure yours matches):
-    @Getter
-    public static class HttpErrorInfo {
-        private final ZonedDateTime timestamp;
-        private final String path;
-        private final HttpStatus httpStatus;
-        private final String message;
-
-        public HttpErrorInfo(HttpStatus httpStatus, String path, String message) {
-            this.timestamp = ZonedDateTime.now();
-            this.httpStatus = httpStatus;
-            this.path = path;
-            this.message = message;
-        }
-        // Default constructor might still be needed for Jackson in getErrorMessage if not using @JsonCreator
-        public HttpErrorInfo() { this(null, null, null); } // Example default
-    }
-    */
 }

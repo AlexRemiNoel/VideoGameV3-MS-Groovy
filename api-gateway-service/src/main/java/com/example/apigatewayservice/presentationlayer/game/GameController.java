@@ -13,8 +13,8 @@ import java.util.UUID; // For basic UUID validation
 
 @Slf4j
 @RestController
-@RequestMapping("api/v1/games") // Distinct gateway path
-@RequiredArgsConstructor // Lombok constructor injection
+@RequestMapping("api/v1/games")
+@RequiredArgsConstructor
 public class GameController {
 
     private final GameService gameService;
@@ -25,7 +25,6 @@ public class GameController {
         log.info("Received request to get game by UUID: {}", uuid);
 
         GameResponseModel game = gameService.getGameById(uuid);
-        // NotFoundException will be thrown by the service/client layer if not found
         return ResponseEntity.ok(game);
     }
 
@@ -39,18 +38,14 @@ public class GameController {
     @PostMapping
     public ResponseEntity<GameResponseModel> addGame(@RequestBody GameRequestModel gameRequestModel) {
         log.info("Received request to add a new game");
-        // Add validation for gameRequestModel fields if needed here or in the service
         GameResponseModel addedGame = gameService.createGame(gameRequestModel);
-        // InvalidInputException could be thrown if backend validation fails
         return ResponseEntity.status(HttpStatus.CREATED).body(addedGame);
     }
 
     @PutMapping
     public ResponseEntity<GameResponseModel> updateGame(@RequestBody GameRequestModel gameRequestModel) {
         log.info("Received request to update a game");
-        // Add validation for gameRequestModel fields if needed
         GameResponseModel updatedGame = gameService.updateGame(gameRequestModel);
-        // NotFoundException or InvalidInputException could be thrown
         return ResponseEntity.ok(updatedGame);
     }
 
@@ -59,8 +54,7 @@ public class GameController {
         log.info("Received request to delete game with UUID: {}", uuid);
 
         gameService.deleteGame(uuid);
-        // NotFoundException could be thrown
-        return ResponseEntity.noContent().build(); // Return 204 No Content on successful delete
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("review/{uuid}")
