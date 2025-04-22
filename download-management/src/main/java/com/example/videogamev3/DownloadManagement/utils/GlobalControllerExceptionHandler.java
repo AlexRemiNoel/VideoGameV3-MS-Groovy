@@ -29,11 +29,6 @@ public class GlobalControllerExceptionHandler {
         return createHttpErrorInfo(UNPROCESSABLE_ENTITY, request, ex);
     }
 
-    @ResponseStatus(CONFLICT)
-    @ExceptionHandler(DuplicateDownloadIDException.class)
-    public HttpErrorInfo handleDuplicateDownloadException(WebRequest request, Exception ex) {
-        return createHttpErrorInfo(CONFLICT, request, ex);
-    }
 
     @ResponseStatus(UNPROCESSABLE_ENTITY)
     @ExceptionHandler(DuplicateDownloadIDException.class)

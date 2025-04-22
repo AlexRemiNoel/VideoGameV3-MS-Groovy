@@ -13,16 +13,16 @@ INSERT INTO admins (admin_id, username, password) VALUES
 
 -- Add 10 more users
 INSERT INTO users (user_id, username, email, password, balance) VALUES
-                                                                    ('345f6789-01de-34f5-c678-648836396222', 'alice_wonder', 'alice.w@example.com', 'wonderland', 55.20),
-                                                                    ('456a7890-12ef-45a6-d789-759947407333', 'bob_marley', 'bob.m@example.net', 'reggae4life', 120.00),
+                                                                    ('123e4567-e89b-12d3-a456-426614174000', 'alice_wonder', 'alice.w@example.com', 'wonderland', 55.20),
+                                                                    ('123e4567-ffff-12d3-a456-426614174000', 'bob_marley', 'bob.m@example.net', 'reggae4life', 120.00),
                                                                     ('567b8901-23fa-56b7-e890-860058518444', 'charlie_chap', 'charlie.c@domain.com', 'silentfilm', 0.50),
                                                                     ('678c9012-34ab-67c8-f901-971169629555', 'diana_ross', 'diana.r@example.com', 'supremeP@ss', 300.15),
                                                                     ('789d0123-45bc-78d9-a012-082270730666', 'elvis_p', 'elvis.p@example.net', 'kingOfRock', 1000.00),
-                                                                    ('890e1234-56cd-89ea-b123-193381841777', 'freddie_m', 'freddie.m@domain.com', 'queenFan!', 75.80),
+                                                                    ('234e5678-f90c-23e4-b567-537725285111', 'freddie_m', 'freddie.m@domain.com', 'queenFan!', 75.80),
                                                                     ('901f2345-67de-90fb-c234-204492952888', 'grace_kelly', 'grace.k@example.com', 'princessG', 450.25),
                                                                     ('012a3456-78ef-01ac-d345-315503063999', 'harry_potter', 'harry.p@example.net', 'magicWand', 99.99),
                                                                     ('123b4567-89fa-12bd-e456-426614174001', 'irene_adler', 'irene.a@domain.com', 'theWoman', 12.34),
-                                                                    ('234c5678-90ab-23ce-f567-537725285112', 'james_bond', 'james.b@example.com', 'shakenN0tStirred', 700.07);
+                                                                    ('234e5678-f90c-23e4-b567-537725ccc111', 'james_bond', 'james.b@example.com', 'shakenN0tStirred', 700.07);
 
 INSERT INTO user_order_ids (user_id, order_id) VALUES
                                                    ('123e4567-e89b-12d3-a456-426614174000', 'aaaaaaaa-bbbb-cccc-dddd-111111111111'), -- Example Order ID 1
