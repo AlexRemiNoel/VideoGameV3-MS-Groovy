@@ -24,11 +24,11 @@ public class Game {
     private String description;
     private String publisher;
     private String developer;
-    @OneToMany
+    @OneToMany(mappedBy = "game", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Review> reviews;
     @Enumerated(EnumType.STRING)
     private Genre genre;
-    private String userId;
+    private String game_user_id;
 
 
 

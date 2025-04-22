@@ -1,7 +1,7 @@
 package com.example.apigatewayservice.DomainClientLayer.user;
 
 import com.example.apigatewayservice.exception.HttpErrorInfo;
-import org.springframework.cloud.gateway.support.NotFoundException;
+import com.example.apigatewayservice.exception.NotFoundException;
 import org.springframework.http.HttpMethod;
 import com.example.apigatewayservice.exception.InvalidInputException;
 import com.example.apigatewayservice.presentationlayer.user.UserRequestModel;
@@ -37,6 +37,17 @@ public class UserServiceClient {
         log.info("User Service URL: {}", userServiceUrl);
     }
 
+
+    public UserResponseModel findUserByUuidOrThrow(String uuid) {
+        try{
+            String url = userServiceUrl + "/" + uuid;
+            UserResponseModel response = restTemplate.getForObject(url, UserResponseModel.class);
+            return response;
+        } catch (NotFoundException e){
+            throw new NotFoundException("User not found: " + uuid);
+        }
+    }
+
     public List<UserResponseModel> getAllUsers() {
         try {
             String url = userServiceUrl;
@@ -47,6 +58,8 @@ public class UserServiceClient {
                     null,
                     new ParameterizedTypeReference<List<UserResponseModel>>() {}
             ).getBody();
+
+
             log.debug("Received {} users", response != null ? response.size() : 0);
             return response;
         } catch (HttpClientErrorException ex) {
@@ -56,11 +69,12 @@ public class UserServiceClient {
     }
 
     public UserResponseModel getUserById(String uuid) {
+
+
         try {
             String url = userServiceUrl + "/" + uuid;
             log.debug("Fetching user by ID from URL: {}", url);
             UserResponseModel response = restTemplate.getForObject(url, UserResponseModel.class);
-            log.debug("Received user: {}", response != null ? response.getUserId() : "null");
             return response;
         } catch (HttpClientErrorException ex) {
             log.warn("getUserById failed for UUID: {} with status: {}", uuid, ex.getStatusCode());
@@ -82,6 +96,10 @@ public class UserServiceClient {
     }
 
     public UserResponseModel updateUser(UserRequestModel userRequestModel, String uuid) {
+
+
+
+
         try {
             String url = userServiceUrl + "/" + uuid;
             log.debug("Updating user via URL: {}", url);
@@ -95,6 +113,9 @@ public class UserServiceClient {
     }
 
     public void deleteUser(String uuid) {
+
+
+
         try {
             String url = userServiceUrl + "/" + uuid;
             log.debug("Deleting user via URL: {}", url);
@@ -107,6 +128,10 @@ public class UserServiceClient {
     }
 
     public UserResponseModel updateUserBalance(String userId, double balance) {
+
+
+
+
         try {
 
             String url = userServiceUrl + "/uuid/" + userId + "/balance/" + balance;

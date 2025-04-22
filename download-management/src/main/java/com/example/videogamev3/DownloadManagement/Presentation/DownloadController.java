@@ -29,6 +29,12 @@ public class DownloadController {
         return ResponseEntity.ok(dto);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<DownloadResponseModel> updateDownload(@PathVariable String id, @RequestBody DownloadRequestModel downloadRequestModel) {
+        DownloadResponseModel dto = downloadService.updateDownload(id, downloadRequestModel);
+        return ResponseEntity.ok(dto);
+    }
+
     @GetMapping
     public ResponseEntity<List<DownloadResponseModel>> getAllDownloads() {
         List<DownloadResponseModel> downloads = downloadService.getAllDownloads();

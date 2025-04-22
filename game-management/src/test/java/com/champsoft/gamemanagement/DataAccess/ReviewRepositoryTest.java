@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
+import java.util.Optional; // Import Optional
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,128 +19,162 @@ public class ReviewRepositoryTest {
     @Autowired
     private ReviewRepository reviewRepository;
 
-    private Review game1;
-    private Review game2;
-    private ReviewId gameId1;
-    private ReviewId gameId2;
+    // Use meaningful names like review1, review2 instead of game1, game2
+    private Review review1;
+    private Review review2;
+    private ReviewId reviewId1;
+    private ReviewId reviewId2;
 
     @BeforeEach
     void setUp() {
         reviewRepository.deleteAll();
 
-        gameId1 = new ReviewId(UUID.randomUUID().toString());
-        game1 = new Review();
-        game1.setReviewId(gameId1);
-        game1.setGame("Gmae1");
-        game1.setRating("2");
-        gameId2 = new ReviewId(UUID.randomUUID().toString());
-        game2 = new Review();
-        game2.setReviewId(gameId2);
-        game2.setGame("Gmae2");
-        game2.setRating("4");
+        reviewId1 = new ReviewId(UUID.randomUUID().toString());
+        review1 = new Review();
+        review1.setReviewId(reviewId1);
+        review1.setRating("2");
+        review1.setComment("Initial comment for review 1"); // Add comment for completeness
+
+        reviewId2 = new ReviewId(UUID.randomUUID().toString());
+        review2 = new Review();
+        review2.setReviewId(reviewId2);
+        review2.setRating("4");
+        review2.setComment("Initial comment for review 2"); // Add comment for completeness
+
+        // Do NOT set the 'game' field here unless you are also saving a Game entity
+        // and linking it, which is not what this repository test is focused on.
     }
 
     @Test
-    @DisplayName("Find Download By Existing UUID - Success")
-    void whenGameExists_FindByUuid_ShouldReturnGame() {
-        reviewRepository.save(game1);
-        String existingUuid = game1.getReviewId().toString();
+    @DisplayName("Find Review By Existing UUID - Success")
+    void whenReviewExists_FindByUuid_ShouldReturnReview() { // Changed method name to reflect Review
+        reviewRepository.save(review1);
+        String existingUuid = review1.getReviewId().getUuid(); // Use getUuid() from ReviewId
 
-        Review foundGame = reviewRepository.findReviewByReviewId(new ReviewId(existingUuid));
+        // FIX: Use standard findById method
+        Optional<Review> foundReviewOptional = reviewRepository.findById(new ReviewId(existingUuid));
 
-        assertNotNull(foundGame);
-        assertEquals(game1.getReviewId(), foundGame.getReviewId());
-        assertEquals(game1.getGame(), foundGame.getGame());
-        assertEquals(game1.getRating(), foundGame.getRating());
-        assertEquals(existingUuid, foundGame.getReviewId().getUuid());
+        assertTrue(foundReviewOptional.isPresent(), "Review should be found"); // Assert that the optional contains a value
+        Review foundReview = foundReviewOptional.get(); // Get the Review from the Optional
+
+        assertNotNull(foundReview);
+        assertEquals(review1.getReviewId(), foundReview.getReviewId());
+        // FIX: Remove assertion about 'game' unless you specifically set and link a Game entity in the setup
+        // assertEquals(review1.getGame(), foundReview.getGame()); // This will likely be null == null if not set
+        assertEquals(review1.getRating(), foundReview.getRating());
+        assertEquals(review1.getComment(), foundReview.getComment()); // Assert comment as well
+        assertEquals(existingUuid, foundReview.getReviewId().getUuid());
     }
 
     @Test
-    @DisplayName("Find Download By Non-Existent UUID - Returns Null")
-    void whenGameDoesNotExist_FindByUuid_ShouldReturnNull() {
+    @DisplayName("Find Review By Non-Existent UUID - Returns Empty Optional") // Changed display name
+    void whenReviewDoesNotExist_FindByUuid_ShouldReturnNull() { // Changed method name to reflect Review
         String nonExistentUuid = UUID.randomUUID().toString();
 
-        Review foundGame = reviewRepository.findReviewByReviewId(new ReviewId(nonExistentUuid));
+        // FIX: Use standard findById method
+        Optional<Review> foundReviewOptional = reviewRepository.findById(new ReviewId(nonExistentUuid));
 
-        assertNull(foundGame);
+        assertFalse(foundReviewOptional.isPresent(), "Review should not be found"); // Assert that the optional is empty
     }
 
     @Test
-    @DisplayName("Save New Download - Success")
-    void whenSaveNewGame_ShouldPersistGame() {
+    @DisplayName("Save New Review - Success") // Changed display name
+    void whenSaveNewReview_ShouldPersistReview() { // Changed method name
 
-        Review savedGame = reviewRepository.save(game1);
+        Review savedReview = reviewRepository.save(review1); // Changed variable name
 
-        assertNotNull(savedGame);
-        assertNotNull(savedGame.getReviewId());
-        assertEquals(game1.getReviewId().getUuid(), savedGame.getReviewId().getUuid());
+        assertNotNull(savedReview);
+        assertNotNull(savedReview.getReviewId());
+        assertEquals(review1.getReviewId().getUuid(), savedReview.getReviewId().getUuid());
+        assertEquals(review1.getRating(), savedReview.getRating()); // Assert other fields too
 
-        Review retrievedGame = reviewRepository.findReviewByReviewId(game1.getReviewId());
-        assertEquals(game1.getReviewId(), retrievedGame.getReviewId());
+        // FIX: Use standard findById to retrieve
+        Optional<Review> retrievedReviewOptional = reviewRepository.findById(review1.getReviewId());
+        assertTrue(retrievedReviewOptional.isPresent(), "Saved review should be retrievable");
+        Review retrievedReview = retrievedReviewOptional.get();
+
+        assertEquals(review1.getReviewId(), retrievedReview.getReviewId());
+        assertEquals(review1.getRating(), retrievedReview.getRating());
+        assertEquals(review1.getComment(), retrievedReview.getComment());
     }
 
     @Test
-    @DisplayName("Find All Downloads - Success")
-    void whenMultipleGamesExist_FindAll_ShouldReturnAllGames() {
-        reviewRepository.save(game1);
-        reviewRepository.save(game2);
+    @DisplayName("Find All Reviews - Success") // Changed display name
+    void whenMultipleReviewsExist_FindAll_ShouldReturnAllReviews() { // Changed method name
+        reviewRepository.save(review1);
+        reviewRepository.save(review2);
         long expectedCount = 2;
-        List<Review> games = reviewRepository.findAll();
+        List<Review> reviews = reviewRepository.findAll(); // Changed variable name
 
-        assertNotNull(games);
-        assertEquals(expectedCount, games.size());
+        assertNotNull(reviews);
+        assertEquals(expectedCount, reviews.size());
 
     }
 
     @Test
-    @DisplayName("Find All Downloads When None Exist - Returns Empty List")
-    void whenNoGamesExist_FindAll_ShouldReturnEmptyList() {
+    @DisplayName("Find All Reviews When None Exist - Returns Empty List") // Changed display name
+    void whenNoReviewsExist_FindAll_ShouldReturnEmptyList() { // Changed method name
         long expectedCount = 0;
 
-        List<Review> games = reviewRepository.findAll();
+        List<Review> reviews = reviewRepository.findAll(); // Changed variable name
 
-        assertNotNull(games);
-        assertEquals(expectedCount, games.size());
-        assertTrue(games.isEmpty());
+        assertNotNull(reviews);
+        assertEquals(expectedCount, reviews.size());
+        assertTrue(reviews.isEmpty());
     }
 
 
     @Test
-    @DisplayName("Delete Download By ID - Success")
-    void whenGameExists_DeleteById_ShouldRemoveDownload() {
-        Review savedDownload = reviewRepository.save(game1);
-        ReviewId idToDelete = savedDownload.getReviewId();
-        assertTrue(reviewRepository.existsById(idToDelete), "Download should exist before deletion");
+    @DisplayName("Delete Review By ID - Success") // Changed display name
+    void whenReviewExists_DeleteById_ShouldRemoveReview() { // Changed method name
+        Review savedReview = reviewRepository.save(review1); // Changed variable name
+        ReviewId idToDelete = savedReview.getReviewId();
+        assertTrue(reviewRepository.existsById(idToDelete), "Review should exist before deletion");
 
         reviewRepository.deleteById(idToDelete);
-        assertFalse(reviewRepository.existsById(idToDelete), "Download should not exist after deletion");
-        assertNull(reviewRepository.findReviewByReviewId(idToDelete), "Finding by UUID should return null after deletion");
+        assertFalse(reviewRepository.existsById(idToDelete), "Review should not exist after deletion");
+
+        // FIX: Use standard findById and check for empty optional
+        Optional<Review> foundAfterDelete = reviewRepository.findById(idToDelete);
+        assertFalse(foundAfterDelete.isPresent(), "Finding by ID should return empty optional after deletion");
     }
 
 
     @Test
-    @DisplayName("Update Existing Download - Success")
-    void whenUpdateExistingGame_ShouldReflectChanges() {
-        Review savedGame = reviewRepository.save(game1);
-        ReviewId gameId = savedGame.getReviewId();
+    @DisplayName("Update Existing Review - Success") // Changed display name
+    void whenUpdateExistingReview_ShouldReflectChanges() { // Changed method name
+        Review savedReview = reviewRepository.save(review1); // Changed variable name
+        ReviewId reviewId = savedReview.getReviewId();
 
-        Review GameToUpdate = reviewRepository.findReviewByReviewId(gameId);
+        // FIX: Use standard findById to retrieve the entity to update
+        Optional<Review> reviewToUpdateOptional = reviewRepository.findById(reviewId);
+        assertTrue(reviewToUpdateOptional.isPresent(), "Review to update should be found");
+        Review reviewToUpdate = reviewToUpdateOptional.get();
 
-        GameToUpdate.setRating("awD");
-        GameToUpdate.setGame("Fairy");
-        reviewRepository.save(GameToUpdate);
-        Review updatedGame = reviewRepository.findReviewByReviewId(gameId);
+        // Update fields that are actually part of the Review entity
+        reviewToUpdate.setRating("5"); // Update rating to "5"
+        reviewToUpdate.setComment("Updated comment!"); // Add or update comment
 
-        assertEquals(gameId, updatedGame.getReviewId());
-        assertEquals("awD", updatedGame.getRating());
-        assertEquals("Fairy", updatedGame.getGame());
+        reviewRepository.save(reviewToUpdate); // Save the updated entity
+
+        // FIX: Use standard findById to retrieve the updated entity for verification
+        Optional<Review> updatedReviewOptional = reviewRepository.findById(reviewId);
+        assertTrue(updatedReviewOptional.isPresent(), "Updated review should be found");
+        Review updatedReview = updatedReviewOptional.get();
+
+        assertEquals(reviewId, updatedReview.getReviewId());
+        // FIX: Assert the updated fields
+        assertEquals("5", updatedReview.getRating());
+        assertEquals("Updated comment!", updatedReview.getComment());
+        // FIX: Remove the incorrect assertion about 'Game'
+        // assertEquals("Fairy", updatedReview.getGame()); // This assertion is incorrect for a Review entity
     }
 
     @Test
-    @DisplayName("Check Download Existence By ID - Exists")
-    void whenGameExists_ExistsById_ShouldReturnTrue() {
-        reviewRepository.save(game1);
-        ReviewId existingId = game1.getReviewId();
+    @DisplayName("Check Review Existence By ID - Exists") // Changed display name
+    void whenReviewExists_ExistsById_ShouldReturnTrue() { // Changed method name
+        reviewRepository.save(review1);
+        ReviewId existingId = review1.getReviewId();
 
         boolean exists = reviewRepository.existsById(existingId);
 
@@ -147,8 +182,8 @@ public class ReviewRepositoryTest {
     }
 
     @Test
-    @DisplayName("Check Download Existence By ID - Does Not Exist")
-    void whenGameDoesNotExist_ExistsById_ShouldReturnFalse() {
+    @DisplayName("Check Review Existence By ID - Does Not Exist") // Changed display name
+    void whenReviewDoesNotExist_ExistsById_ShouldReturnFalse() { // Changed method name
         ReviewId nonExistentId = new ReviewId(UUID.randomUUID().toString());
 
         boolean exists = reviewRepository.existsById(nonExistentId);
@@ -157,10 +192,10 @@ public class ReviewRepositoryTest {
     }
 
     @Test
-    @DisplayName("Count Downloads - Success")
-    void whenMultipleGamesExist_Count_ShouldReturnCorrectNumber() {
-        reviewRepository.save(game1);
-        reviewRepository.save(game2);
+    @DisplayName("Count Reviews - Success") // Changed display name
+    void whenMultipleReviewsExist_Count_ShouldReturnCorrectNumber() { // Changed method name
+        reviewRepository.save(review1);
+        reviewRepository.save(review2);
         long expectedCount = 2;
 
         long actualCount = reviewRepository.count();

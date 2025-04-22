@@ -1,16 +1,11 @@
-package com.champsoft.gamemanagement.Presentation.DTOS;
+package com.example.apigatewayservice.presentationlayer.game;
 
 
-import com.champsoft.gamemanagement.DataAccess.Game;
-import com.champsoft.gamemanagement.DataAccess.Review;
-import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

@@ -1,17 +1,12 @@
-package com.champsoft.gamemanagement.DataAccess;
+package com.example.apigatewayservice.presentationlayer.game;
 
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Embeddable
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReviewId {
-    @Column(name = "review_id")
     private String uuid;
 }

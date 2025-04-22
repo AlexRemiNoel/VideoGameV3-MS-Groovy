@@ -1,5 +1,4 @@
-package com.champsoft.usermanagement.utils.exceptions;
-
+package com.example.videogamev3.DownloadManagement.utils.exceptions;
 
 public class NotFoundException extends RuntimeException{
 

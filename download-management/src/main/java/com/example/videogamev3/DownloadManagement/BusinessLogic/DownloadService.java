@@ -8,6 +8,8 @@ import com.example.videogamev3.DownloadManagement.DataMapper.DownloadRequestMapp
 import com.example.videogamev3.DownloadManagement.DataMapper.DownloadResponseMapper;
 import com.example.videogamev3.DownloadManagement.Presentation.DownloadRequestModel;
 import com.example.videogamev3.DownloadManagement.Presentation.DownloadResponseModel;
+import com.example.videogamev3.DownloadManagement.utils.exceptions.DuplicateDownloadIDException;
+import com.example.videogamev3.DownloadManagement.utils.exceptions.NotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -27,9 +29,14 @@ public class DownloadService {
 
     @Transactional
     public DownloadResponseModel createDownload(DownloadRequestModel downloadRequestModel) {
+
         Download download = downloadRequestMapper.downloadRequestModelToDownload(downloadRequestModel);
         download.setDownloadStatus(DownloadStatus.PENDING);
-        download.setId(new DownloadId(UUID.randomUUID().toString()));
+        DownloadId downloadId = new DownloadId(UUID.randomUUID().toString());
+        if(downloadRepository.existsDownloadById_Uuid(downloadId.getUuid())) {
+            throw new DuplicateDownloadIDException("Duplicate Download ID" + downloadId.getUuid());
+        }
+        download.setId(downloadId);
         System.out.println(download.toString());
         return downloadResponseMapper.downloadEntityToDownloadResponseModel(downloadRepository.save(download));
     }
@@ -37,6 +44,10 @@ public class DownloadService {
     @Transactional
     public DownloadResponseModel getDownload(String downloadId) {
         Download download = downloadRepository.findDownloadById_Uuid(downloadId);
+
+        if (download == null) {
+            throw new NotFoundException ("Download not found");
+        }
         return downloadResponseMapper.downloadEntityToDownloadResponseModel(download);
     }
 
@@ -92,10 +103,7 @@ public class DownloadService {
         return downloadResponseMapper.downloadEntityToDownloadResponseModel(download);
     }
 
-    public DownloadResponseModel getDownloadStatus(String id) {
-        Download download = findDownloadManagerOrFail(id);
-        return downloadResponseMapper.downloadEntityToDownloadResponseModel(download);
-    }
+
 
     public List<DownloadResponseModel> getAllDownloads() {
         try{
@@ -114,14 +122,15 @@ public class DownloadService {
             downloadRepository.deleteById(id);
             System.out.println("Deleted download " + id);
         } else {
-            throw new EntityNotFoundException("DownloadManager not found with id: " + id);
+            throw new NotFoundException("DownloadManager not found with id: " + id);
         }
+
     }
 
     private Download findDownloadManagerOrFail(String id) {
         Download download = downloadRepository.findDownloadById_Uuid(id);
         if (download == null) {
-            throw new EntityNotFoundException("DownloadManager not found with id: " + id);
+            throw new NotFoundException("DownloadManager not found with id: " + id);
         }
         return download;
     }
@@ -150,5 +159,14 @@ public class DownloadService {
             System.err.println("Cannot mark failed download " + id + " from state: " + download.getDownloadStatus());
         }
         return downloadResponseMapper.downloadEntityToDownloadResponseModel(download);
+    }
+
+    public DownloadResponseModel updateDownload(String id, DownloadRequestModel downloadRequestModel) {
+        Download download = findDownloadManagerOrFail(id);
+
+        download.setSourceUrl(downloadRequestModel.getSourceUrl());
+        downloadRepository.save(download);
+        return downloadResponseMapper.downloadEntityToDownloadResponseModel(download);
+
     }
 }

@@ -60,9 +60,8 @@ public class UserService {
     }
 
     public UserResponseModel updateUserBalance(String uuid, double newBalance) {
-        User user = findUserByUuidOrThrow(uuid); // Reuse the finding logic
+        User user = findUserByUuidOrThrow(uuid);
 
-        // Validate newBalance if necessary (e.g., non-negative)
 
         if (newBalance < 0) {
             throw new InvalidUserInputException("Invalid negative balance: " + newBalance);
