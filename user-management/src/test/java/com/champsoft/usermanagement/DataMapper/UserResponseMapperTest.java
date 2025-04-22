@@ -7,39 +7,55 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserResponseMapperTest {
+class UserResponseMapperTest {
 
     private final UserResponseMapper mapper = Mappers.getMapper(UserResponseMapper.class);
 
-    @Test
-    public void testUserToUserResponseModel() {
-        // Arrange
-        String uuid = UUID.randomUUID().toString();
-        UserId userId = new UserId();
-        userId.setUuid(uuid);
-
+    private User createTestUser() {
         User user = new User();
-        user.setUserId(userId);
+        user.setUserId(new UserId(UUID.randomUUID().toString()));
         user.setUsername("TestUser");
-        user.setEmail("test@example.com");
-        user.setBalance(99.99);
-        user.setOrders(Arrays.asList("order1", "order2"));
-        user.setGames(Arrays.asList("game1", "game2"));
+        user.setEmail("testuser@example.com");
+        user.setPassword("securePassword");
+        user.setBalance(100.0);
+        user.setOrders(List.of("order1", "order2"));
+        user.setGames(List.of("game1", "game2"));
+        return user;
+    }
 
-        // Act
+    @Test
+    void testUserToUserResponseModel() {
+        User user = createTestUser();
+
         UserResponseModel responseModel = mapper.userToUserResponseModel(user);
 
-        // Assert
         assertNotNull(responseModel);
-        assertEquals(uuid, responseModel.getUserId());
-        assertEquals("TestUser", responseModel.getUsername());
-        assertEquals("test@example.com", responseModel.getEmail());
-        assertEquals(99.99, responseModel.getBalance());
-        assertEquals(Arrays.asList("order1", "order2"), responseModel.getOrders());
-        assertEquals(Arrays.asList("game1", "game2"), responseModel.getGames());
+        assertEquals(user.getUserId().getUuid(), responseModel.getUserId());
+        assertEquals(user.getUsername(), responseModel.getUsername());
+
+        // These are not mapped in the interface but can be added to mapper if needed.
+        assertEquals(100.0, responseModel.getBalance());
+        assertEquals("testuser@example.com", responseModel.getEmail());
+        assertEquals(List.of("order1", "order2"), responseModel.getOrders());
+        assertEquals(List.of("game1", "game2"),responseModel.getGames());
+    }
+
+    @Test
+    void testUserListToUserResponseModelList() {
+        User user1 = createTestUser();
+        User user2 = createTestUser();
+
+        List<User> users = Arrays.asList(user1, user2);
+        List<UserResponseModel> responseModels = mapper.userToUserResponseModel(users);
+
+        assertNotNull(responseModels);
+        assertEquals(2, responseModels.size());
+        assertEquals(user1.getUserId().getUuid(), responseModels.get(0).getUserId());
+        assertEquals(user2.getUserId().getUuid(), responseModels.get(1).getUserId());
     }
 }
