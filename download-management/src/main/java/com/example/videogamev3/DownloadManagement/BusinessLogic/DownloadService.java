@@ -8,6 +8,7 @@ import com.example.videogamev3.DownloadManagement.DataMapper.DownloadRequestMapp
 import com.example.videogamev3.DownloadManagement.DataMapper.DownloadResponseMapper;
 import com.example.videogamev3.DownloadManagement.Presentation.DownloadRequestModel;
 import com.example.videogamev3.DownloadManagement.Presentation.DownloadResponseModel;
+import com.example.videogamev3.DownloadManagement.utils.exceptions.DuplicateDownloadIDException;
 import com.example.videogamev3.DownloadManagement.utils.exceptions.NotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -28,9 +29,14 @@ public class DownloadService {
 
     @Transactional
     public DownloadResponseModel createDownload(DownloadRequestModel downloadRequestModel) {
+
         Download download = downloadRequestMapper.downloadRequestModelToDownload(downloadRequestModel);
         download.setDownloadStatus(DownloadStatus.PENDING);
-        download.setId(new DownloadId(UUID.randomUUID().toString()));
+        DownloadId downloadId = new DownloadId(UUID.randomUUID().toString());
+        if(downloadRepository.existsDownloadById_Uuid(downloadId.getUuid())) {
+            throw new DuplicateDownloadIDException("Duplicate Download ID" + downloadId.getUuid());
+        }
+        download.setId(downloadId);
         System.out.println(download.toString());
         return downloadResponseMapper.downloadEntityToDownloadResponseModel(downloadRepository.save(download));
     }
