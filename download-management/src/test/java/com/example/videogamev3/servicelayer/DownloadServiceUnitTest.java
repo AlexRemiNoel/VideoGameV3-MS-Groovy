@@ -9,6 +9,7 @@ import com.example.videogamev3.DownloadManagement.DataMapper.DownloadRequestMapp
 import com.example.videogamev3.DownloadManagement.DataMapper.DownloadResponseMapper;
 import com.example.videogamev3.DownloadManagement.Presentation.DownloadRequestModel;
 import com.example.videogamev3.DownloadManagement.Presentation.DownloadResponseModel;
+import com.example.videogamev3.DownloadManagement.utils.exceptions.DownloadNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -133,11 +134,11 @@ class DownloadServiceUnitTest {
 
 
 
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+        DownloadNotFoundException exception = assertThrows(DownloadNotFoundException.class, () -> {
             downloadService.startDownload(nonExistentId);
         });
 
-        assertThat(exception.getMessage()).contains("DownloadManager not found with id: " + nonExistentId);
+        assertThat(exception.getMessage()).contains("Download not found with ID: " + nonExistentId);
         then(downloadRepository).should(times(1)).findDownloadById_Uuid(nonExistentId);
     }
 
@@ -324,34 +325,34 @@ class DownloadServiceUnitTest {
     @Test
     @DisplayName("Given existing ID, when deleteDownload, then call repository delete")
     void whenDeleteDownload_andExists_thenCallRepositoryDelete() {
+        // Arrange
+        given(downloadRepository.findDownloadById_Uuid(pendingId)).willReturn(downloadPending);
+        willDoNothing().given(downloadRepository).delete(eq(downloadPending));
 
-
-
-        given(downloadRepository.existsById(pendingId)).willReturn(true);
-        willDoNothing().given(downloadRepository).deleteById(pendingId);
-
-
+        // Act
         assertDoesNotThrow(() -> downloadService.deleteDownload(pendingId));
 
-
-        then(downloadRepository).should(times(1)).existsById(pendingId);
-        then(downloadRepository).should(times(1)).deleteById(pendingId);
+        // Assert
+        then(downloadRepository).should(times(1)).findDownloadById_Uuid(pendingId);
+        then(downloadRepository).should(times(1)).delete(eq(downloadPending));
+        then(downloadRepository).should(never()).deleteById(anyString());
     }
 
     @Test
     @DisplayName("Given non-existing ID, when deleteDownload, then throw EntityNotFoundException")
     void whenDeleteDownload_andNotExists_thenThrowNotFound() {
-
+        // Arrange
         String nonExistentId = UUID.randomUUID().toString();
-        given(downloadRepository.existsById(nonExistentId)).willReturn(false);
+        given(downloadRepository.findDownloadById_Uuid(nonExistentId)).willReturn(null);
 
-
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+        // Act & Assert
+        DownloadNotFoundException exception = assertThrows(DownloadNotFoundException.class, () -> {
             downloadService.deleteDownload(nonExistentId);
         });
 
-        assertThat(exception.getMessage()).contains("DownloadManager not found with id: " + nonExistentId);
-        then(downloadRepository).should(times(1)).existsById(nonExistentId);
+        assertThat(exception.getMessage()).isEqualTo("Download not found with ID: " + nonExistentId); // <-- Corrected message & use isEqualTo
+        then(downloadRepository).should(times(1)).findDownloadById_Uuid(nonExistentId);
+        then(downloadRepository).should(never()).delete(any(Download.class));
         then(downloadRepository).should(never()).deleteById(anyString());
     }
 

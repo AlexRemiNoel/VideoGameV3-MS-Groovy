@@ -26,7 +26,6 @@ INSERT INTO users (user_id, username, email, password, balance) VALUES
 
 INSERT INTO user_order_ids (user_id, order_id) VALUES
     ('123e4567-e89b-12d3-a456-426614174000', 'aaaaaaaa-bbbb-cccc-dddd-111111111111'),
-    ('123e4567-e89b-12d3-a456-426614174000', 'aaaaaaaa-bbbb-cccc-dddd-222222222222'),
     ('234e5678-f90c-23e4-b567-537725285111', 'aaaaaaaa-bbbb-cccc-dddd-333333333333'),
     ('567b8901-23fa-56b7-e890-860058518444', 'aaaaaaaa-bbbb-cccc-dddd-444444444444'),
     ('678c9012-34ab-67c8-f901-971169629555', 'aaaaaaaa-bbbb-cccc-dddd-555555555555'),
@@ -38,13 +37,12 @@ INSERT INTO user_order_ids (user_id, order_id) VALUES
 
 
 INSERT INTO user_game_ids (user_id, game_id) VALUES
-     ('123e4567-e89b-12d3-a456-426614174000', 'gggggggg-hhhh-iiii-jjjj-111111111111'),
-     ('123e4567-e89b-12d3-a456-426614174000', 'gggggggg-hhhh-iiii-jjjj-111111111111'),
-     ('234e5678-f90c-23e4-b567-537725285111', 'gggggggg-hhhh-iiii-jjjj-333333333333'),
-     ('567b8901-23fa-56b7-e890-860058518444', 'gggggggg-hhhh-iiii-jjjj-444444444444'),
-     ('678c9012-34ab-67c8-f901-971169629555', 'gggggggg-hhhh-iiii-jjjj-555555555555'),
-     ('789d0123-45bc-78d9-a012-082270730666', 'gggggggg-hhhh-iiii-jjjj-666666666666'),
-     ('901f2345-67de-90fb-c234-204492952888', 'gggggggg-hhhh-iiii-jjjj-777777777777'),
-     ('012a3456-78ef-01ac-d345-315503063999', 'gggggggg-hhhh-iiii-jjjj-888888888888'),
-     ('234e5678-f90c-23e4-b567-537725285111', 'gggggggg-hhhh-iiii-jjjj-999999999999'),
-     ('234e5678-f90c-23e4-b567-537725ccc111', 'gggggggg-hhhh-iiii-jjjj-222222222222');
+('123e4567-e89b-12d3-a456-426614174000', 'gggggggg-hhhh-iiii-jjjj-111111111111'),
+('234e5678-f90c-23e4-b567-537725285111', 'gggggggg-hhhh-iiii-jjjj-333333333333'),
+('567b8901-23fa-56b7-e890-860058518444', 'gggggggg-hhhh-iiii-jjjj-444444444444'),
+                                                 ('678c9012-34ab-67c8-f901-971169629555', 'gggggggg-hhhh-iiii-jjjj-555555555555'),
+                                                 ('789d0123-45bc-78d9-a012-082270730666', 'gggggggg-hhhh-iiii-jjjj-666666666666'),
+                                                 ('901f2345-67de-90fb-c234-204492952888', 'gggggggg-hhhh-iiii-jjjj-777777777777'),
+                                                 ('012a3456-78ef-01ac-d345-315503063999', 'gggggggg-hhhh-iiii-jjjj-888888888888'),
+                                                 ('234e5678-f90c-23e4-b567-537725285111', 'gggggggg-hhhh-iiii-jjjj-999999999999'),
+                                                 ('234e5678-f90c-23e4-b567-537725ccc111', 'gggggggg-hhhh-iiii-jjjj-222222222222');

@@ -94,18 +94,16 @@ class ControllerIntegrationTest {
 
     @Test
     @DisplayName("GET /api/v1/downloads/{id} - Not Found")
-    void whenGetDownloadById_andNotExists_thenReturnNotFound() { // Or appropriate error based on global exception handler
+    void whenGetDownloadById_andNotExists_thenReturnNotFound() {
         // Arrange
         String nonExistentId = UUID.randomUUID().toString();
-        given(downloadService.getDownload(nonExistentId)).willThrow(new EntityNotFoundException("Download not found")); // Mock service throwing exception
+        given(downloadService.getDownload(nonExistentId)).willThrow(new DownloadNotFoundException("Download not found"));
 
         // Act & Assert
         webTestClient.get().uri("/api/v1/downloads/{id}", nonExistentId)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
-                // Expect 404 Not Found IF you have a @ControllerAdvice handling EntityNotFoundException
-                // Otherwise, it might be 500 Internal Server Error by default
-                .expectStatus().isNotFound(); // Adjust if your exception handler returns a different status
+                .expectStatus().isNotFound();
 
         then(downloadService).should(times(1)).getDownload(nonExistentId);
     }
@@ -224,15 +222,15 @@ class ControllerIntegrationTest {
 
     @Test
     @DisplayName("DELETE /api/v1/downloads/{id} - Not Found")
-    void whenDeleteDownload_andNotExists_thenReturnNotFound() { // Or appropriate error
+    void whenDeleteDownload_andNotExists_thenReturnNotFound() {
         // Arrange
         String nonExistentId = UUID.randomUUID().toString();
-        willThrow(new EntityNotFoundException("Cannot delete")).given(downloadService).deleteDownload(nonExistentId); // Mock void method throwing exception
+        willThrow(new EntityNotFoundException("Cannot delete")).given(downloadService).deleteDownload(nonExistentId);
 
         // Act & Assert
         webTestClient.delete().uri("/api/v1/downloads/{id}", nonExistentId)
                 .exchange()
-                .expectStatus().isNotFound(); // Adjust if your exception handler returns a different status
+                .expectStatus().isNotFound();
 
         then(downloadService).should(times(1)).deleteDownload(nonExistentId);
     }
@@ -263,7 +261,7 @@ class ControllerIntegrationTest {
     @DisplayName("POST /api/v1/downloads - Invalid Data Exception")
     void whenPostDownload_withInvalidData_thenThrowsInvalidData_thenReturnBadRequest() {
         // Arrange
-        DownloadRequestModel invalidRequestModel = new DownloadRequestModel(""); // Example invalid data (empty URL)
+        DownloadRequestModel invalidRequestModel = new DownloadRequestModel(""); // (empty URL)
         String expectedErrorMessage = "Source URL cannot be empty.";
         given(downloadService.createDownload(any(DownloadRequestModel.class)))
                 .willThrow(new InvalidDownloadDataException(expectedErrorMessage));
@@ -273,7 +271,7 @@ class ControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(fromValue(invalidRequestModel))
                 .exchange()
-                .expectStatus().isBadRequest() // Expect 400 Bad Request
+                .expectStatus().isBadRequest()
                 .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
                 .expectBody(Map.class)
                 .value(map -> org.assertj.core.api.Assertions.assertThat(map.get("message")).isEqualTo(expectedErrorMessage));
@@ -312,7 +310,7 @@ class ControllerIntegrationTest {
         DownloadRequestModel validRequestModel = new DownloadRequestModel("http://valid.url/file.dat");
         String expectedErrorMessage = "Download with ID '" + nonExistentId + "' not found.";
         given(downloadService.updateDownload(eq(nonExistentId), any(DownloadRequestModel.class)))
-                .willThrow(new DownloadNotFoundException(expectedErrorMessage)); // Service throws when trying to find the download to update
+                .willThrow(new DownloadNotFoundException(expectedErrorMessage));
 
         // Act & Assert
         webTestClient.put().uri("/api/v1/downloads/{id}", nonExistentId)

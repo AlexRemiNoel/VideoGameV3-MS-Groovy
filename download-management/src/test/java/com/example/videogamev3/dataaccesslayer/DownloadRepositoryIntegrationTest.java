@@ -157,7 +157,7 @@ public class DownloadRepositoryIntegrationTest {
     void whenDownloadDoesNotExist_ExistsById_ShouldReturnFalse() {
                 DownloadId nonExistentId = new DownloadId(UUID.randomUUID().toString());
 
-                boolean exists = downloadRepository.existsById(nonExistentId.getUuid());
+                boolean exists = downloadRepository.existsDownloadById_Uuid(nonExistentId.getUuid());
 
                 assertFalse(exists);
     }
