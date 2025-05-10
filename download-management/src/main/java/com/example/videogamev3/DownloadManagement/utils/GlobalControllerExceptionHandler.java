@@ -97,7 +97,6 @@ package com.example.videogamev3.DownloadManagement.utils;
 import com.example.videogamev3.DownloadManagement.utils.exceptions.DuplicateDownloadIDException;
 import com.example.videogamev3.DownloadManagement.utils.exceptions.InvalidDownloadDataException;
 import com.example.videogamev3.DownloadManagement.utils.exceptions.DownloadNotFoundException;
-import jakarta.persistence.EntityNotFoundException; // Keep if you might throw this from blocking JPA calls wrapped in reactive types
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 // Remove HttpServletRequest import: import jakarta.servlet.http.HttpServletRequest;
@@ -137,16 +136,7 @@ public class GlobalControllerExceptionHandler {
         return createHttpErrorInfo(CONFLICT, exchange, ex);
     }
 
-    // --- Optional: Handler for generic JPA EntityNotFoundException ---
-    // This assumes you might be using JPA in blocking calls within your reactive service.
-    @ExceptionHandler(EntityNotFoundException.class)
-    @ResponseStatus(NOT_FOUND)
-    @ResponseBody
-    public HttpErrorInfo handleEntityNotFoundException(ServerWebExchange exchange, EntityNotFoundException ex) { // <-- Use ServerWebExchange
-        log.warn("Handling generic EntityNotFoundException for path {}: {}", getPath(exchange) ,ex.getMessage());
-        // Wrap the generic JPA exception with a more user-friendly message
-        return createHttpErrorInfo(NOT_FOUND, exchange, new Exception("Requested resource not found."));
-    }
+
 
 
     // --- Optional but Recommended: Catch-all for other unexpected exceptions ---

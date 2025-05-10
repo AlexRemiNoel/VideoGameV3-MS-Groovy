@@ -34,25 +34,32 @@ services:
       - "8082:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATA_MONGODB_HOST=mongodb-download-db
+      - SPRING_DATA_MONGODB_PORT=27017
+      - SPRING_DATA_MONGODB_DATABASE=download_db
+      - SPRING_DATA_MONGODB_USERNAME=download_user
+      - SPRING_DATA_MONGODB_PASSWORD=download_pwd
+      - SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE=admin
     depends_on:
-      mysql2:
+      mongodb-download-db:
         condition: service_healthy
 
-  mysql2:
-    image: 'mysql:latest'
-    environment:
-      - 'MYSQL_DATABASE=download-db'
-      - 'MYSQL_USER=user'
-      - 'MYSQL_PASSWORD=pwd'
-      - 'MYSQL_ROOT_PASSWORD=verysecretpwd'
+  mongodb-download-db:
+    image: mongo:latest
+    hostname: mongodb-download-db-host
     ports:
-      - "3308:3306"
+      - "27018:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=download_user
+      - MONGO_INITDB_ROOT_PASSWORD=download_pwd
+      - MONGO_INITDB_DATABASE=download_db
+    volumes:
+      - mongodb_download_data:/data/db
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-uuser", "-ppwd", "-h", "localhost" ]
+      test: ["CMD", "mongosh", "--norc", "--quiet", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 10
-
 
   game-management:
     build: game-management
@@ -65,56 +72,46 @@ services:
       postgres-game:
         condition: service_healthy
 
-
   postgres-game:
-    image: 'postgres:latest' # Using PostgreSQL image
-    hostname: postgres-gamehost # Optional: Added hostname for consistency
+    image: 'postgres:latest'
+    hostname: postgres-gamehost
     environment:
-      - 'POSTGRES_DB=game-db'       # PostgreSQL equivalent for database name
-      - 'POSTGRES_USER=user'         # PostgreSQL equivalent for user
-      - 'POSTGRES_PASSWORD=pwd'      # PostgreSQL equivalent for password
-      # - 'PGDATA=/var/lib/postgresql/data/pgdata' # Optional: If you want data in a sub-directory
+      - 'POSTGRES_DB=game-db'
+      - 'POSTGRES_USER=user'
+      - 'POSTGRES_PASSWORD=pwd'
     ports:
-      - "5433:5432" # Changed port mapping (host:container), PostgreSQL default is 5432
+      - "5433:5432"
     healthcheck:
-      # Use pg_isready for PostgreSQL healthcheck
       test: [ "CMD-SHELL", "pg_isready -U user -d game-db" ]
       interval: 10s
       timeout: 5s
       retries: 10
 
   pgadmin:
-    image: dpage/pgadmin4:latest # Use specific version tag in production if preferred
-    container_name: pgAdmin_PostgreSQL # Optional: Custom container name
+    image: dpage/pgadmin4:latest
+    container_name: pgAdmin_PostgreSQL
     restart: unless-stopped
     environment:
-      # IMPORTANT: These are for logging into the pgAdmin WEB INTERFACE,
-      # NOT for connecting to the database itself.
-      # CHANGE THESE to something secure!
       PGADMIN_DEFAULT_EMAIL: "admin@example.com"
       PGADMIN_DEFAULT_PASSWORD: "changeme"
-      # PGADMIN_CONFIG_SERVER_MODE: "False" # Set to True if you don't want users adding servers
     ports:
-      # Map a host port (e.g., 5050) to pgAdmin's default container port (80)
       - "5050:80"
     depends_on:
       postgres-game:
         condition: service_healthy
     networks:
-      - default # Ensure it's on the same network as postgres-game
-
+      - default
 
   phpmyadmin:
     image: phpmyadmin:5.2.0
     container_name: PhpMyAdmin
     restart: always
     ports:
-      - 5013:80
+      - "5013:80"
     environment:
       - PMA_ARBITRARY=1
     depends_on:
       - mysql1
-      - mysql2
     networks:
       - default
 
@@ -128,3 +125,23 @@ services:
       - user-management
       - download-management
       - game-management
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    restart: always
+    ports:
+      - "5051:8081"
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=download_user
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=download_pwd
+      - ME_CONFIG_MONGODB_SERVER=mongodb-download-db
+      - ME_CONFIG_MONGODB_PORT=27017
+    depends_on:
+      mongodb-download-db:
+        condition: service_healthy
+    networks:
+      - default
+
+volumes:
+  mongodb_download_data:
