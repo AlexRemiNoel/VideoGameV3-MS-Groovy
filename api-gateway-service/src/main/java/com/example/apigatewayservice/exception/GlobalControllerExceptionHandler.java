@@ -1,15 +1,18 @@
 package com.example.apigatewayservice.exception;
 
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.ResponseStatus; // Import ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+// Remove WebRequest import
+// import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.ServerWebExchange; // Import ServerWebExchange
 
-import static org.springframework.http.HttpStatus.*;
+import java.time.ZonedDateTime;
 
 @RestControllerAdvice
 @Slf4j
@@ -31,49 +34,23 @@ public class GlobalControllerExceptionHandler {
     }
 
     @ExceptionHandler(RuntimeException.class)
-    @ResponseStatus(INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<HttpErrorInfo> handleGenericRuntimeException(ServerWebExchange exchange, RuntimeException ex) {
         log.error("Handling unexpected RuntimeException: {}", ex.getMessage(), ex);
         String safeMessage = "An unexpected internal error occurred.";
-        HttpErrorInfo errorInfo = new HttpErrorInfo(INTERNAL_SERVER_ERROR, getPath(exchange), safeMessage);
-        return new ResponseEntity<>(errorInfo, INTERNAL_SERVER_ERROR);
+        HttpErrorInfo errorInfo = new HttpErrorInfo(HttpStatus.INTERNAL_SERVER_ERROR, getPath(exchange), safeMessage);
+        return new ResponseEntity<>(errorInfo, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<HttpErrorInfo> handleRootException(ServerWebExchange exchange, Exception ex) {
         log.error("Handling unforeseen Exception: {}", ex.getMessage(), ex);
         String safeMessage = "An unexpected error occurred.";
-        HttpErrorInfo errorInfo = new HttpErrorInfo(INTERNAL_SERVER_ERROR, getPath(exchange), safeMessage);
-        return new ResponseEntity<>(errorInfo, INTERNAL_SERVER_ERROR);
+        HttpErrorInfo errorInfo = new HttpErrorInfo(HttpStatus.INTERNAL_SERVER_ERROR, getPath(exchange), safeMessage);
+        return new ResponseEntity<>(errorInfo, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-    // --- Handler for Download Not Found ---
-    @ResponseStatus(HttpStatus.NOT_FOUND) // 404
-    @ExceptionHandler(DownloadNotFoundException.class)
-    public HttpErrorInfo handleDownloadNotFoundException(ServerWebExchange exchange, DownloadNotFoundException ex) { // Use ServerWebExchange and specific exception
-        return createHttpErrorInfo(NOT_FOUND, exchange, ex).getBody();
-    }
-
-    // --- Handler for Invalid Input Data ---
-    // Changed to BAD_REQUEST (400) as it's more common for input validation
-    @ResponseStatus(BAD_REQUEST) // 400
-    @ExceptionHandler(InvalidDownloadDataException.class)
-    public HttpErrorInfo handleInvalidInputException(ServerWebExchange exchange, InvalidDownloadDataException ex) { // Use ServerWebExchange and specific exception
-        return createHttpErrorInfo(BAD_REQUEST, exchange, ex).getBody();
-    }
-
-    // --- Handler for Duplicate ID ---
-    // Changed to CONFLICT (409) as it's more semantically correct for duplicates
-    @ResponseStatus(CONFLICT) // 409
-    @ExceptionHandler(DuplicateDownloadIDException.class)
-    // Renamed method for clarity
-    public HttpErrorInfo handleDuplicateDownloadIDException(ServerWebExchange exchange, DuplicateDownloadIDException ex) { // Use ServerWebExchange and specific exception
-        return createHttpErrorInfo(CONFLICT, exchange, ex).getBody();
-    }
-
-
 
     private ResponseEntity<HttpErrorInfo> createHttpErrorInfo(HttpStatus status, ServerWebExchange exchange, Exception ex) {
         final String path = getPath(exchange);
@@ -104,5 +81,3 @@ public class GlobalControllerExceptionHandler {
         }
     }
 }
-
-

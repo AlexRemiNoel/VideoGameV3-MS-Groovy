@@ -24,14 +24,7 @@ public class DownloadController {
         DownloadResponseModel newDownload = downloadService.createDownload(downloadRequestModel);
         return ResponseEntity.status(HttpStatus.CREATED).body(newDownload);
     }
-//
-//    @PutMapping(value = "{uuid}", consumes = MediaType.APPLICATION_JSON_VALUE)
-//    public ResponseEntity<DownloadResponseModel> updateDownload(@RequestBody DownloadRequestModel downloadRequestModel) {
-//        log.debug("1. Received in API-Gateway Download Controller createDownload");
-//        DownloadResponseModel newDownload = downloadService.createDownload(downloadRequestModel);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(newDownload);
-//    }
-//
+
     @GetMapping("/{id}")
     public ResponseEntity<DownloadResponseModel> getDownload(@PathVariable String id) {
         log.debug("1. Received in API-Gateway Download Controller getDownload for id: {}", id);
@@ -50,12 +43,6 @@ public class DownloadController {
     public ResponseEntity<DownloadResponseModel> startDownload(@PathVariable String id) {
         log.debug("1. Received in API-Gateway Download Controller startDownload for id: {}", id);
         DownloadResponseModel updatedDto = downloadService.startDownload(id);
-        return ResponseEntity.ok(updatedDto);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<DownloadResponseModel> updateDownload(@PathVariable String id, @RequestBody DownloadRequestModel downloadRequestModel) {
-        DownloadResponseModel updatedDto = downloadService.updateDownload(id, downloadRequestModel);
         return ResponseEntity.ok(updatedDto);
     }
 

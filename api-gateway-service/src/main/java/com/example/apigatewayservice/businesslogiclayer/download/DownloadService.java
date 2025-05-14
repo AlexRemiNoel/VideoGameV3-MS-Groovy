@@ -14,6 +14,4 @@ public interface DownloadService {
     DownloadResponseModel resumeDownload(String id);
     DownloadResponseModel cancelDownload(String id);
     void deleteDownload(String id);
-
-    DownloadResponseModel updateDownload(String id, DownloadRequestModel downloadRequestModel);
 }

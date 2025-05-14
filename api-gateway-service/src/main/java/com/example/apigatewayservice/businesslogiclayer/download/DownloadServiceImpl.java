@@ -62,9 +62,4 @@ public class DownloadServiceImpl implements DownloadService {
         log.debug("2. Delegating deleteDownload for id {} to client", id);
         downloadServiceClient.deleteDownload(id);
     }
-
-    @Override
-    public DownloadResponseModel updateDownload(String id, DownloadRequestModel downloadRequestModel) {
-        return downloadServiceClient.updateDownload(id, downloadRequestModel);
-    }
 }
