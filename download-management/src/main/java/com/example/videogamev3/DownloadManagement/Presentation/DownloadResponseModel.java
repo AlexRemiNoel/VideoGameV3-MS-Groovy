@@ -13,4 +13,5 @@ public class DownloadResponseModel {
     String id;
     String sourceUrl;
     String status;
+    String userId;
 }

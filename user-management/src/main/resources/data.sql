@@ -24,27 +24,20 @@ INSERT INTO users (user_id, username, email, password, balance) VALUES
     ('123b4567-89fa-12bd-e456-426614174001', 'irene_adler', 'irene.a@domain.com', 'theWoman', 12.34),
     ('234e5678-f90c-23e4-b567-537725ccc111', 'james_bond', 'james.b@example.com', 'shakenN0tStirred', 700.07);
 
-INSERT INTO user_order_ids (user_id, order_id) VALUES
-    ('123e4567-e89b-12d3-a456-426614174000', 'aaaaaaaa-bbbb-cccc-dddd-111111111111'),
-    ('123e4567-e89b-12d3-a456-426614174000', 'aaaaaaaa-bbbb-cccc-dddd-222222222222'),
-    ('234e5678-f90c-23e4-b567-537725285111', 'aaaaaaaa-bbbb-cccc-dddd-333333333333'),
-    ('567b8901-23fa-56b7-e890-860058518444', 'aaaaaaaa-bbbb-cccc-dddd-444444444444'),
-    ('678c9012-34ab-67c8-f901-971169629555', 'aaaaaaaa-bbbb-cccc-dddd-555555555555'),
-    ('789d0123-45bc-78d9-a012-082270730666', 'aaaaaaaa-bbbb-cccc-dddd-666666666666'),
-    ('901f2345-67de-90fb-c234-204492952888', 'aaaaaaaa-bbbb-cccc-dddd-777777777777'),
-    ('012a3456-78ef-01ac-d345-315503063999', 'aaaaaaaa-bbbb-cccc-dddd-888888888888'),
-    ('234e5678-f90c-23e4-b567-537725285111', 'aaaaaaaa-bbbb-cccc-dddd-999999999999'),
-    ('234e5678-f90c-23e4-b567-537725ccc111', 'aaaaaaaa-bbbb-cccc-dddd-999999999993');
 
 
 INSERT INTO user_game_ids (user_id, game_id) VALUES
-     ('123e4567-e89b-12d3-a456-426614174000', 'gggggggg-hhhh-iiii-jjjj-111111111111'),
-     ('123e4567-e89b-12d3-a456-426614174000', 'gggggggg-hhhh-iiii-jjjj-111111111111'),
-     ('234e5678-f90c-23e4-b567-537725285111', 'gggggggg-hhhh-iiii-jjjj-333333333333'),
-     ('567b8901-23fa-56b7-e890-860058518444', 'gggggggg-hhhh-iiii-jjjj-444444444444'),
-     ('678c9012-34ab-67c8-f901-971169629555', 'gggggggg-hhhh-iiii-jjjj-555555555555'),
-     ('789d0123-45bc-78d9-a012-082270730666', 'gggggggg-hhhh-iiii-jjjj-666666666666'),
-     ('901f2345-67de-90fb-c234-204492952888', 'gggggggg-hhhh-iiii-jjjj-777777777777'),
-     ('012a3456-78ef-01ac-d345-315503063999', 'gggggggg-hhhh-iiii-jjjj-888888888888'),
-     ('234e5678-f90c-23e4-b567-537725285111', 'gggggggg-hhhh-iiii-jjjj-999999999999'),
-     ('234e5678-f90c-23e4-b567-537725ccc111', 'gggggggg-hhhh-iiii-jjjj-222222222222');
+                                                 ('123e4567-e89b-12d3-a456-426614174000', '3f4d5e6c-7b8a-49d0-91e2-f3a4b5c6d7e8'), -- Alice owns Cyberpunk 2077 (Game 1)
+                                                 ('123e4567-e89b-12d3-a456-426614174000', '5a6b7c8d-9e0f-41a2-b3c4-d5e6f7a8b9c0'), -- Alice owns The Witcher 3 (Game 2)
+
+                                                 ('123e4567-ffff-12d3-a456-426614174000', '5a6b7c8d-9e0f-41a2-b3c4-d5e6f7a8b9c0'), -- Bob owns The Witcher 3 (Game 2)
+                                                 ('123e4567-ffff-12d3-a456-426614174000', '1c2d3e4f-5a6b-47c8-9d0e-1f2a3b4c5d6e'), -- Bob owns Red Dead Redemption 2 (Game 3)
+
+                                                 ('567b8901-23fa-56b7-e890-860058518444', '7e8f9a0b-1c2d-43e4-5f6a-7b8c9d0e1f20'), -- Charlie owns Elden Ring (Game 4)
+
+                                                 ('678c9012-34ab-67c8-f901-971169629555', '9a0b1c2d-3e4f-45a6-7b8c-9d0e1f2a3b40'), -- Diana owns Minecraft (Game 5)
+                                                 ('789d0123-45bc-78d9-a012-082270730666', 'b1c2d3e4-f5a6-47b8-9d0e-1f2a3b4c5d60'), -- Elvis owns GTA V (Game 6)
+                                                 ('901f2345-67de-90fb-c234-204492952888', 'd3e4f5a6-b7c8-49d0-91e2-f3a4b5c6d700'), -- Grace owns BoTW (Game 7)
+                                                 ('012a3456-78ef-01ac-d345-315503063999', 'f5a6b7c8-d9e0-41a2-b3c4-d5e6f7a8b900'), -- Harry owns Overwatch 2 (Game 8)
+                                                 ('123b4567-89fa-12bd-e456-426614174001', '2a3b4c5d-6e7f-48a9-b0c1-d2e3f4a5b600'), -- Irene owns Portal 2 (Game 9)
+                                                 ('234e5678-f90c-23e4-b567-537725ccc111', '4c5d6e7f-8a9b-40c1-d2e3-f4a5b6c7d800'); -- James owns Stardew Valley (Game 10)

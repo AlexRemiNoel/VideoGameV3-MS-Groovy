@@ -14,4 +14,5 @@ public class Download {
     private DownloadId id;
     private String sourceUrl;
     private DownloadStatus downloadStatus;
+    private String userId;
 }

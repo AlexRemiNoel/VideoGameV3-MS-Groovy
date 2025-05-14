@@ -18,76 +18,65 @@ spring:
     name: user-management # Global application name
 
 ---
-# Docker/Production Profile Configuration
 spring:
   config:
     activate:
       on-profile: docker
-  # DataSource configuration specifically for Docker/MySQL
   datasource:
-    url: jdbc:mysql://mysql1/user-db # 'mysql1' should be the service name in docker-compose.yml
+    url: jdbc:mysql://mysql1:3306/user-db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: user
     password: pwd
     driver-class-name: com.mysql.cj.jdbc.Driver
-  # JPA configuration specifically for Docker/MySQL
   jpa:
     hibernate:
-      # Use 'validate' or 'none' for prod/docker. 'none' if external tools manage schema.
-      # 'update' is risky in production.
-      ddl-auto: validate
-    # Set the dialect explicitly for MySQL
+      ddl-auto: update
     database-platform: org.hibernate.dialect.MySQLDialect
-    show-sql: true # Log SQL statements
+    show-sql: true
     properties:
       hibernate:
-        format_sql: true # Format SQL logs nicely
-
-  # SQL initialization specific to MySQL (if using schema-mysql.sql/data-mysql.sql)
-  # Consider if 'ddl-auto: validate' is sufficient or if you need scripts.
-  # If using scripts, 'mode: always' might run them even if tables exist.
-  # 'mode: never' might be better if ddl-auto handles it or Flyway/Liquibase is used.
+        format_sql: true
   sql:
     init:
       platform: mysql
-      mode: never # Changed to 'never', assuming ddl-auto:validate or external tool handles schema
+      mode: always
       logging:
         enabled: true
 
 ---
-# H2 Test Profile Configuration
-spring:
-  config:
-    activate:
-      on-profile: h2
-  # Datasource configuration specifically for H2 tests
-  datasource:
-    # Use a unique DB name for tests; DB_CLOSE_DELAY keeps it alive for the test duration
-    url: jdbc:h2:mem:userdb-test;DB_CLOSE_DELAY=-1;NON_KEYWORDS=YEAR,VALUE # Added keywords that might conflict
-    driverClassName: org.h2.Driver
-    username: sa # Default H2 user
-    password: '' # Default H2 password is empty string
-  # JPA configuration specifically for H2 tests
-  jpa:
-    hibernate:
-      # Create schema on startup, drop on shutdown for a clean slate each test run
-      ddl-auto: create-drop
-    # Set the dialect explicitly for H2
-    database-platform: org.hibernate.dialect.H2Dialect
-    show-sql: true # Optional: show SQL in test logs
-    properties:
-      hibernate:
-        format_sql: true # Format SQL logs nicely
-  # H2 Console (Optional, useful for debugging tests via browser)
-  h2:
-    console:
-      enabled: true
-      path: /h2-console # Access path
-      settings:
-        web-allow-others: true # Allows access from other machines if needed (use cautiously)
-  # SQL initialization for H2 (Optional - only needed if NOT relying solely on ddl-auto)
-  # If you have src/test/resources/schema.sql or data.sql, Spring Boot should pick them up by default with H2.
-  # You might not need this section explicitly unless you use different filenames or platforms.
-  # sql:
-  #  init:
-  #    mode: embedded # Runs schema.sql and data.sql from classpath if present
-  #    platform: h2
+## H2 Test Profile Configuration
+#spring:
+#  config:
+#    activate:
+#      on-profile: h2
+#  # Datasource configuration specifically for H2 tests
+#  datasource:
+#    # Use a unique DB name for tests; DB_CLOSE_DELAY keeps it alive for the test duration
+#    url: jdbc:h2:mem:userdb-test;DB_CLOSE_DELAY=-1;NON_KEYWORDS=YEAR,VALUE # Added keywords that might conflict
+#    driverClassName: org.h2.Driver
+#    username: sa # Default H2 user
+#    password: '' # Default H2 password is empty string
+#  # JPA configuration specifically for H2 tests
+#  jpa:
+#    hibernate:
+#      # Create schema on startup, drop on shutdown for a clean slate each test run
+#      ddl-auto: create-drop
+#    # Set the dialect explicitly for H2
+#    database-platform: org.hibernate.dialect.H2Dialect
+#    show-sql: true # Optional: show SQL in test logs
+#    properties:
+#      hibernate:
+#        format_sql: true # Format SQL logs nicely
+#  # H2 Console (Optional, useful for debugging tests via browser)
+#  h2:
+#    console:
+#      enabled: true
+#      path: /h2-console # Access path
+#      settings:
+#        web-allow-others: true # Allows access from other machines if needed (use cautiously)
+#  # SQL initialization for H2 (Optional - only needed if NOT relying solely on ddl-auto)
+#  # If you have src/test/resources/schema.sql or data.sql, Spring Boot should pick them up by default with H2.
+#  # You might not need this section explicitly unless you use different filenames or platforms.
+#  # sql:
+#  #  init:
+#  #    mode: embedded # Runs schema.sql and data.sql from classpath if present
+#  #    platform: h2

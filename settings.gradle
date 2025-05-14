@@ -1,3 +1,5 @@
 rootProject.name = 'VideoGameV3-MS-Groovy'
 include 'profile-dashboard-management'
+include 'profile-dashboard-management'
+include 'dashboard-management'
 

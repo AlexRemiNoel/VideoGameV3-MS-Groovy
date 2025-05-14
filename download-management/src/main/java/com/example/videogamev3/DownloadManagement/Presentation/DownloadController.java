@@ -71,5 +71,10 @@ public class DownloadController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<DownloadResponseModel>> getDownloadsByUserId(@PathVariable String userId) {
+        return ResponseEntity.ok(downloadService.getAllDownloadsByUserId(userId));
+    }
+
 
 }

@@ -4,9 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class DownloadId {
     private String uuid;
+    public DownloadId() {
+        this.uuid = UUID.randomUUID().toString();
+    }
 }
+
+

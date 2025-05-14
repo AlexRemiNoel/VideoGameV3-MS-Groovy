@@ -174,14 +174,19 @@ public class DownloadService {
             if (downloadRepository.count() == 0) {
                 downloadRepository.saveAll(List.of(
                         new Download(
-                                new DownloadId(), "http://pooper.com", DownloadStatus.DOWNLOADING
+                                new DownloadId(), "http://pooper.com", DownloadStatus.DOWNLOADING, "123e4567-e89b-12d3-a456-426614174000"
                         ),
                         new Download(
-                                new DownloadId(), "http://tsn.com", DownloadStatus.DOWNLOADING
+                                new DownloadId(), "http://tsn.com", DownloadStatus.DOWNLOADING, "123e4567-e89b-12d3-a456-426614174000"
                         )
                 ));
             }
         };
+    }
+
+    public List<DownloadResponseModel> getAllDownloadsByUserId(String userId) {
+        List<Download> downloads = downloadRepository.getDownloadsByUserId(userId);
+        return downloadResponseMapper.downloadEntityToDownloadResponseModel(downloads);
     }
 
     public DownloadResponseModel updateDownload(String id, DownloadRequestModel downloadRequestModel) {

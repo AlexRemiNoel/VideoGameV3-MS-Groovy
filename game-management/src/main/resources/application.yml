@@ -74,40 +74,40 @@ spring:
         enabled: true
 
 
-  # H2 Test Profile Configuration
-  spring:
-    config:
-      activate:
-        on-profile: h2
-    # Datasource configuration specifically for H2 tests
-    datasource:
-      # Use a unique DB name for tests; DB_CLOSE_DELAY keeps it alive for the test duration
-      url: jdbc:h2:mem:userdb-test;DB_CLOSE_DELAY=-1;NON_KEYWORDS=YEAR,VALUE # Added keywords that might conflict
-      driverClassName: org.h2.Driver
-      username: sa # Default H2 user
-      password: '' # Default H2 password is empty string
-    # JPA configuration specifically for H2 tests
-    jpa:
-      hibernate:
-        # Create schema on startup, drop on shutdown for a clean slate each test run
-        ddl-auto: create-drop
-      # Set the dialect explicitly for H2
-      database-platform: org.hibernate.dialect.H2Dialect
-      show-sql: true # Optional: show SQL in test logs
-      properties:
-        hibernate:
-          format_sql: true # Format SQL logs nicely
-    # H2 Console (Optional, useful for debugging tests via browser)
-    h2:
-      console:
-        enabled: true
-        path: /h2-console # Access path
-        settings:
-          web-allow-others: true # Allows access from other machines if needed (use cautiously)
-    # SQL initialization for H2 (Optional - only needed if NOT relying solely on ddl-auto)
-    # If you have src/test/resources/schema.sql or data.sql, Spring Boot should pick them up by default with H2.
-    # You might not need this section explicitly unless you use different filenames or platforms.
-    # sql:
-    #  init:
-    #    mode: embedded # Runs schema.sql and data.sql from classpath if present
-    #    platform: h2
+#  # H2 Test Profile Configuration
+#  spring:
+#    config:
+#      activate:
+#        on-profile: h2
+#    # Datasource configuration specifically for H2 tests
+#    datasource:
+#      # Use a unique DB name for tests; DB_CLOSE_DELAY keeps it alive for the test duration
+#      url: jdbc:h2:mem:userdb-test;DB_CLOSE_DELAY=-1;NON_KEYWORDS=YEAR,VALUE # Added keywords that might conflict
+#      driverClassName: org.h2.Driver
+#      username: sa # Default H2 user
+#      password: '' # Default H2 password is empty string
+#    # JPA configuration specifically for H2 tests
+#    jpa:
+#      hibernate:
+#        # Create schema on startup, drop on shutdown for a clean slate each test run
+#        ddl-auto: create-drop
+#      # Set the dialect explicitly for H2
+#      database-platform: org.hibernate.dialect.H2Dialect
+#      show-sql: true # Optional: show SQL in test logs
+#      properties:
+#        hibernate:
+#          format_sql: true # Format SQL logs nicely
+#    # H2 Console (Optional, useful for debugging tests via browser)
+#    h2:
+#      console:
+#        enabled: true
+#        path: /h2-console # Access path
+#        settings:
+#          web-allow-others: true # Allows access from other machines if needed (use cautiously)
+#    # SQL initialization for H2 (Optional - only needed if NOT relying solely on ddl-auto)
+#    # If you have src/test/resources/schema.sql or data.sql, Spring Boot should pick them up by default with H2.
+#    # You might not need this section explicitly unless you use different filenames or platforms.
+#    # sql:
+#    #  init:
+#    #    mode: embedded # Runs schema.sql and data.sql from classpath if present
+#    #    platform: h2

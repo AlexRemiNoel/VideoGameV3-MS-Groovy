@@ -14,6 +14,7 @@ services:
 
   mysql1:
     image: 'mysql:latest'
+    hostname: mysql1host
     environment:
       - 'MYSQL_DATABASE=user-db'
       - 'MYSQL_USER=user'
@@ -26,6 +27,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+    volumes:
+      - mysql_data:/var/lib/mysql
 
   download-management:
     build: download-management
@@ -46,7 +49,7 @@ services:
 
   mongodb-download-db:
     image: mongo:latest
-    hostname: mongodb-download-db-host
+    hostname: mongodb-download-db
     ports:
       - "27018:27017"
     environment:
@@ -68,6 +71,9 @@ services:
       - "8083:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-game:5432/game-db
+      - SPRING_DATASOURCE_USERNAME=user
+      - SPRING_DATASOURCE_PASSWORD=pwd
     depends_on:
       postgres-game:
         condition: service_healthy
@@ -81,11 +87,67 @@ services:
       - 'POSTGRES_PASSWORD=pwd'
     ports:
       - "5433:5432"
+    volumes:
+      - postgres_game_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U user -d game-db" ]
+      test: [ "CMD-SHELL", "pg_isready -U user -d game-db -h localhost" ]
       interval: 10s
       timeout: 5s
       retries: 10
+
+  dashboard-management:
+    build: profile-dashboard-management
+    hostname: dashboard-managementhost
+    ports:
+      - "8085:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATA_MONGODB_HOST=mongodb-dashboard-db
+      - SPRING_DATA_MONGODB_PORT=27017
+      - SPRING_DATA_MONGODB_DATABASE=dashboard_db
+      - SPRING_DATA_MONGODB_USERNAME=dashboard_user
+      - SPRING_DATA_MONGODB_PASSWORD=dashboard_pwd
+      - SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE=admin
+    depends_on:
+      mongodb-dashboard-db:
+        condition: service_healthy
+
+  mongodb-dashboard-db:
+    image: mongo:latest
+    hostname: mongodb-dashboard-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_dashboard_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=dashboard_user
+      - MONGO_INITDB_ROOT_PASSWORD=dashboard_pwd
+      - MONGO_INITDB_DATABASE=dashboard_db
+    healthcheck:
+      test: ["CMD", "mongosh", "--norc", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  mongo-express-dashboard:
+    image: mongo-express:latest
+    container_name: mongo_express_dashboard_admin
+    restart: always
+    ports:
+      - "8086:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb-dashboard-db
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=dashboard_user # For ME to connect to MongoDB
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=dashboard_pwd  # For ME to connect to MongoDB
+      # - ME_CONFIG_MONGODB_ENABLE_ADMIN="true" # Often good to be explicit, though it should work with your setup
+
+      # Credentials for accessing the Mongo Express Web UI itself (Basic Auth)
+      - ME_CONFIG_BASICAUTH_USERNAME=mexpressadmin # Choose your own UI admin username
+      - ME_CONFIG_BASICAUTH_PASSWORD=mexpresspassword # Choose your own UI admin password
+    depends_on:
+      mongodb-dashboard-db:
+        condition: service_healthy
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -99,21 +161,20 @@ services:
     depends_on:
       postgres-game:
         condition: service_healthy
-    networks:
-      - default
 
   phpmyadmin:
     image: phpmyadmin:5.2.0
-    container_name: PhpMyAdmin
+    container_name: PhpMyAdmin_MySQL
     restart: always
     ports:
       - "5013:80"
     environment:
+      - PMA_HOST=mysql1
+      - PMA_PORT=3306
       - PMA_ARBITRARY=1
     depends_on:
-      - mysql1
-    networks:
-      - default
+      mysql1:
+        condition: service_healthy
 
   gateway-service:
     build: ./api-gateway-service
@@ -125,23 +186,10 @@ services:
       - user-management
       - download-management
       - game-management
-
-  mongo-express:
-    image: mongo-express:latest
-    container_name: mongo-express
-    restart: always
-    ports:
-      - "5051:8081"
-    environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=download_user
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=download_pwd
-      - ME_CONFIG_MONGODB_SERVER=mongodb-download-db
-      - ME_CONFIG_MONGODB_PORT=27017
-    depends_on:
-      mongodb-download-db:
-        condition: service_healthy
-    networks:
-      - default
+      - dashboard-management
 
 volumes:
-  mongodb_download_data:
+  mysql_data: {}
+  mongodb_download_data: {}
+  postgres_game_data: {}
+  mongodb_dashboard_data: {}

@@ -24,10 +24,6 @@ public class User {
     private String password;
     private double balance;
 
-    @ElementCollection(fetch = FetchType.EAGER) // EAGER or LAZY depending on use case
-    @CollectionTable(name = "user_order_ids", joinColumns = @JoinColumn(name = "user_id")) // Specify join table and FK column
-    @Column(name = "order_id", nullable = false) // Column name for the game IDs in the join table
-    private List<String> orders;
 
     @ElementCollection(fetch = FetchType.EAGER) // EAGER or LAZY depending on use case
     @CollectionTable(name = "user_game_ids", joinColumns = @JoinColumn(name = "user_id")) // Specify join table and FK column

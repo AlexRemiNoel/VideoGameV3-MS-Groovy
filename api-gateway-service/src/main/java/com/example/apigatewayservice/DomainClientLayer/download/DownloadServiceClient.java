@@ -8,9 +8,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import com.example.apigatewayservice.exception.NotFoundException;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -102,6 +104,29 @@ public class DownloadServiceClient {
         }
     }
 
+
+    public DownloadResponseModel updateDownload(String id, DownloadRequestModel downloadRequestModel) {
+        String url = DOWNLOAD_SERVICE_BASE_URL + "/" + id;
+        log.debug("3. Client sending PUT request to: {}", url);
+        try {
+            HttpEntity<DownloadRequestModel> requestEntity = new HttpEntity<>(downloadRequestModel); // Wrap the body
+
+            ResponseEntity<DownloadResponseModel> responseEntity = restTemplate.exchange(
+                    url,
+                    HttpMethod.PUT,
+                    requestEntity,
+                    DownloadResponseModel.class
+            );
+
+            DownloadResponseModel response = responseEntity.getBody();
+            return response;
+
+        } catch (HttpClientErrorException ex) {
+            log.warn("Client PUT request failed: {}", ex.getMessage());
+            throw handleHttpClientException(ex);
+        }
+    }
+
     public DownloadResponseModel startDownload(String id) {
         return postForStateChange(id, "start");
     }
@@ -163,4 +188,6 @@ public class DownloadServiceClient {
             return ex.getResponseBodyAsString();
         }
     }
+
+
 }
