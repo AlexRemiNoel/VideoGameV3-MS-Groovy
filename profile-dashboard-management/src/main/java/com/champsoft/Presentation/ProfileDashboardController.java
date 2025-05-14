@@ -45,7 +45,6 @@ public class ProfileDashboardController {
         return ResponseEntity.ok(dashboard);
     }
 
-    // DELETE by AggregateId to remove the persisted dashboard
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteProfileDashboard(@PathVariable String userId) {
         dashboardService.deletePersistedDashboard(userId);

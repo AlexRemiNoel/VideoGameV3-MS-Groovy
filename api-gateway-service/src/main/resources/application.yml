@@ -14,9 +14,6 @@ spring:
     activate:
       on-profile: default # For running locally WITHOUT Docker
 app:
-  # When running locally, assuming other services are directly accessible
-  # These ports MUST match the HOST ports you expose them on if running them locally (e.g. via IDE)
-  # OR the ports you map them to in docker-compose if ONLY running gateway locally
   user-service:
     host: localhost # Use localhost for default profile
     port: 8081 # Exposed port for customers service
@@ -31,18 +28,18 @@ app:
 spring:
   config:
     activate:
-      on-profile: docker # For running INSIDE Docker Compose
-# server.port is inherited from default profile (8080) unless overridden here
+      on-profile: docker
 app:
-  # Use Docker service names as hostnames when running inside docker network
-  # The port is the INTERNAL port the service listens on inside its container (usually 8080)
   user-service:
-    host: user-management # Docker service name from docker-compose.yml
-    port: 8080 # Internal port of the customers-service container
+    host: user-management
+    port: 8080
   download-service:
-    host: download-management # Docker service name from docker-compose.yml
-    port: 8080 # Internal port of the employees-service container
+    host: download-management
+    port: 8080
   game-service:
-    host: game-management # Docker service name from docker-compose.yml
-    port: 8080 # Internal port of the inventories-service container
+    host: game-management
+    port: 8080
+  profile-dashboard-service:
+    host: profile-dashboard-service
+    port: 8080
 
