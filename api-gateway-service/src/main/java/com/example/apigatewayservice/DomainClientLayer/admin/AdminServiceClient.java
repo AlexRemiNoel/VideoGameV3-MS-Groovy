@@ -1,7 +1,7 @@
 package com.example.apigatewayservice.DomainClientLayer.admin;
 
 import com.example.apigatewayservice.presentationlayer.admin.AdminRequestModel;
-import org.springframework.cloud.gateway.support.NotFoundException;
+import com.example.apigatewayservice.exception.NotFoundException;
 import org.springframework.http.HttpMethod;
 import com.example.apigatewayservice.exception.HttpErrorInfo;
 import com.example.apigatewayservice.exception.InvalidInputException;
@@ -137,35 +137,41 @@ public class AdminServiceClient {
 
     private RuntimeException handleHttpClientException(HttpClientErrorException ex) {
         HttpStatus status = (HttpStatus) ex.getStatusCode();
+        String errorMessage = getErrorMessage(ex);
+
         switch (status) {
             case NOT_FOUND:
-                return new NotFoundException(getErrorMessage(ex));
+                return new NotFoundException(errorMessage);
             case UNPROCESSABLE_ENTITY:
-                return new InvalidInputException(getErrorMessage(ex));
+                return new InvalidInputException(errorMessage);
             default:
-                log.warn("Got an unexpected HTTP error: {}, will rethrow it", status);
-                log.warn("Error body: {}", ex.getResponseBodyAsString());
+                log.warn("Got an unexpected HTTP error: {}, will rethrow it. Error: {}", status, errorMessage);
                 return ex;
         }
     }
 
-    private String getErrorMessage(HttpClientErrorException ex) {
-        try {
+    String getErrorMessage(HttpClientErrorException ex) {
+        String responseBodyString = ex.getResponseBodyAsString();
 
-            HttpErrorInfo errorInfo = objectMapper.readValue(ex.getResponseBodyAsString(), HttpErrorInfo.class);
-
-            if (errorInfo != null && errorInfo.getMessage() != null && !errorInfo.getMessage().isEmpty()) {
-                return errorInfo.getMessage();
+        if (responseBodyString != null && !responseBodyString.isBlank()) {
+            try {
+                HttpErrorInfo errorInfo = objectMapper.readValue(responseBodyString, HttpErrorInfo.class);
+                if (errorInfo.getMessage() != null && !errorInfo.getMessage().isBlank()) {
+                    return errorInfo.getMessage();
+                }
+            } catch (IOException ioex) {
+                log.warn("IOException parsing error message from response body: {}. Falling back.", ioex.getMessage());
+            } catch (Exception e) {
+                log.warn("Unexpected exception parsing error message from response body: {}. Falling back.", e.getMessage());
             }
-
-            return ex.getResponseBodyAsString();
-        } catch (IOException ioex) {
-            log.warn("Error parsing HttpClientErrorException body: {}", ioex.getMessage());
-
-            return ex.getResponseBodyAsString();
-        } catch (Exception e) {
-            log.error("Unexpected error parsing error message: {}", e.getMessage());
-            return ex.getMessage();
         }
+
+        String exMessage = ex.getMessage();
+        if (exMessage != null && !exMessage.isBlank()) {
+            return exMessage;
+        }
+
+        log.warn("Falling back to default status message as no detailed error message could be extracted.");
+        return "An error occurred: " + ex.getStatusCode().value() + " " + ex.getStatusText();
     }
 }

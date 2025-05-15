@@ -1,0 +1,27 @@
+# src/test/resources/application-h2.yml
+spring:
+  config:
+    activate:
+      on-profile: h2
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;NON_KEYWORDS=YEAR,USER # USER is a keyword in H2
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop # Let JPA create the schema for each test run
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        # auto-quote-keyword: true # Sometimes useful
+  # If you have data.sql or schema.sql you want to run automatically (not recommended with ddl-auto: create-drop)
+  # sql:
+  #   init:
+  #     mode: always # or embedded
+  # defer-datasource-initialization: true # if using schema.sql/data.sql with ddl-auto other than 'none'

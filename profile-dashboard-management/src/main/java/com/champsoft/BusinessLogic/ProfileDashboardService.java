@@ -37,43 +37,36 @@ public class ProfileDashboardService {
     private final DownloadClient downloadClient;
     private final UserProfileDashboardRepository dashboardRepository;
 
-    // --- Main method for GET /api/v1/profile-dashboards/{userId} ---
     public UserProfileDashboardResponseDto getOrCreateProfileDashboard(String userId) {
-        // For simplicity in this example, we'll always re-fetch and update/create.
-        // A more advanced version might check lastUpdatedAt for staleness.
         log.info("Fetching or creating profile dashboard for userId: {}", userId);
         UserProfileDashboardEntity entity = aggregateAndBuildDashboardEntity(userId);
         
-        // Persist the newly aggregated data
-        // We use findByUserId to decide if it's an update (if mongoId already exists) or insert
+
         Optional<UserProfileDashboardEntity> existingEntityOpt = dashboardRepository.findByUserId(userId);
         if (existingEntityOpt.isPresent()) {
             UserProfileDashboardEntity existingEntity = existingEntityOpt.get();
-            // Update existing entity fields and preserve its mongoId
-            updateExistingEntity(existingEntity, entity); // entity here is the newly aggregated one
+            updateExistingEntity(existingEntity, entity);
             entity = dashboardRepository.save(existingEntity);
             log.info("Updated persisted profile dashboard for userId: {}", userId);
         } else {
-            entity = dashboardRepository.save(entity); // Save new entity
+            entity = dashboardRepository.save(entity);
             log.info("Created and persisted new profile dashboard for userId: {}", userId);
         }
         return convertToResponseDto(entity);
     }
 
     private UserProfileDashboardEntity aggregateAndBuildDashboardEntity(String userId) {
-        // 1. Fetch User Details
         UserClientResponseDto userDetails;
         try {
             userDetails = userClient.getUserById(userId);
         } catch (UserNotFoundClientException e) {
             log.warn("User not found by client for userId: {}. Cannot build dashboard.", userId);
-            throw e; // Re-throw to be caught by GlobalExceptionHandler
+            throw e;
         } catch (Exception e) {
             log.error("Failed to fetch user details for userId: {}", userId, e);
             throw new DashboardAggregationFailureException("Failed to retrieve user details for dashboard.", e);
         }
 
-        // 2. Fetch Game Details
         List<GameSummaryDto> gameSummaries = new ArrayList<>();
         if (userDetails.getGames() != null && !userDetails.getGames().isEmpty()) {
             try {
@@ -82,33 +75,23 @@ public class ProfileDashboardService {
                         .map(this::convertToGameSummaryDto)
                         .collect(Collectors.toList());
             } catch (GameNotFoundClientException e) {
-                // Decide: either throw an error or continue with partial data
                 log.warn("A game was not found while fetching details for user {}: {}. Proceeding with available games.", userId, e.getMessage());
-                // If strict, re-throw or throw DashboardAggregationFailureException
-                // For now, we log and continue, some games might be missing from the list
+
             } catch (Exception e) {
                 log.error("Failed to fetch game details for userId: {}", userId, e);
-                // Optionally, allow dashboard with missing games or throw error
-                // throw new DashboardAggregationFailureException("Failed to retrieve game details.", e);
+
             }
         }
-
-        // 3. Fetch Downloads
         List<DownloadSummaryDto> downloadSummaries = new ArrayList<>();
         try {
-            // CRITICAL: Assumes DownloadClient.getDownloadsByUserId(userId) is implemented
-            // and DownloadService has the endpoint /api/v1/downloads/user/{userId} or similar
             List<DownloadClientResponseDto> userDownloads = downloadClient.getDownloadsByUserId(userId);
             downloadSummaries = userDownloads.stream()
                     .map(this::convertToDownloadSummaryDto)
                     .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("Failed to fetch download details for userId: {}", userId, e);
-            // Optionally, allow dashboard with missing downloads or throw error
-            // throw new DashboardAggregationFailureException("Failed to retrieve download details.", e);
         }
 
-        // 4. Assemble the Entity for persistence
         UserProfileDashboardEntity entity = new UserProfileDashboardEntity();
         entity.setUserId(userDetails.getUserId());
         entity.setUsername(userDetails.getUsername());
@@ -120,7 +103,6 @@ public class ProfileDashboardService {
         return entity;
     }
     
-    // Helper to update an existing entity with new data, preserving its MongoDB ID
     private void updateExistingEntity(UserProfileDashboardEntity existing, UserProfileDashboardEntity newData) {
         existing.setUsername(newData.getUsername());
         existing.setEmail(newData.getEmail());
@@ -130,8 +112,6 @@ public class ProfileDashboardService {
         existing.setLastUpdatedAt(newData.getLastUpdatedAt());
     }
 
-
-    // --- Other CRUD operations for the persisted dashboard (AI5) ---
 
     public List<UserProfileDashboardResponseDto> getAllPersistedDashboards() {
         return dashboardRepository.findAll().stream()
@@ -145,18 +125,14 @@ public class ProfileDashboardService {
                 .orElseThrow(() -> new ProfileDashboardNotFoundException("No persisted dashboard found for userId: " + userId));
     }
 
-    // POST: To explicitly request creation/refresh. Could take a simple DTO with just userId.
-    // For now, it will behave like getOrCreateProfileDashboard.
+
     public UserProfileDashboardResponseDto createOrRefreshDashboard(String userId) {
         log.info("Explicitly creating or refreshing dashboard for userId: {}", userId);
-        // The logic is the same as getOrCreateProfileDashboard for this design
         return getOrCreateProfileDashboard(userId);
     }
 
-    // PUT: Also for explicit refresh.
     public UserProfileDashboardResponseDto updateDashboard(String userId) {
          log.info("Explicitly updating dashboard for userId: {}", userId);
-        // The logic is the same as getOrCreateProfileDashboard for this design
         return getOrCreateProfileDashboard(userId);
     }
 
@@ -180,9 +156,8 @@ public class ProfileDashboardService {
         dto.setUsername(entity.getUsername());
         dto.setEmail(entity.getEmail());
         dto.setBalance(entity.getBalance());
-        dto.setGames(entity.getGames()); // Assumes GameSummaryDto is directly usable
-        dto.setDownloads(entity.getDownloads()); // Assumes DownloadSummaryDto is directly usable
-        // dto.setLastUpdatedAt(entity.getLastUpdatedAt()); // Optionally include in response
+        dto.setGames(entity.getGames());
+        dto.setDownloads(entity.getDownloads());
         return dto;
     }
 
@@ -201,8 +176,6 @@ public class ProfileDashboardService {
         summary.setDownloadId(download.getId());
         summary.setSourceUrl(download.getSourceUrl());
         summary.setStatus(download.getStatus());
-        // Potentially map gameId from download to a gameTitle if DownloadClientResponseDto has gameId
-        // and you want to perform another lookup or if gameTitle is part of DownloadClientResponseDto
         return summary;
     }
 }

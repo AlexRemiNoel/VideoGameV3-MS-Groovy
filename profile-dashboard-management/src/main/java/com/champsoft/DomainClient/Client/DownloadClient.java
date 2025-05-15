@@ -27,22 +27,10 @@ public class DownloadClient {
         this.downloadServiceUrl = downloadServiceUrl; // e.g., http://localhost:8083/api/v1/downloads
     }
 
-    /**
-     * Fetches downloads associated with a specific userId.
-     * CRITICAL ASSUMPTION: The Download microservice has been updated to support
-     * an endpoint like GET /api/v1/downloads/user/{userId} or GET /api/v1/downloads?userId={userId}
-     * This example assumes the former: GET /api/v1/downloads/user/{userId}
-     */
     public List<DownloadClientResponseDto> getDownloadsByUserId(String userId) {
-        // OPTION 1: If Download Service has /api/v1/downloads/user/{userId}
         String url = downloadServiceUrl + "/user/" + userId;
         log.info("Fetching downloads for userId: {} from URL: {}", userId, url);
 
-        // OPTION 2: If Download Service has /api/v1/downloads?userId={userId}
-        // String url = UriComponentsBuilder.fromHttpUrl(downloadServiceUrl)
-        //        .queryParam("userId", userId)
-        //        .toUriString();
-        // log.info("Fetching downloads for userId: {} using query param from URL: {}", userId, url);
 
 
         try {
@@ -64,8 +52,7 @@ public class DownloadClient {
             log.error("Error accessing download service for userId {}: {}", userId, ex.getMessage(), ex);
             throw new DownstreamServiceUnavailableException("Download service is unavailable or network issue.", ex);
         } catch (Exception ex) {
-            // Note: If the endpoint doesn't exist, this might be a 404 (HttpClientErrorException.NotFound)
-            // which you might want to handle more specifically if it means "no downloads for user" vs "endpoint broken"
+
             log.error("Unexpected error while fetching downloads for userId {}: {}", userId, ex.getMessage(), ex);
             throw new DownstreamServiceUnavailableException("Unexpected error communicating with download service.", ex);
         }

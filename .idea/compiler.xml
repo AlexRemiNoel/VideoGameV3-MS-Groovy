@@ -21,7 +21,8 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="purchase-management" target="17" />
-      <module name="VideoGameV3-MS-Groovy.dashboard-management" target="21" />
+      <module name="VideoGameV3-MS-Groovy.dashboard-management.main" target="21" />
+      <module name="VideoGameV3-MS-Groovy.dashboard-management.test" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

@@ -165,7 +165,7 @@ public class GameServiceClient {
         }
     }
 
-    private String getErrorMessage(HttpClientErrorException ex) {
+    String getErrorMessage(HttpClientErrorException ex) {
         try {
             String responseBody = ex.getResponseBodyAsString();
             if (!responseBody.isBlank() && responseBody.trim().startsWith("{") && responseBody.trim().endsWith("}")) {
@@ -192,6 +192,6 @@ public class GameServiceClient {
         }
 
         log.debug("Using generic error message for status code: {}", ex.getStatusCode());
-        return "An error occurred with status code: " + ex.getStatusCode();
+        return "An error occurred: " + ex.getStatusCode().value() + " " + ex.getStatusText();
     }
 }

@@ -1,16 +1,14 @@
 package com.example.apigatewayservice.presentationlayer.game;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 
 public class Review {
     private ReviewId reviewId;

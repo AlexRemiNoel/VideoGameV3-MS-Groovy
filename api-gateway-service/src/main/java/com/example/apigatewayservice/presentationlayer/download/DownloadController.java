@@ -1,6 +1,7 @@
 package com.example.apigatewayservice.presentationlayer.download;
 
 import com.example.apigatewayservice.businesslogiclayer.download.DownloadService;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

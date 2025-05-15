@@ -1,4 +1,4 @@
-package com.example.videogamev3.DownloadManagement.utils;
+package com.example.videogamev3.DownloadManagement.utils; // Ensure this is the correct package
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -13,8 +13,9 @@ public class HttpErrorInfo {
     private final HttpStatus httpStatus;
     private final String message;
 
-    public HttpErrorInfo(HttpStatus httpStatus, String path, String message) {
-        timestamp = ZonedDateTime.now();
+    // Ensure constructor matches:
+    public HttpErrorInfo(ZonedDateTime timestamp, String path, HttpStatus httpStatus, String message) {
+        this.timestamp = timestamp;
         this.httpStatus = httpStatus;
         this.path = path;
         this.message = message;

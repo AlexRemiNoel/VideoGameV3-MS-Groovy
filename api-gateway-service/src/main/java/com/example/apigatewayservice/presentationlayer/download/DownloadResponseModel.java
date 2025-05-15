@@ -1,14 +1,13 @@
 package com.example.apigatewayservice.presentationlayer.download;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+
 public class DownloadResponseModel {
     String id;
     String sourceUrl;

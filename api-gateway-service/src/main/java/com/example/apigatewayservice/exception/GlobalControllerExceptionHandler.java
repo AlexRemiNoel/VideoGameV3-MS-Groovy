@@ -50,27 +50,24 @@ public class GlobalControllerExceptionHandler {
     }
 
     // --- Handler for Download Not Found ---
-    @ResponseStatus(HttpStatus.NOT_FOUND) // 404
     @ExceptionHandler(DownloadNotFoundException.class)
-    public HttpErrorInfo handleDownloadNotFoundException(ServerWebExchange exchange, DownloadNotFoundException ex) { // Use ServerWebExchange and specific exception
-        return createHttpErrorInfo(NOT_FOUND, exchange, ex).getBody();
+    public ResponseEntity<HttpErrorInfo> handleDownloadNotFoundException(ServerWebExchange exchange, DownloadNotFoundException ex) { // Use ServerWebExchange and specific exception
+        return createHttpErrorInfo(NOT_FOUND, exchange, ex);
     }
 
     // --- Handler for Invalid Input Data ---
     // Changed to BAD_REQUEST (400) as it's more common for input validation
-    @ResponseStatus(BAD_REQUEST) // 400
     @ExceptionHandler(InvalidDownloadDataException.class)
-    public HttpErrorInfo handleInvalidInputException(ServerWebExchange exchange, InvalidDownloadDataException ex) { // Use ServerWebExchange and specific exception
-        return createHttpErrorInfo(BAD_REQUEST, exchange, ex).getBody();
+    public ResponseEntity<HttpErrorInfo> handleInvalidDownloadDataException(ServerWebExchange exchange, InvalidDownloadDataException ex) { // Renamed to avoid conflict with the generic InvalidInputException handler
+        return createHttpErrorInfo(BAD_REQUEST, exchange, ex);
     }
 
     // --- Handler for Duplicate ID ---
     // Changed to CONFLICT (409) as it's more semantically correct for duplicates
-    @ResponseStatus(CONFLICT) // 409
     @ExceptionHandler(DuplicateDownloadIDException.class)
     // Renamed method for clarity
-    public HttpErrorInfo handleDuplicateDownloadIDException(ServerWebExchange exchange, DuplicateDownloadIDException ex) { // Use ServerWebExchange and specific exception
-        return createHttpErrorInfo(CONFLICT, exchange, ex).getBody();
+    public ResponseEntity<HttpErrorInfo> handleDuplicateDownloadIDException(ServerWebExchange exchange, DuplicateDownloadIDException ex) { // Use ServerWebExchange and specific exception
+        return createHttpErrorInfo(CONFLICT, exchange, ex);
     }
 
 
@@ -91,18 +88,18 @@ public class GlobalControllerExceptionHandler {
         return "Unknown path";
     }
 
-    private String getPath(WebRequest request) {
-        try {
-            String description = request.getDescription(false);
-            if (description != null && description.startsWith("uri=")) {
-                return description.substring(4); // Remove "uri=" prefix
-            }
-            return description != null ? description : "Unknown path";
-        } catch (Exception e) {
-            log.warn("Could not extract path from WebRequest", e);
-            return "Unknown path";
-        }
-    }
+//    private String getPath(WebRequest request) { // This method is for Servlet-based Spring MVC, not used in reactive stack.
+//        try {
+//            String description = request.getDescription(false);
+//            if (description != null && description.startsWith("uri=")) {
+//                return description.substring(4); // Remove "uri=" prefix
+//            }
+//            return description != null ? description : "Unknown path";
+//        } catch (Exception e) {
+//            log.warn("Could not extract path from WebRequest", e);
+//            return "Unknown path";
+//        }
+//    }
 }
 
 

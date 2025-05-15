@@ -14,5 +14,4 @@ public interface DownloadResponseMapper {
 
     DownloadResponseModel downloadEntityToDownloadResponseModel(Download download);
     List<DownloadResponseModel> downloadEntityToDownloadResponseModel(List<Download> download);
-
 }
