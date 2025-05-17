@@ -9,11 +9,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false) // Important for RepresentationModel
-public class UserProfileDashboardResponseDTO_GW {
+public class UserProfileDashboardResponseModel {
     private String userId;
     private String username;
     private String email;
     private double balance;
-    private List<GameSummaryDTO_GW> games;
-    private List<DownloadSummaryDTO_GW> downloads;
+    private List<GameSummaryResponseModel> games;
+    private List<DownloadSummaryResponseModel> downloads;
 }

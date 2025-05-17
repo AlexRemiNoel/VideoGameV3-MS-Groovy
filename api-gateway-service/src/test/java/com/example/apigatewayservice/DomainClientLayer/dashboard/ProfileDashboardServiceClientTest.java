@@ -3,7 +3,7 @@ package com.example.apigatewayservice.DomainClientLayer.dashboard;
 import com.example.apigatewayservice.exception.HttpErrorInfo;
 import com.example.apigatewayservice.exception.InvalidInputException;
 import com.example.apigatewayservice.exception.NotFoundException;
-import com.example.apigatewayservice.presentationlayer.dashboard.UserProfileDashboardResponseDTO_GW;
+import com.example.apigatewayservice.presentationlayer.dashboard.UserProfileDashboardResponseModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +17,6 @@ import org.springframework.http.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -43,12 +42,12 @@ class ProfileDashboardServiceClientTest {
 
     private final String BASE_URL = "http://dashboard-management:8080/api/v1/profile-dashboards";
     private final String USER_ID = "user123";
-    private UserProfileDashboardResponseDTO_GW sampleDashboardDTO;
+    private UserProfileDashboardResponseModel sampleDashboardDTO;
 
     @BeforeEach
     void setUp() {
         // Assuming UserProfileDashboardResponseDTO_GW has a builder or appropriate constructor
-        sampleDashboardDTO = UserProfileDashboardResponseDTO_GW.builder()
+        sampleDashboardDTO = UserProfileDashboardResponseModel.builder()
                 .userId(USER_ID).username("test").email("test@example.com").balance(10.0)
                 .games(Collections.emptyList()).downloads(Collections.emptyList()).build();
          client = new ProfileDashboardServiceClient(restTemplate, objectMapper); // Re-initialize with mocks
@@ -58,20 +57,20 @@ class ProfileDashboardServiceClientTest {
     @Test
     void getProfileDashboardByUserId_success() {
         String url = BASE_URL + "/" + USER_ID;
-        when(restTemplate.getForObject(eq(url), eq(UserProfileDashboardResponseDTO_GW.class))).thenReturn(sampleDashboardDTO);
-        UserProfileDashboardResponseDTO_GW result = client.getProfileDashboardByUserId(USER_ID);
+        when(restTemplate.getForObject(eq(url), eq(UserProfileDashboardResponseModel.class))).thenReturn(sampleDashboardDTO);
+        UserProfileDashboardResponseModel result = client.getProfileDashboardByUserId(USER_ID);
         assertEquals(sampleDashboardDTO, result);
-        verify(restTemplate).getForObject(eq(url), eq(UserProfileDashboardResponseDTO_GW.class));
+        verify(restTemplate).getForObject(eq(url), eq(UserProfileDashboardResponseModel.class));
     }
 
     @Test
     void getAllProfileDashboards_success() {
-        ResponseEntity<List<UserProfileDashboardResponseDTO_GW>> responseEntity =
+        ResponseEntity<List<UserProfileDashboardResponseModel>> responseEntity =
                 new ResponseEntity<>(List.of(sampleDashboardDTO), HttpStatus.OK);
         when(restTemplate.exchange(eq(BASE_URL), eq(HttpMethod.GET), isNull(),
                 any(ParameterizedTypeReference.class))).thenReturn(responseEntity);
 
-        List<UserProfileDashboardResponseDTO_GW> result = client.getAllProfileDashboards();
+        List<UserProfileDashboardResponseModel> result = client.getAllProfileDashboards();
         assertFalse(result.isEmpty());
         assertEquals(sampleDashboardDTO, result.get(0));
         verify(restTemplate).exchange(eq(BASE_URL), eq(HttpMethod.GET), isNull(), any(ParameterizedTypeReference.class));
@@ -80,21 +79,21 @@ class ProfileDashboardServiceClientTest {
     @Test
     void createOrRefreshDashboard_success() {
         String url = BASE_URL + "/" + USER_ID;
-        when(restTemplate.postForObject(eq(url), isNull(), eq(UserProfileDashboardResponseDTO_GW.class))).thenReturn(sampleDashboardDTO);
-        UserProfileDashboardResponseDTO_GW result = client.createOrRefreshDashboard(USER_ID);
+        when(restTemplate.postForObject(eq(url), isNull(), eq(UserProfileDashboardResponseModel.class))).thenReturn(sampleDashboardDTO);
+        UserProfileDashboardResponseModel result = client.createOrRefreshDashboard(USER_ID);
         assertEquals(sampleDashboardDTO, result);
-        verify(restTemplate).postForObject(eq(url), isNull(), eq(UserProfileDashboardResponseDTO_GW.class));
+        verify(restTemplate).postForObject(eq(url), isNull(), eq(UserProfileDashboardResponseModel.class));
     }
 
     @Test
     void updateProfileDashboard_success() {
         String url = BASE_URL + "/" + USER_ID;
-        ResponseEntity<UserProfileDashboardResponseDTO_GW> responseEntity = new ResponseEntity<>(sampleDashboardDTO, HttpStatus.OK);
-        when(restTemplate.exchange(any(RequestEntity.class), eq(UserProfileDashboardResponseDTO_GW.class))).thenReturn(responseEntity);
+        ResponseEntity<UserProfileDashboardResponseModel> responseEntity = new ResponseEntity<>(sampleDashboardDTO, HttpStatus.OK);
+        when(restTemplate.exchange(any(RequestEntity.class), eq(UserProfileDashboardResponseModel.class))).thenReturn(responseEntity);
 
-        UserProfileDashboardResponseDTO_GW result = client.updateProfileDashboard(USER_ID);
+        UserProfileDashboardResponseModel result = client.updateProfileDashboard(USER_ID);
         assertEquals(sampleDashboardDTO, result);
-        verify(restTemplate).exchange(any(RequestEntity.class), eq(UserProfileDashboardResponseDTO_GW.class));
+        verify(restTemplate).exchange(any(RequestEntity.class), eq(UserProfileDashboardResponseModel.class));
     }
 
     @Test
@@ -118,7 +117,7 @@ class ProfileDashboardServiceClientTest {
         String url = BASE_URL + "/" + USER_ID;
         HttpErrorInfo errorInfo = new HttpErrorInfo(HttpStatus.NOT_FOUND, "/path", "Not found message");
         when(objectMapper.readValue(anyString(), eq(HttpErrorInfo.class))).thenReturn(errorInfo);
-        when(restTemplate.getForObject(eq(url), eq(UserProfileDashboardResponseDTO_GW.class)))
+        when(restTemplate.getForObject(eq(url), eq(UserProfileDashboardResponseModel.class)))
                 .thenThrow(mockHttpClientErrorException(HttpStatus.NOT_FOUND, "{\"message\": \"Not found message\"}"));
 
         assertThrows(NotFoundException.class, () -> client.getProfileDashboardByUserId(USER_ID));
@@ -130,7 +129,7 @@ class ProfileDashboardServiceClientTest {
         String url = BASE_URL + "/" + USER_ID;
         HttpErrorInfo errorInfo = new HttpErrorInfo(HttpStatus.UNPROCESSABLE_ENTITY, "/path", "Invalid input");
         when(objectMapper.readValue(anyString(), eq(HttpErrorInfo.class))).thenReturn(errorInfo);
-        when(restTemplate.getForObject(eq(url), eq(UserProfileDashboardResponseDTO_GW.class)))
+        when(restTemplate.getForObject(eq(url), eq(UserProfileDashboardResponseModel.class)))
                 .thenThrow(mockHttpClientErrorException(HttpStatus.UNPROCESSABLE_ENTITY, "{\"message\": \"Invalid input\"}"));
 
         assertThrows(InvalidInputException.class, () -> client.getProfileDashboardByUserId(USER_ID));
@@ -142,7 +141,7 @@ class ProfileDashboardServiceClientTest {
         String url = BASE_URL + "/" + USER_ID;
         HttpErrorInfo errorInfo = new HttpErrorInfo(HttpStatus.BAD_REQUEST, "/path", "Bad request");
         when(objectMapper.readValue(anyString(), eq(HttpErrorInfo.class))).thenReturn(errorInfo);
-        when(restTemplate.getForObject(eq(url), eq(UserProfileDashboardResponseDTO_GW.class)))
+        when(restTemplate.getForObject(eq(url), eq(UserProfileDashboardResponseModel.class)))
                 .thenThrow(mockHttpClientErrorException(HttpStatus.BAD_REQUEST, "{\"message\": \"Bad request\"}"));
 
         assertThrows(InvalidInputException.class, () -> client.getProfileDashboardByUserId(USER_ID));
@@ -152,7 +151,7 @@ class ProfileDashboardServiceClientTest {
     @Test
     void getProfileDashboardByUserId_genericRuntimeException() {
         String url = BASE_URL + "/" + USER_ID;
-        when(restTemplate.getForObject(eq(url), eq(UserProfileDashboardResponseDTO_GW.class)))
+        when(restTemplate.getForObject(eq(url), eq(UserProfileDashboardResponseModel.class)))
                 .thenThrow(mockHttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal error"));
         // No need to mock ObjectMapper for this path if response body isn't JSON or parsing isn't expected to succeed
 

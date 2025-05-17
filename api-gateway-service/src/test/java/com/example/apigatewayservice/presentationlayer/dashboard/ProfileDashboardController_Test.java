@@ -1,6 +1,6 @@
 package com.example.apigatewayservice.presentationlayer.dashboard;
 
-import com.example.apigatewayservice.businesslogiclayer.dashboard.ProfileDashboardService_GW;
+import com.example.apigatewayservice.businesslogiclayer.dashboard.ProfileDashboardService;
 import com.example.apigatewayservice.exception.*;
 
 import org.junit.jupiter.api.Test;
@@ -22,13 +22,13 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
-public class ProfileDashboardController_GWTest {
+public class ProfileDashboardController_Test {
 
     @Autowired
     private WebTestClient webTestClient;
 
     @MockitoBean
-    private ProfileDashboardService_GW dashboardService;
+    private ProfileDashboardService dashboardService;
 
     private final String BASE_URI_PROFILE_DASHBOARDS = "/api/v1/profile-dashboards";
     private final String VALID_USER_ID = "user123";
@@ -36,10 +36,10 @@ public class ProfileDashboardController_GWTest {
     private final String VALID_USERNAME = "testUser";
     private final String NOT_FOUND_USER_ID = "user999";
 
-    private UserProfileDashboardResponseDTO_GW buildUserProfileDashboardDTO(String userId, String username, String email) {
+    private UserProfileDashboardResponseModel buildUserProfileDashboardDTO(String userId, String username, String email) {
         // This assumes UserProfileDashboardResponseDTO_GW has a builder. If not, adjust to use constructor.
         // For example: new UserProfileDashboardResponseDTO_GW(userId, username, email, 100.0, Collections.emptyList(), Collections.emptyList());
-        return UserProfileDashboardResponseDTO_GW.builder()
+        return UserProfileDashboardResponseModel.builder()
                 .userId(userId)
                 .username(username)
                 .email(email)
@@ -52,7 +52,7 @@ public class ProfileDashboardController_GWTest {
     @Test
     void getProfileDashboardByUserId_whenUserExists_thenReturnDashboard() {
         // Arrange
-        UserProfileDashboardResponseDTO_GW expectedDashboard = buildUserProfileDashboardDTO(VALID_USER_ID, VALID_USERNAME, VALID_USER_EMAIL);
+        UserProfileDashboardResponseModel expectedDashboard = buildUserProfileDashboardDTO(VALID_USER_ID, VALID_USERNAME, VALID_USER_EMAIL);
 
         when(dashboardService.getProfileDashboardByUserId(VALID_USER_ID)).thenReturn(expectedDashboard);
 
@@ -62,7 +62,7 @@ public class ProfileDashboardController_GWTest {
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith("application/hal+json")
-                .expectBody(UserProfileDashboardResponseDTO_GW.class)
+                .expectBody(UserProfileDashboardResponseModel.class)
                 .value(dashboard -> {
                     assertNotNull(dashboard);
                     assertEquals(expectedDashboard.getUserId(), dashboard.getUserId());
@@ -100,9 +100,9 @@ public class ProfileDashboardController_GWTest {
     @Test
     void getAllProfileDashboards_whenDashboardsExist_thenReturnDashboards() {
         // Arrange
-        UserProfileDashboardResponseDTO_GW dashboard1 = buildUserProfileDashboardDTO("user1", "userOne", "user1@example.com");
-        UserProfileDashboardResponseDTO_GW dashboard2 = buildUserProfileDashboardDTO("user2", "userTwo", "user2@example.com");
-        List<UserProfileDashboardResponseDTO_GW> expectedDashboards = List.of(dashboard1, dashboard2);
+        UserProfileDashboardResponseModel dashboard1 = buildUserProfileDashboardDTO("user1", "userOne", "user1@example.com");
+        UserProfileDashboardResponseModel dashboard2 = buildUserProfileDashboardDTO("user2", "userTwo", "user2@example.com");
+        List<UserProfileDashboardResponseModel> expectedDashboards = List.of(dashboard1, dashboard2);
 
         when(dashboardService.getAllProfileDashboards()).thenReturn(expectedDashboards);
 
@@ -112,7 +112,7 @@ public class ProfileDashboardController_GWTest {
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith("application/hal+json")
-                .expectBodyList(UserProfileDashboardResponseDTO_GW.class)
+                .expectBodyList(UserProfileDashboardResponseModel.class)
                 .hasSize(2)
                 .value(dashboards -> {
                     assertEquals(expectedDashboards.get(0).getUserId(), dashboards.get(0).getUserId());
@@ -131,7 +131,7 @@ public class ProfileDashboardController_GWTest {
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith("application/hal+json")
-                .expectBodyList(UserProfileDashboardResponseDTO_GW.class)
+                .expectBodyList(UserProfileDashboardResponseModel.class)
                 .hasSize(0);
 
         verify(dashboardService, times(1)).getAllProfileDashboards();
@@ -140,7 +140,7 @@ public class ProfileDashboardController_GWTest {
     @Test
     void createOrRefreshDashboard_whenValidUserId_thenReturnsCreatedDashboard() {
         // Arrange
-        UserProfileDashboardResponseDTO_GW expectedDashboard = buildUserProfileDashboardDTO(VALID_USER_ID, VALID_USERNAME, VALID_USER_EMAIL);
+        UserProfileDashboardResponseModel expectedDashboard = buildUserProfileDashboardDTO(VALID_USER_ID, VALID_USERNAME, VALID_USER_EMAIL);
         when(dashboardService.createOrRefreshDashboard(VALID_USER_ID)).thenReturn(expectedDashboard);
 
         // Act & Assert
@@ -149,7 +149,7 @@ public class ProfileDashboardController_GWTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectHeader().contentTypeCompatibleWith("application/hal+json")
-                .expectBody(UserProfileDashboardResponseDTO_GW.class)
+                .expectBody(UserProfileDashboardResponseModel.class)
                 .value(dashboard -> {
                     assertNotNull(dashboard);
                     assertEquals(expectedDashboard.getUserId(), dashboard.getUserId());
@@ -161,7 +161,7 @@ public class ProfileDashboardController_GWTest {
     @Test
     void updateProfileDashboard_whenUserExists_thenReturnsUpdatedDashboard() {
         // Arrange
-        UserProfileDashboardResponseDTO_GW updatedDashboard = buildUserProfileDashboardDTO(VALID_USER_ID, "updatedUser", "updated@example.com");
+        UserProfileDashboardResponseModel updatedDashboard = buildUserProfileDashboardDTO(VALID_USER_ID, "updatedUser", "updated@example.com");
         when(dashboardService.updateProfileDashboard(VALID_USER_ID)).thenReturn(updatedDashboard);
 
         // Act & Assert
@@ -170,7 +170,7 @@ public class ProfileDashboardController_GWTest {
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentTypeCompatibleWith("application/hal+json")
-                .expectBody(UserProfileDashboardResponseDTO_GW.class)
+                .expectBody(UserProfileDashboardResponseModel.class)
                 .value(dashboard -> {
                     assertNotNull(dashboard);
                     assertEquals(updatedDashboard.getUserId(), dashboard.getUserId());

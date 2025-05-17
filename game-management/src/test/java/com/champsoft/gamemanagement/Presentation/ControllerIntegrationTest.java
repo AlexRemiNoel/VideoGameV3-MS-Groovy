@@ -6,6 +6,7 @@ import com.champsoft.gamemanagement.Presentation.DTOS.GameController; // Conside
 import com.champsoft.gamemanagement.Presentation.DTOS.GameRequestModel;
 import com.champsoft.gamemanagement.Presentation.DTOS.GameResponseModel;
 
+import com.champsoft.gamemanagement.utils.GameAlreadyStartedException;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +19,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient; // Add this
 import org.springframework.boot.test.context.SpringBootTest; // Use this
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient; // Keep this
@@ -74,6 +76,74 @@ public class ControllerIntegrationTest {
         post2.setTitle("Game1"); // This might be a typo, should it be Game2?
         post2.setGenre("Red"); // This might be a typo, should it be ACTION?
     }
+    @Test
+    @DisplayName("POST /api/v1/game - Success")
+    void whenPostValidGame_thenReturnCreated() {
+        // Arrange
+        GameRequestModel requestModel = new GameRequestModel();
+        requestModel.setTitle("FIFA 25");
+        requestModel.setGenre("SPORT");
+
+        GameResponseModel responseModel = new GameResponseModel();
+        responseModel.setId(UUID.randomUUID().toString());
+        responseModel.setTitle("FIFA 25");
+        responseModel.setGenre("SPORT");
+
+        given(gameService.createGame(any(GameRequestModel.class))).willReturn(responseModel);
+
+        // Act & Assert
+        webTestClient.post().uri("/api/v1/game")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(requestModel)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBody(GameResponseModel.class)
+                .isEqualTo(responseModel);
+
+        then(gameService).should(times(1)).createGame(any(GameRequestModel.class));
+    }
+    @Test
+    @DisplayName("POST /api/v1/game/{id}/start - properly throws GameAlreadyStartedException")
+    void whenGameAlreadyStarted_thenCustomExceptionHandledProperly() {
+        // Arrange
+        String gameId = UUID.randomUUID().toString();
+        String errorMessage = "Game has already started";
+
+        // Mock the service to throw the custom exception
+        willThrow(new GameAlreadyStartedException(errorMessage))
+                .given(gameService);
+
+        // Act & Assert: Confirm the controller returns 409 with expected message
+        webTestClient.post().uri("/api/v1/game/{id}/start", gameId)
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.CONFLICT)
+                .expectHeader().contentTypeCompatibleWith(MediaType.TEXT_PLAIN)
+                .expectBody(String.class).isEqualTo(errorMessage);
+
+        // Verify interaction with service
+        then(gameService).should(times(1));
+    }
+
+
+    @Test
+    @DisplayName("POST /api/v1/game/{id}/start - GameAlreadyStartedException -> 409 Conflict")
+    void whenStartAlreadyStartedGame_thenReturnConflict() {
+        // Arrange
+        String gameId = UUID.randomUUID().toString();
+        willThrow(new GameAlreadyStartedException("Game has already started"));
+
+        // Act & Assert
+        webTestClient.post().uri("/api/v1/game/{id}/start", gameId)
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.CONFLICT)
+                .expectBody(String.class)
+                .isEqualTo("Game has already started");
+
+        // Verify
+        then(gameService).should(times(1));
+    }
+
 
     @Test
     @DisplayName("POST /api/v1/game - Success")

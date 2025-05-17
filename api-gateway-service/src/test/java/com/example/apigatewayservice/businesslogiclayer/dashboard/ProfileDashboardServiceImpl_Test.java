@@ -1,7 +1,7 @@
 package com.example.apigatewayservice.businesslogiclayer.dashboard;
 
 import com.example.apigatewayservice.DomainClientLayer.dashboard.ProfileDashboardServiceClient;
-import com.example.apigatewayservice.presentationlayer.dashboard.UserProfileDashboardResponseDTO_GW;
+import com.example.apigatewayservice.presentationlayer.dashboard.UserProfileDashboardResponseModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,22 +16,22 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ProfileDashboardServiceImpl_GWTest {
+class ProfileDashboardServiceImpl_Test {
 
     @Mock
     private ProfileDashboardServiceClient dashboardServiceClient;
 
     @InjectMocks
-    private ProfileDashboardServiceImpl_GW dashboardService;
+    private ProfileDashboardServiceImpl dashboardService;
 
-    private UserProfileDashboardResponseDTO_GW sampleDashboardDTO;
+    private UserProfileDashboardResponseModel sampleDashboardDTO;
     private final String VALID_USER_ID = "user123";
 
     @BeforeEach
     void setUp() {
         // Assuming UserProfileDashboardResponseDTO_GW has a builder or appropriate constructor
         // If it has @Builder:
-        sampleDashboardDTO = UserProfileDashboardResponseDTO_GW.builder()
+        sampleDashboardDTO = UserProfileDashboardResponseModel.builder()
                 .userId(VALID_USER_ID)
                 .username("testUser")
                 .email("test@example.com")
@@ -47,7 +47,7 @@ class ProfileDashboardServiceImpl_GWTest {
     void getProfileDashboardByUserId_callsClientAndAddsLinks() {
         when(dashboardServiceClient.getProfileDashboardByUserId(VALID_USER_ID)).thenReturn(sampleDashboardDTO);
 
-        UserProfileDashboardResponseDTO_GW result = dashboardService.getProfileDashboardByUserId(VALID_USER_ID);
+        UserProfileDashboardResponseModel result = dashboardService.getProfileDashboardByUserId(VALID_USER_ID);
 
         assertNotNull(result);
         assertEquals(VALID_USER_ID, result.getUserId()); // Verifying addLinksToDashboard didn't nullify essential fields
@@ -56,10 +56,10 @@ class ProfileDashboardServiceImpl_GWTest {
 
     @Test
     void getAllProfileDashboards_callsClientAndAddsLinksToAll() {
-        List<UserProfileDashboardResponseDTO_GW> dtoList = List.of(sampleDashboardDTO);
+        List<UserProfileDashboardResponseModel> dtoList = List.of(sampleDashboardDTO);
         when(dashboardServiceClient.getAllProfileDashboards()).thenReturn(dtoList);
 
-        List<UserProfileDashboardResponseDTO_GW> results = dashboardService.getAllProfileDashboards();
+        List<UserProfileDashboardResponseModel> results = dashboardService.getAllProfileDashboards();
 
         assertNotNull(results);
         assertFalse(results.isEmpty());
@@ -71,7 +71,7 @@ class ProfileDashboardServiceImpl_GWTest {
     void getAllProfileDashboards_whenClientReturnsEmptyList_returnsEmptyList() {
         when(dashboardServiceClient.getAllProfileDashboards()).thenReturn(Collections.emptyList());
 
-        List<UserProfileDashboardResponseDTO_GW> results = dashboardService.getAllProfileDashboards();
+        List<UserProfileDashboardResponseModel> results = dashboardService.getAllProfileDashboards();
 
         assertNotNull(results);
         assertTrue(results.isEmpty());
@@ -82,7 +82,7 @@ class ProfileDashboardServiceImpl_GWTest {
     void createOrRefreshDashboard_callsClientAndAddsLinks() {
         when(dashboardServiceClient.createOrRefreshDashboard(VALID_USER_ID)).thenReturn(sampleDashboardDTO);
 
-        UserProfileDashboardResponseDTO_GW result = dashboardService.createOrRefreshDashboard(VALID_USER_ID);
+        UserProfileDashboardResponseModel result = dashboardService.createOrRefreshDashboard(VALID_USER_ID);
 
         assertNotNull(result);
         assertEquals(VALID_USER_ID, result.getUserId());
@@ -93,7 +93,7 @@ class ProfileDashboardServiceImpl_GWTest {
     void updateProfileDashboard_callsClientAndAddsLinks() {
         when(dashboardServiceClient.updateProfileDashboard(VALID_USER_ID)).thenReturn(sampleDashboardDTO);
 
-        UserProfileDashboardResponseDTO_GW result = dashboardService.updateProfileDashboard(VALID_USER_ID);
+        UserProfileDashboardResponseModel result = dashboardService.updateProfileDashboard(VALID_USER_ID);
 
         assertNotNull(result);
         assertEquals(VALID_USER_ID, result.getUserId());
@@ -111,20 +111,20 @@ class ProfileDashboardServiceImpl_GWTest {
 
     @Test
     void addLinksToDashboard_whenDashboardIsNull_returnsNull() {
-        UserProfileDashboardResponseDTO_GW result = dashboardService.getProfileDashboardByUserId("someId"); // relies on client returning null
+        UserProfileDashboardResponseModel result = dashboardService.getProfileDashboardByUserId("someId"); // relies on client returning null
         // To test addLinksToDashboard directly for null, we would need to make it public or use a spy
         // For now, testing through public method assuming client might return null
         when(dashboardServiceClient.getProfileDashboardByUserId("nullId")).thenReturn(null);
-        UserProfileDashboardResponseDTO_GW dashboard = dashboardService.getProfileDashboardByUserId("nullId");
+        UserProfileDashboardResponseModel dashboard = dashboardService.getProfileDashboardByUserId("nullId");
         assertNull(dashboard);
     }
 
     @Test
     void addLinksToDashboard_whenDashboardUserIdIsNull_returnsDashboard() {
-        UserProfileDashboardResponseDTO_GW dashboardWithNullId = UserProfileDashboardResponseDTO_GW.builder().userId(null).build();
+        UserProfileDashboardResponseModel dashboardWithNullId = UserProfileDashboardResponseModel.builder().userId(null).build();
         when(dashboardServiceClient.getProfileDashboardByUserId("nullUserId")).thenReturn(dashboardWithNullId);
         
-        UserProfileDashboardResponseDTO_GW result = dashboardService.getProfileDashboardByUserId("nullUserId");
+        UserProfileDashboardResponseModel result = dashboardService.getProfileDashboardByUserId("nullUserId");
         
         assertNotNull(result);
         assertNull(result.getUserId());

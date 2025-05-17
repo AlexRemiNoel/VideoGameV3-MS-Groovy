@@ -3,11 +3,10 @@ package com.example.apigatewayservice.DomainClientLayer.dashboard;
 import com.example.apigatewayservice.exception.HttpErrorInfo;
 import com.example.apigatewayservice.exception.InvalidInputException;
 import com.example.apigatewayservice.exception.NotFoundException;
-import com.example.apigatewayservice.presentationlayer.dashboard.UserProfileDashboardResponseDTO_GW;
+import com.example.apigatewayservice.presentationlayer.dashboard.UserProfileDashboardResponseModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
@@ -38,11 +37,11 @@ public class ProfileDashboardServiceClient {
         this.dashboardServiceBaseUrl = "http://" + "dashboard-management" + ":" + "8080" + "/api/v1/profile-dashboards";
     }
 
-    public UserProfileDashboardResponseDTO_GW getProfileDashboardByUserId(String userId) {
+    public UserProfileDashboardResponseModel getProfileDashboardByUserId(String userId) {
         try {
             String url = dashboardServiceBaseUrl + "/" + userId;
             log.debug("Fetching profile dashboard for userId {} from URL: {}", userId, url);
-            UserProfileDashboardResponseDTO_GW response = restTemplate.getForObject(url, UserProfileDashboardResponseDTO_GW.class);
+            UserProfileDashboardResponseModel response = restTemplate.getForObject(url, UserProfileDashboardResponseModel.class);
             log.debug("Received profile dashboard: {}", response);
             return response;
         } catch (HttpClientErrorException ex) {
@@ -51,13 +50,13 @@ public class ProfileDashboardServiceClient {
         }
     }
 
-    public List<UserProfileDashboardResponseDTO_GW> getAllProfileDashboards() {
+    public List<UserProfileDashboardResponseModel> getAllProfileDashboards() {
         try {
             String url = dashboardServiceBaseUrl;
             log.debug("Fetching all profile dashboards from URL: {}", url);
-            ResponseEntity<List<UserProfileDashboardResponseDTO_GW>> responseEntity =
+            ResponseEntity<List<UserProfileDashboardResponseModel>> responseEntity =
                     restTemplate.exchange(url, HttpMethod.GET, null,
-                            new ParameterizedTypeReference<List<UserProfileDashboardResponseDTO_GW>>() {});
+                            new ParameterizedTypeReference<List<UserProfileDashboardResponseModel>>() {});
             log.debug("Received dashboards: {}", responseEntity.getBody());
             return responseEntity.getBody();
         } catch (HttpClientErrorException ex) {
@@ -66,12 +65,12 @@ public class ProfileDashboardServiceClient {
         }
     }
 
-    public UserProfileDashboardResponseDTO_GW createOrRefreshDashboard(String userId) {
+    public UserProfileDashboardResponseModel createOrRefreshDashboard(String userId) {
         try {
             String url = dashboardServiceBaseUrl + "/" + userId;
             log.debug("Creating/refreshing dashboard for userId {} at URL: {}", userId, url);
             // Aggregator's POST doesn't take a body, so request is null
-            UserProfileDashboardResponseDTO_GW response = restTemplate.postForObject(url, null, UserProfileDashboardResponseDTO_GW.class);
+            UserProfileDashboardResponseModel response = restTemplate.postForObject(url, null, UserProfileDashboardResponseModel.class);
             log.debug("Created/refreshed dashboard: {}", response);
             return response;
         } catch (HttpClientErrorException ex) {
@@ -80,15 +79,15 @@ public class ProfileDashboardServiceClient {
         }
     }
 
-    public UserProfileDashboardResponseDTO_GW updateProfileDashboard(String userId) {
+    public UserProfileDashboardResponseModel updateProfileDashboard(String userId) {
         try {
             String url = dashboardServiceBaseUrl + "/" + userId;
             log.debug("Updating dashboard for userId {} at URL: {}", userId, url);
             // Aggregator's PUT takes userId in path, no body, but returns the DTO.
             // Use exchange for more control if PUT returns a body.
             RequestEntity<Void> requestEntity = new RequestEntity<>(HttpMethod.PUT, java.net.URI.create(url));
-            ResponseEntity<UserProfileDashboardResponseDTO_GW> responseEntity =
-                    restTemplate.exchange(requestEntity, UserProfileDashboardResponseDTO_GW.class);
+            ResponseEntity<UserProfileDashboardResponseModel> responseEntity =
+                    restTemplate.exchange(requestEntity, UserProfileDashboardResponseModel.class);
             log.debug("Updated dashboard: {}", responseEntity.getBody());
             return responseEntity.getBody();
         } catch (HttpClientErrorException ex) {

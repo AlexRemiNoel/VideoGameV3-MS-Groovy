@@ -6,9 +6,9 @@ import com.champsoft.DataAccess.UserProfileDashboardRepository;
 import com.champsoft.DomainClient.Client.DownloadClient;
 import com.champsoft.DomainClient.Client.GameClient;
 import com.champsoft.DomainClient.Client.UserClient;
-import com.champsoft.DomainClient.Dtos.DownloadClientResponseDto;
-import com.champsoft.DomainClient.Dtos.GameClientResponseDto;
-import com.champsoft.DomainClient.Dtos.UserClientResponseDto;
+import com.champsoft.DomainClient.Dtos.DownloadClientResponseModel;
+import com.champsoft.DomainClient.Dtos.GameClientResponseModel;
+import com.champsoft.DomainClient.Dtos.UserClientResponseModel;
 import com.champsoft.Exceptions.DashboardAggregationFailureException;
 import com.champsoft.Exceptions.GameNotFoundClientException;
 import com.champsoft.Exceptions.ProfileDashboardNotFoundException;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -56,7 +55,7 @@ public class ProfileDashboardService {
     }
 
     private UserProfileDashboardEntity aggregateAndBuildDashboardEntity(String userId) {
-        UserClientResponseDto userDetails;
+        UserClientResponseModel userDetails;
         try {
             userDetails = userClient.getUserById(userId);
         } catch (UserNotFoundClientException e) {
@@ -70,7 +69,7 @@ public class ProfileDashboardService {
         List<GameSummaryDto> gameSummaries = new ArrayList<>();
         if (userDetails.getGames() != null && !userDetails.getGames().isEmpty()) {
             try {
-                List<GameClientResponseDto> games = gameClient.getGamesByIds(userDetails.getGames());
+                List<GameClientResponseModel> games = gameClient.getGamesByIds(userDetails.getGames());
                 gameSummaries = games.stream()
                         .map(this::convertToGameSummaryDto)
                         .collect(Collectors.toList());
@@ -84,7 +83,7 @@ public class ProfileDashboardService {
         }
         List<DownloadSummaryDto> downloadSummaries = new ArrayList<>();
         try {
-            List<DownloadClientResponseDto> userDownloads = downloadClient.getDownloadsByUserId(userId);
+            List<DownloadClientResponseModel> userDownloads = downloadClient.getDownloadsByUserId(userId);
             downloadSummaries = userDownloads.stream()
                     .map(this::convertToDownloadSummaryDto)
                     .collect(Collectors.toList());
@@ -161,7 +160,7 @@ public class ProfileDashboardService {
         return dto;
     }
 
-    private GameSummaryDto convertToGameSummaryDto(GameClientResponseDto game) {
+    private GameSummaryDto convertToGameSummaryDto(GameClientResponseModel game) {
         if (game == null) return null;
         GameSummaryDto summary = new GameSummaryDto();
         summary.setGameId(game.getId());
@@ -170,7 +169,7 @@ public class ProfileDashboardService {
         return summary;
     }
 
-    private DownloadSummaryDto convertToDownloadSummaryDto(DownloadClientResponseDto download) {
+    private DownloadSummaryDto convertToDownloadSummaryDto(DownloadClientResponseModel download) {
         if (download == null) return null;
         DownloadSummaryDto summary = new DownloadSummaryDto();
         summary.setDownloadId(download.getId());

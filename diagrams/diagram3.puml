@@ -1,55 +1,157 @@
-```plant uml
+plant uml
 @startuml
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
-' uncomment the following line and comment the first to use locally
-' !include C4_Container.puml
 
+' Define the background and styling
+skinparam backgroundColor white
+skinparam roundcorner 10
+skinparam classFontSize 14
+skinparam classFontName Arial
+skinparam classAttributeFontSize 12
+skinparam classAttributeFontName Arial
+skinparam noteBackgroundColor #ffffcc
+skinparam noteBorderColor #999999
 
-LAYOUT_WITH_LEGEND()
-AddElementTag("microService", $shape=EightSidedShape(), $bgColor="CornflowerBlue", $fontColor="white", $legendText="micro service\neight sided")
-AddElementTag("storage", $shape=RoundedBoxShape(), $bgColor="lightSkyBlue", $fontColor="white")
+' Title
+title Gaming Platform Domain Model
 
-SHOW_PERSON_OUTLINE()
-
-title System Context diagram for Car Dealership System
-
-Person(user, "User", "A user browsing the application.")
-
-
-System_Boundary(c1, "Car Dealership System") {
-    Container(web_app, "Web Application", "Java, Spring MVC", "Delivers the static content and the Internet banking SPA")
-    Container(spa, "Single-Page App", "JavaScript, Angular", "Provides all the Internet banking functionality to customers via their web browser")
-    Container(api_gateway, "API-gateway", "Java, Docker Container", "Provides Internet banking functionality via API")
-    Container(cs, "user-service", "Java, Docker Container", "Provides Internet banking functionality via API")
-    Container(es, "game-management-service", "Java, Docker Container", "Provides Internet banking functionality via API")
-    Container(is, "download-management-service", "Java, Docker Container", "Provides Internet banking functionality via API")
-    Container(ps, "purchase-service", "Java, Docker Container", "Provides Internet banking functionality via API")
-
-ContainerDb(cust_db, "user-db", "MySQL", "Stores a normalized version of all user data", $tags = "storage")
-ContainerDb(empl_db, "game-db", "MySQL", "Stores a normalized version of all games data", $tags = "storage")
-ContainerDb(invent_db, "owned-game-db", "MySQL", "Stores a normalized version of all games owned data", $tags = "storage")
-ContainerDb(purch_db, "purchases-db", "MySQL", "Stores a normalized version of all business data for ad hoc reporting purposes", $tags = "storage")
+' Sub-domains
+package "User Management Sub-Domain" #ffcccc {
+  class User {
+    - username: string
+    - email: string
+    - password: string
+    - walletBalance: double
+    + loginAccount(): boolean
+    + registerNewAccount(): void
+    + addFunds(amount: double): void
+    + purchaseGame(game: Game)
+  }
+  
+  class "«Value Object»\nUserId" as useId {
+    - uuid: UUID
+  }
+  
+  class Admin {
+    - username: string
+    - password: string
+    + DeleteGame(gameId): void
+    + AddGame(Game()): void
+    + manageUserAccounts(): void
+  }
+  
+  class "«Value Object»\nAdminId" as AdminId {
+    - uuid: UUID
+  }
 }
 
-Rel_Neighbor(web_app, spa, "Delivers")
-Rel(spa, api_gateway, "Uses", "async, JSON/HTTPS")
+package "Game Management Sub-Domain" as GameD #ccccff {
+  class Game {
+    - title: string
+    - price: double
+    - releaseDate: Date
+    - description: string
+    - publisher: string
+    - developer: string
+    + getDetails(): string
+    + updateInfo(id,title,genre): void
+    + updatePrice(newPrice: double): void
+  }
+  
+  class "«Value Object»\nGameId" as GameId {
+    - uuid: UUID
+  }
+  
+  enum "«Value Object»\nGenre" as Genre {
+    ACTION
+    ADVENTURE
+    RPG
+    STRATEGY
+    SIMULATION
+    SPORTS
+    PUZZLE
+    SHOOTER
+    PLATFORMER
+    HORROR
+    RACING
+    FIGHTING
+  }
+  
+  class Review {
+    - rating: int
+    - comment: string
+    - reviewDate: Date
+    + submitReview(): void
+  }
+  
+  class "«Value Object»\nReviewId" as ReviewId {
+    - uuid: UUID
+  }
+}
 
-Rel(user, web_app, "Uses", "HTTPS")
-Rel(user, spa, "Uses", "HTTPS")
-Rel(api_gateway, cs, "Uses", "HTTPS")
-Rel(api_gateway, es, "Uses", "HTTPS")
-Rel(api_gateway, is, "Uses", "HTTPS")
-Rel(api_gateway, ps, "Uses", "HTTPS")
+package "Dashboard" as dash #ffccff {
+  class Dashboard{
+    - userId : String
+    -balance: Double 
+    -List<Downloads> downloads
+    + List<Games> game
+    + username : String
+    + email: String
+    
+    +BuyGame(GameId : gameId)
+    +StartDownload(DowloadId : downloadId)
 
-Rel(ps, es, "Uses", "HTTPS")
-Rel(ps, is, "Uses", "HTTPS")
-Rel(ps, cs, "Uses", "HTTPS")
+  }
+  class "«Value Object»\nUserId" as UserId {
+    - uuid: UUID
+  }
+  
+
+  
+}
+
+package "Download Management Sub-Domain" as Download #ccffcc {
+  class DownloadManager {
+    - downloadStatus: string
+    + startDownload(): void
+    + pauseDownload(): void
+    + resumeDownload(): void
+    + cancelDownload(): void
+  }
+  
+  class "«Value Object»\nDownloadId" as DownloadId {
+    - uuid: UUID
+  }
+}
+
+' Business rules as notes
+note bottom of Game : "where game.price > 0"
+
+note left of User : "where user.walletBalance >= 0"
+note bottom of Review : "where review.rating >= 1 and review.rating <= 5"
+
+' Entity and ID relationships
+User "1" -- "1" useId : "identified by"
+Admin "1" -- "1" AdminId : "identified by"
+Game "1" -- "1" GameId : "identified by"
+Game "1" -- "1" Genre : "categorized as"
+Review "1" -- "1" ReviewId : "identified by"
 
 
-Rel_D(ps, purch_db, "reads ...", "JDBC/SQL/TCP")
-Rel_D(es, empl_db, "reads ...", "JDBC/SQL/TCP")
-Rel_D(is, invent_db, "reads ...", "JDBC/SQL/TCP")
-Rel_D(cs, cust_db, "reads ...", "JDBC/SQL/TCP")
+DownloadManager "1" -- "1" DownloadId : "identified by"
+
+' Relationships between entities
+Game "1" -- "*" Review : "has"
+
+
+
+User "1" -- "1" Dashboard: "Takes data from"
+GameD "*" -- "1" Dashboard: "Takes data from"
+Download "*" -- "1" Dashboard: "Takes data from"
+Download "*" -- "1" Dashboard: "Manages"
+Admin "1" -- "*" User : "manages"
+
+
+Dashboard "*" -- "1..*" UserId : "Identified By"
+
 
 @enduml
-```

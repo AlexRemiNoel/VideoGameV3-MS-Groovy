@@ -1,6 +1,6 @@
 package com.example.apigatewayservice.presentationlayer.dashboard;
 
-import com.example.apigatewayservice.businesslogiclayer.dashboard.ProfileDashboardService_GW;
+import com.example.apigatewayservice.businesslogiclayer.dashboard.ProfileDashboardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,24 +14,24 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/profile-dashboards") // Matching the aggregator's base path
 @RequiredArgsConstructor
-public class ProfileDashboardController_GW {
+public class ProfileDashboardController {
 
-    private final ProfileDashboardService_GW dashboardService;
+    private final ProfileDashboardService dashboardService;
 
     @GetMapping(value = "/{userId}", produces = "application/hal+json")
-    public ResponseEntity<UserProfileDashboardResponseDTO_GW> getProfileDashboard(@PathVariable String userId) {
+    public ResponseEntity<UserProfileDashboardResponseModel> getProfileDashboard(@PathVariable String userId) {
         log.info("API Gateway: Received GET request for profile dashboard with userId: {}", userId);
-        UserProfileDashboardResponseDTO_GW dashboard = dashboardService.getProfileDashboardByUserId(userId);
+        UserProfileDashboardResponseModel dashboard = dashboardService.getProfileDashboardByUserId(userId);
         return ResponseEntity.ok(dashboard);
     }
 
     @GetMapping(produces = "application/hal+json")
-    public ResponseEntity<List<UserProfileDashboardResponseDTO_GW>> getAllProfileDashboards(
+    public ResponseEntity<List<UserProfileDashboardResponseModel>> getAllProfileDashboards(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
     ) {
         log.info("API Gateway: Received GET request for all profile dashboards");
-        List<UserProfileDashboardResponseDTO_GW> dashboards = dashboardService.getAllProfileDashboards();
+        List<UserProfileDashboardResponseModel> dashboards = dashboardService.getAllProfileDashboards();
 
         
 
@@ -39,16 +39,16 @@ public class ProfileDashboardController_GW {
     }
 
     @PostMapping(value = "/{userId}", produces = "application/hal+json")
-    public ResponseEntity<UserProfileDashboardResponseDTO_GW> createOrRefreshDashboard(@PathVariable String userId) {
+    public ResponseEntity<UserProfileDashboardResponseModel> createOrRefreshDashboard(@PathVariable String userId) {
         log.info("API Gateway: Received POST request to create/refresh dashboard for userId: {}", userId);
-        UserProfileDashboardResponseDTO_GW dashboard = dashboardService.createOrRefreshDashboard(userId);
+        UserProfileDashboardResponseModel dashboard = dashboardService.createOrRefreshDashboard(userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(dashboard);
     }
 
     @PutMapping(value = "/{userId}", produces = "application/hal+json")
-    public ResponseEntity<UserProfileDashboardResponseDTO_GW> updateProfileDashboard(@PathVariable String userId) {
+    public ResponseEntity<UserProfileDashboardResponseModel> updateProfileDashboard(@PathVariable String userId) {
         log.info("API Gateway: Received PUT request to update dashboard for userId: {}", userId);
-        UserProfileDashboardResponseDTO_GW dashboard = dashboardService.updateProfileDashboard(userId);
+        UserProfileDashboardResponseModel dashboard = dashboardService.updateProfileDashboard(userId);
         return ResponseEntity.ok(dashboard);
     }
 

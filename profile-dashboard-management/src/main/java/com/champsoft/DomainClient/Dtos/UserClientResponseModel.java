@@ -9,12 +9,10 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserClientResponseDto {
+public class UserClientResponseModel {
     private String userId;
     private String username;
     private String email;
     private double balance;
     private List<String> games; // Crucial: List of game IDs
-
-
 }

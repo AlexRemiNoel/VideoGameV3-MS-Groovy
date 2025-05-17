@@ -1,6 +1,6 @@
 package com.champsoft.DomainClient.Client;
 
-import com.champsoft.DomainClient.Dtos.UserClientResponseDto;
+import com.champsoft.DomainClient.Dtos.UserClientResponseModel;
 import com.champsoft.Exceptions.DownstreamServiceUnavailableException;
 import com.champsoft.Exceptions.UserNotFoundClientException;
 import lombok.extern.slf4j.Slf4j;
@@ -23,11 +23,11 @@ public class UserClient {
         this.userServiceUrl = userServiceUrl; // e.g., http://localhost:8081/api/v1/user
     }
 
-    public UserClientResponseDto getUserById(String userId) {
+    public UserClientResponseModel getUserById(String userId) {
         String url = userServiceUrl + "/" + userId;
         try {
             log.info("Fetching user details for userId: {} from URL: {}", userId, url);
-            UserClientResponseDto user = restTemplate.getForObject(url, UserClientResponseDto.class);
+            UserClientResponseModel user = restTemplate.getForObject(url, UserClientResponseModel.class);
             if (user == null) { // Should ideally be handled by 404, but as a safeguard
                 log.warn("User not found for userId: {}, service returned null", userId);
                 throw new UserNotFoundClientException("User not found with ID: " + userId + " (service returned null)");

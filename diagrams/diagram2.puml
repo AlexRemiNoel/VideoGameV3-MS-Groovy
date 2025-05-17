@@ -1,23 +1,41 @@
 @startuml
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
-'!include C4_Context.puml
 LAYOUT_WITH_LEGEND()
+title C4 Level 2: Gaming Platform - Container Diagram (Decentralized Databases)
 
-title System Context diagram for Internet Banking System
+' People
+Person(user, "User", "A person who buys games on the platform.")
+Person(admin, "Admin", "Manages games and user accounts.")
 
-Person(customer, "User", "A user browsing the application")
-System_Ext(mainframe, "Mainframe Game Shopping System", "Stores all the core information about users, accounts, transactions and purchased games.")
-System(game_shopping_system, "Internet Game Shopping System", "Allows users to purchase video games.")
-System_Ext(mail_system, "E-mail system", "The internal Microsoft Exchange e-mail system.")
+' System
+System_Boundary(gamingPlatform, "Gaming Platform") {
 
-Rel(customer, game_shopping_system, "Uses")
-Rel_Back(customer, mail_system, "Sends e-mails to")
+    Container(webApp, "Web Application", "React / Angular / HTML", "Allows users to browse, purchase, and download games. Also includes dashboard.")
 
+    Container(userService, "User Management Service", "Spring Boot / Node.js", "Handles user registration, login, wallets, and profile management.")
+    Container(gameService, "Game Management Service", "Spring Boot / Node.js", "Manages games, genres, pricing, and user reviews.")
+    Container(downloadService, "Download Management Service", "Spring Boot / Node.js", "Handles downloading, pausing, and resuming game content.")
 
-Rel(game_shopping_system, mainframe, "Uses")
-Rel_Neighbor(game_shopping_system, mail_system, "Sends e-mails", "SMTP")
+    ContainerDb(userDb, "User Database", "PostgreSQL / MongoDB", "Stores user profiles, credentials, and wallet balances.")
+    ContainerDb(gameDb, "Game Database", "PostgreSQL / MongoDB", "Stores games, genres, metadata, and reviews.")
+    ContainerDb(downloadDb, "Download Database", "PostgreSQL / MongoDB", "Stores download history and statuses.")
 
+    Container_Ext(paymentGateway, "Payment Gateway", "External System", "Handles secure payment transactions.")
+}
 
+' Relationships
+Rel(user, webApp, "Uses", "HTTPS")
+Rel(admin, webApp, "Uses", "HTTPS")
+
+Rel(webApp, userService, "Sends requests to", "REST/HTTPS")
+Rel(webApp, gameService, "Sends requests to", "REST/HTTPS")
+Rel(webApp, downloadService, "Sends requests to", "REST/HTTPS")
+
+Rel(userService, userDb, "Reads from and writes to", "JDBC/ORM")
+Rel(gameService, gameDb, "Reads from and writes to", "JDBC/ORM")
+Rel(downloadService, downloadDb, "Reads from and writes to", "JDBC/ORM")
+
+Rel(userService, paymentGateway, "Processes payments with", "HTTPS")
 
 @enduml

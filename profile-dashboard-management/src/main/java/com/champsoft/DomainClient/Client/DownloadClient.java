@@ -1,6 +1,6 @@
 package com.champsoft.DomainClient.Client;
 
-import com.champsoft.DomainClient.Dtos.DownloadClientResponseDto;
+import com.champsoft.DomainClient.Dtos.DownloadClientResponseModel;
 import com.champsoft.Exceptions.DownstreamServiceUnavailableException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,20 +27,20 @@ public class DownloadClient {
         this.downloadServiceUrl = downloadServiceUrl; // e.g., http://localhost:8083/api/v1/downloads
     }
 
-    public List<DownloadClientResponseDto> getDownloadsByUserId(String userId) {
+    public List<DownloadClientResponseModel> getDownloadsByUserId(String userId) {
         String url = downloadServiceUrl + "/user/" + userId;
         log.info("Fetching downloads for userId: {} from URL: {}", userId, url);
 
 
 
         try {
-            ResponseEntity<List<DownloadClientResponseDto>> response = restTemplate.exchange(
+            ResponseEntity<List<DownloadClientResponseModel>> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     null,
-                    new ParameterizedTypeReference<List<DownloadClientResponseDto>>() {});
+                    new ParameterizedTypeReference<List<DownloadClientResponseModel>>() {});
 
-            List<DownloadClientResponseDto> downloads = response.getBody();
+            List<DownloadClientResponseModel> downloads = response.getBody();
             if (downloads == null) {
                  log.warn("Received null body for downloads for userId: {}", userId);
                  return Collections.emptyList();

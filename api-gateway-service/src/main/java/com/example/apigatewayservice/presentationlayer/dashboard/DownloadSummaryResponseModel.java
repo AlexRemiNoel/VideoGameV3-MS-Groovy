@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DownloadSummaryDTO_GW {
+public class DownloadSummaryResponseModel {
     private String downloadId;
     private String sourceUrl;
     private String status;

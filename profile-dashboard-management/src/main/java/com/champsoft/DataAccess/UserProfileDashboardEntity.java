@@ -1,7 +1,5 @@
 package com.champsoft.DataAccess;
 
-import com.champsoft.DomainClient.Client.GameClient;
-import com.champsoft.DomainClient.Dtos.DownloadClientResponseDto;
 import com.champsoft.Presentation.DownloadSummaryDto;
 import com.champsoft.Presentation.GameSummaryDto;
 import lombok.AllArgsConstructor;

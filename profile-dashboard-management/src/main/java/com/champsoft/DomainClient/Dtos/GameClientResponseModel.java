@@ -3,7 +3,7 @@ package com.champsoft.DomainClient.Dtos;
 import lombok.Data;
 
 @Data
-public class GameClientResponseDto { // Mirrors GameResponseModel
+public class GameClientResponseModel { // Mirrors GameResponseModel
     private String id;
     private String title;
     private double price;

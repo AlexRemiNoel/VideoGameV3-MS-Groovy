@@ -2,21 +2,16 @@
 package com.champsoft.DomainClient.Client;
 
 
-import com.champsoft.DomainClient.Dtos.GameClientResponseDto;
+import com.champsoft.DomainClient.Dtos.GameClientResponseModel;
 import com.champsoft.Exceptions.DownstreamServiceUnavailableException;
 import com.champsoft.Exceptions.GameNotFoundClientException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -36,11 +31,11 @@ public class GameClient {
         this.gameServiceUrl = gameServiceUrl;
     }
 
-    public GameClientResponseDto getGameById(String gameId) {
+    public GameClientResponseModel getGameById(String gameId) {
         String url = gameServiceUrl + "/" + gameId;
         try {
             log.info("Fetching game details for gameId: {} from URL: {}", gameId, url);
-            GameClientResponseDto game = restTemplate.getForObject(url, GameClientResponseDto.class);
+            GameClientResponseModel game = restTemplate.getForObject(url, GameClientResponseModel.class);
              if (game == null) {
                 log.warn("Game not found for gameId: {}, service returned null", gameId);
                 throw new GameNotFoundClientException("Game not found with ID: " + gameId + " (service returned null)");
@@ -65,7 +60,7 @@ public class GameClient {
      * makes N individual calls. For better performance, these calls are parallelized.
      * Ideally, the GameService would expose an endpoint like /api/v1/game?ids=id1,id2,id3
      */
-    public List<GameClientResponseDto> getGamesByIds(List<String> gameIds) {
+    public List<GameClientResponseModel> getGamesByIds(List<String> gameIds) {
         if (gameIds == null || gameIds.isEmpty()) {
             return Collections.emptyList();
         }
@@ -73,7 +68,7 @@ public class GameClient {
         log.info("Fetching details for {} game IDs.", gameIds.size());
 
         // Parallel execution of individual getGameById calls
-        List<CompletableFuture<GameClientResponseDto>> futures = gameIds.stream()
+        List<CompletableFuture<GameClientResponseModel>> futures = gameIds.stream()
                 .map(gameId -> CompletableFuture.supplyAsync(() -> {
                     try {
                         return getGameById(gameId);

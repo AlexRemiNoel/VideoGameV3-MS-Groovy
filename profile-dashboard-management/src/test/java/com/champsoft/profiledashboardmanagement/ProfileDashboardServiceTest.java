@@ -6,9 +6,9 @@ import com.champsoft.DataAccess.UserProfileDashboardRepository;
 import com.champsoft.DomainClient.Client.DownloadClient;
 import com.champsoft.DomainClient.Client.GameClient;
 import com.champsoft.DomainClient.Client.UserClient;
-import com.champsoft.DomainClient.Dtos.DownloadClientResponseDto;
-import com.champsoft.DomainClient.Dtos.GameClientResponseDto;
-import com.champsoft.DomainClient.Dtos.UserClientResponseDto;
+import com.champsoft.DomainClient.Dtos.DownloadClientResponseModel;
+import com.champsoft.DomainClient.Dtos.GameClientResponseModel;
+import com.champsoft.DomainClient.Dtos.UserClientResponseModel;
 import com.champsoft.Exceptions.DashboardAggregationFailureException;
 import com.champsoft.Exceptions.GameNotFoundClientException;
 import com.champsoft.Exceptions.ProfileDashboardNotFoundException;
@@ -58,36 +58,36 @@ class ProfileDashboardServiceTest {
     private ArgumentCaptor<UserProfileDashboardEntity> entityArgumentCaptor;
 
     private String testUserId;
-    private UserClientResponseDto userDetailsDto;
-    private GameClientResponseDto game1Dto, game2Dto;
-    private DownloadClientResponseDto download1Dto, download2Dto;
+    private UserClientResponseModel userDetailsDto;
+    private GameClientResponseModel game1Dto, game2Dto;
+    private DownloadClientResponseModel download1Dto, download2Dto;
 
     @BeforeEach
     void setUp() {
         testUserId = "user123";
 
-        userDetailsDto = new UserClientResponseDto(
+        userDetailsDto = new UserClientResponseModel(
                 testUserId, "testUser", "test@example.com", 100.0, Arrays.asList("gameId1", "gameId2")
         );
 
-        game1Dto = new GameClientResponseDto();
+        game1Dto = new GameClientResponseModel();
         game1Dto.setId("gameId1");
         game1Dto.setTitle("Awesome Game 1");
         game1Dto.setGenre("Adventure");
 
-        game2Dto = new GameClientResponseDto();
+        game2Dto = new GameClientResponseModel();
         game2Dto.setId("gameId2");
         game2Dto.setTitle("Epic Quest 2");
         game2Dto.setGenre("RPG");
 
-        download1Dto = new DownloadClientResponseDto();
+        download1Dto = new DownloadClientResponseModel();
         download1Dto.setId("downloadId1");
         download1Dto.setSourceUrl("http://example.com/download1");
         download1Dto.setStatus("COMPLETED");
         download1Dto.setUserId(testUserId);
 
 
-        download2Dto = new DownloadClientResponseDto();
+        download2Dto = new DownloadClientResponseModel();
         download2Dto.setId("downloadId2");
         download2Dto.setSourceUrl("http://example.com/download2");
         download2Dto.setStatus("PENDING");
@@ -162,10 +162,10 @@ class ProfileDashboardServiceTest {
             LocalDateTime initialLastUpdatedAt = existingEntity.getLastUpdatedAt();
 
             // New user details (e.g., username changed)
-            UserClientResponseDto updatedUserDetailsDto = new UserClientResponseDto(
+            UserClientResponseModel updatedUserDetailsDto = new UserClientResponseModel(
                     testUserId, "testUser_UPDATED", "test_updated@example.com", 150.0, Arrays.asList("gameId1") // Only one game now
             );
-            GameClientResponseDto onlyGameDto = new GameClientResponseDto();
+            GameClientResponseModel onlyGameDto = new GameClientResponseModel();
             onlyGameDto.setId("gameId1");
             onlyGameDto.setTitle("Awesome Game 1");
             onlyGameDto.setGenre("Adventure");

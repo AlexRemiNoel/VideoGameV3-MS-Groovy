@@ -42,16 +42,16 @@ dependencies {
 
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
-
-    testLogging {
-        events "passed", "skipped", "failed"
-        showExceptions = true
-        showStackTraces = true
-        showStandardStreams = true
-    }
-}
+//tasks.named('test') {
+//    useJUnitPlatform()
+//
+//    testLogging {
+//        events "passed", "skipped", "failed"
+//        showExceptions = true
+//        showStackTraces = true
+//        showStandardStreams = true
+//    }
+//}
 
 tasks.test {
     useJUnitPlatform()
@@ -65,13 +65,94 @@ tasks.test {
 }
 
 test {
-    finalizedBy jacocoTestReport // report is always generated after tests run
+    finalizedBy jacocoTestReport
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+
+jacoco {
+    toolVersion = "0.8.12" // Specify a known Jacoco version
 }
 
 jacocoTestReport {
+    // Ensure this task depends on the test task.
+    // Your `finalizedBy` in the test task handles execution order,
+    // but this dependency is good practice if jacocoTestReport is called directly.
+    dependsOn test
+
+    // --- Inputs ---
+    // Explicitly set execution data
+    executionData.from = files(layout.buildDirectory.file("jacoco/test.exec"))
+
+    // Source files (for linking in the HTML report)
+    sourceDirectories.setFrom(files(project.sourceSets.main.java.srcDirs))
+
+    // Class files (these are what Jacoco analyzes against executionData)
+    // NO EXCLUSIONS FOR NOW - let's see everything
+    classDirectories.setFrom(files(project.sourceSets.main.output.classesDirs))
+
+    // --- Outputs ---
     reports {
-        xml.required = false
-        csv.required = false
-        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+        xml.required = false // Simplify: turn off for now
+        csv.required = false // Simplify: turn off for now
+        html.required = true // We absolutely want this
+        // Use a new directory name to ensure it's a fresh attempt
+        html.outputLocation = layout.buildDirectory.dir('jacocoHtml_DEBUG_OUTPUT')
+    }
+
+    // --- Debug Logging ---
+    doFirst {
+        println "-----------------------------------------------------"
+        println "DEBUG: jacocoTestReport - STARTING"
+        println "-----------------------------------------------------"
+        println "DEBUG: Jacoco Tool Version: ${jacoco.toolVersion}"
+        println "DEBUG: Execution data files: ${executionData.files.collect { it.exists() ? it.absolutePath : "MISSING: $it" }}"
+        println "DEBUG: Source directories: ${sourceDirectories.files.collect { it.exists() ? it.absolutePath : "MISSING: $it" }}"
+        println "DEBUG: Class directories (INPUT): ${classDirectories.files.collect { it.exists() ? it.absolutePath : "MISSING: $it" }}"
+
+        classDirectories.files.each { dir ->
+            if (dir.exists() && dir.isDirectory()) {
+                println "DEBUG: Checking contents of class directory: $dir"
+                def classFileCount = 0
+                fileTree(dir).filter{ it.name.endsWith('.class') }.each { f ->
+                    if (classFileCount < 5) { // Print first 5 classes
+                        println "DEBUG:   Found class file: ${f.name}"
+                    }
+                    classFileCount++
+                }
+                if (classFileCount == 0) {
+                    println "DEBUG:   WARNING - No .class files found in $dir"
+                } else {
+                    println "DEBUG:   Total .class files in $dir: $classFileCount"
+                }
+            } else {
+                println "DEBUG:   WARNING - Class directory $dir does not exist or is not a directory."
+            }
+        }
+        println "DEBUG: HTML report required: ${reports.html.required.get()}"
+        println "DEBUG: HTML report output location: ${reports.html.outputLocation.get().asFile.absolutePath}"
+        println "-----------------------------------------------------"
+    }
+
+    doLast {
+        println "-----------------------------------------------------"
+        println "DEBUG: jacocoTestReport - FINISHED"
+        println "-----------------------------------------------------"
+        def reportFile = reports.html.outputLocation.get().asFile.toPath().resolve("index.html").toFile()
+        if (reportFile.exists()) {
+            println "SUCCESS: Jacoco HTML report (index.html) IS PRESENT at: ${reportFile.absolutePath}"
+        } else {
+            println "FAILURE: Jacoco HTML report (index.html) IS NOT PRESENT at ${reportFile.absolutePath}"
+            println "         Check if directory ${reports.html.outputLocation.get().asFile.absolutePath} was created and if it contains files."
+            if (reports.html.outputLocation.get().asFile.exists()) {
+                println "         Directory ${reports.html.outputLocation.get().asFile.absolutePath} exists."
+                println "         Contents: ${reports.html.outputLocation.get().asFile.list().join(', ')}"
+            } else {
+                println "         Directory ${reports.html.outputLocation.get().asFile.absolutePath} DOES NOT exist."
+            }
+        }
+        println "-----------------------------------------------------"
     }
 }

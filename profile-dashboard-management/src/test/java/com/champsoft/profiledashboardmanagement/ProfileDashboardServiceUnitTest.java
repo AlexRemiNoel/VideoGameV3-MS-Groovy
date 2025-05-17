@@ -6,15 +6,12 @@ import com.champsoft.DataAccess.UserProfileDashboardRepository;
 import com.champsoft.DomainClient.Client.DownloadClient;
 import com.champsoft.DomainClient.Client.GameClient;
 import com.champsoft.DomainClient.Client.UserClient;
-import com.champsoft.DomainClient.Dtos.DownloadClientResponseDto;
-import com.champsoft.DomainClient.Dtos.GameClientResponseDto;
-import com.champsoft.DomainClient.Dtos.UserClientResponseDto;
+import com.champsoft.DomainClient.Dtos.DownloadClientResponseModel;
+import com.champsoft.DomainClient.Dtos.GameClientResponseModel;
+import com.champsoft.DomainClient.Dtos.UserClientResponseModel;
 import com.champsoft.Exceptions.DashboardAggregationFailureException;
-import com.champsoft.Exceptions.GameNotFoundClientException;
 import com.champsoft.Exceptions.ProfileDashboardNotFoundException;
 import com.champsoft.Exceptions.UserNotFoundClientException;
-import com.champsoft.Presentation.DownloadSummaryDto;
-import com.champsoft.Presentation.GameSummaryDto;
 import com.champsoft.Presentation.UserProfileDashboardResponseDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +22,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -60,25 +56,25 @@ public class ProfileDashboardServiceUnitTest {
     private final String GAME_ID_2 = "gameB";
     private final String DOWNLOAD_ID_1 = "downloadX";
 
-    private UserClientResponseDto mockUserResponse;
-    private GameClientResponseDto mockGame1Response;
-    private GameClientResponseDto mockGame2Response;
-    private DownloadClientResponseDto mockDownload1Response;
+    private UserClientResponseModel mockUserResponse;
+    private GameClientResponseModel mockGame1Response;
+    private GameClientResponseModel mockGame2Response;
+    private DownloadClientResponseModel mockDownload1Response;
 
     @BeforeEach
     void setUp() {
-        mockUserResponse = new UserClientResponseDto(VALID_USER_ID, "testUser", "test@example.com", 100.0, Arrays.asList(GAME_ID_1, GAME_ID_2));
-        mockGame1Response = new GameClientResponseDto();
+        mockUserResponse = new UserClientResponseModel(VALID_USER_ID, "testUser", "test@example.com", 100.0, Arrays.asList(GAME_ID_1, GAME_ID_2));
+        mockGame1Response = new GameClientResponseModel();
         mockGame1Response.setId(GAME_ID_1);
         mockGame1Response.setTitle("Awesome Game 1");
         mockGame1Response.setGenre("RPG");
 
-        mockGame2Response = new GameClientResponseDto();
+        mockGame2Response = new GameClientResponseModel();
         mockGame2Response.setId(GAME_ID_2);
         mockGame2Response.setTitle("Fun Game 2");
         mockGame2Response.setGenre("Strategy");
 
-        mockDownload1Response = new DownloadClientResponseDto();
+        mockDownload1Response = new DownloadClientResponseModel();
         mockDownload1Response.setId(DOWNLOAD_ID_1);
         mockDownload1Response.setSourceUrl("http://example.com/download1");
         mockDownload1Response.setStatus("COMPLETED");

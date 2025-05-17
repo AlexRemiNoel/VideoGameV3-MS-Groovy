@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GameSummaryDTO_GW {
+public class GameSummaryResponseModel {
     private String gameId;
     private String title;
     private String genre;
