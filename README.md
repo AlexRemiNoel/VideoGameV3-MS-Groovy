@@ -1,15 +1,27 @@
-## About this project:
+# VideoGameV3 - Microservices Architecture with Spring Boot
 
-Full-Stack microservice project using spring boot. The goal was to emulate a plateform like steam.
+This project is a simplified **Steam-like** platform built using **Spring Boot**, leveraging **microservices architecture**. It features core services for managing **games**, **downloads**, and **user profiles**, all accessible via an **API Gateway**.
 
-## Features
+## 🧩 Project Structure
 
-*Downloads 
-*Profile 
-*Games 
-*Api-gateway linking them all together
+The application is split into the following microservices:
 
-All the diagrams are found in the diagrams folder
+| Service         | Description                                                  | Port |
+|-----------------|--------------------------------------------------------------|------|
+| API Gateway     | Routes all requests to the appropriate microservice          | 8080 |
+| Games Service   | Manages game catalog, details, and metadata                  | 8081 |
+| Downloads Service | Handles game downloads, licenses, and user access rights   | 8082 |
+| Profile Service | Manages user information, profiles, and authentication       | 8083 |
 
+Each service is a standalone Spring Boot application communicating via REST APIs.
 
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Java 17+
+- Maven or Gradle
+- Docker (optional, for containerization)
 
