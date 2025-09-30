@@ -4,8 +4,12 @@ Full-Stack microservice project using spring boot. The goal was to emulate a pla
 
 ## Features
 
-*Downloads
-*Profile
-*Games 
+*Downloads \n
+*Profile \n
+*Games \n
+*Api-gateway linking them all together
 
 All the diagrams are found in the diagrams folder
+
+
+
